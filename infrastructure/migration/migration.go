@@ -36,6 +36,7 @@ func RunMigration(l z.Logger, db *gorm.DB) error {
 	}
 
 	ctx := context.WithValue(context.Background(), "dbDialect", dbDialect)
+	ctx = context.WithValue(ctx, "logger", logger)
 
 	if err := goose.UpContext(ctx, sqlDB, "files"); err != nil {
 		if err.Error() != "no change" {
