@@ -7,23 +7,23 @@ import (
 )
 
 type DocumentApp struct {
-	Config                 config.Config
-	Logger                 zerolog.Logger
-	DocumentPers           domain.DocumentPers
-	SpacePers              domain.SpacePers
-	DocumentPermissionPers domain.DocumentPermissionPers
-	CommentPers            domain.CommentPers
-	DocumentVersionPers    domain.DocumentVersionPers
+	Config              config.Config
+	Logger              zerolog.Logger
+	DocumentPers        domain.DocumentPers
+	SpacePers           domain.SpacePers
+	PermissionPers      domain.PermissionPers
+	CommentPers         domain.CommentPers
+	DocumentVersionPers domain.DocumentVersionPers
 }
 
-func NewDocumentApp(config config.Config, logger zerolog.Logger, documentPers domain.DocumentPers, spacePers domain.SpacePers, documentPermissionPers domain.DocumentPermissionPers, commentPers domain.CommentPers, documentVersionPers domain.DocumentVersionPers) *DocumentApp {
+func NewDocumentApp(config config.Config, logger zerolog.Logger, documentPers domain.DocumentPers, spacePers domain.SpacePers, permissionPers domain.PermissionPers, commentPers domain.CommentPers, documentVersionPers domain.DocumentVersionPers) *DocumentApp {
 	return &DocumentApp{
-		Config:                 config,
-		Logger:                 logger,
-		DocumentPers:           documentPers,
-		SpacePers:              spacePers,
-		DocumentPermissionPers: documentPermissionPers,
-		CommentPers:            commentPers,
-		DocumentVersionPers:    documentVersionPers,
+		Config:              config,
+		Logger:              logger,
+		DocumentPers:        documentPers,
+		SpacePers:           spacePers,
+		PermissionPers:      permissionPers,
+		CommentPers:         commentPers,
+		DocumentVersionPers: documentVersionPers,
 	}
 }

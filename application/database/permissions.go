@@ -24,7 +24,7 @@ func (app *DatabaseApp) ListDatabasePermissions(input dto.ListDatabasePermission
 		return nil, fmt.Errorf("access denied")
 	}
 
-	perms, err := app.DatabasePermissionPers.ListByDatabaseId(input.DatabaseId)
+	perms, err := app.PermissionPers.ListByResource(domain.PermissionTypeDatabase, input.DatabaseId)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list permissions: %w", err)
 	}
@@ -76,14 +76,14 @@ func (app *DatabaseApp) UpsertDatabasePermission(input dto.UpsertDatabasePermiss
 
 	// Only creator or space admin/owner can manage permissions
 	isCreator := database.CreatedBy == input.UserId
-	isSpaceAdmin := *spaceRole == domain.SpaceRoleOwner || *spaceRole == domain.SpaceRoleAdmin
+	isSpaceAdmin := *spaceRole == domain.PermissionRoleOwner || *spaceRole == domain.PermissionRoleAdmin
 	if !isCreator && !isSpaceAdmin {
 		return fmt.Errorf("only creator or space admins can manage permissions")
 	}
 
 	// Validate role
-	role := domain.DatabaseRole(input.Role)
-	if role != domain.DatabaseRoleEditor && role != domain.DatabaseRoleViewer && role != domain.DatabaseRoleDenied {
+	role := domain.PermissionRole(input.Role)
+	if role != domain.PermissionRoleEditor && role != domain.PermissionRoleViewer && role != domain.PermissionRoleDenied {
 		return fmt.Errorf("invalid role: %s", input.Role)
 	}
 
@@ -92,15 +92,14 @@ func (app *DatabaseApp) UpsertDatabasePermission(input dto.UpsertDatabasePermiss
 		return fmt.Errorf("must provide either user_id or group_id, but not both")
 	}
 
-	perm := &domain.DatabasePermission{
-		DatabaseId: input.DatabaseId,
-		UserId:     input.TargetUserId,
-		GroupId:    input.GroupId,
-		Role:       role,
-	}
-
-	if err := app.DatabasePermissionPers.Upsert(perm); err != nil {
-		return fmt.Errorf("failed to upsert permission: %w", err)
+	if input.TargetUserId != nil {
+		if err := app.PermissionPers.UpsertUser(domain.PermissionTypeDatabase, input.DatabaseId, *input.TargetUserId, role); err != nil {
+			return fmt.Errorf("failed to upsert permission: %w", err)
+		}
+	} else {
+		if err := app.PermissionPers.UpsertGroup(domain.PermissionTypeDatabase, input.DatabaseId, *input.GroupId, role); err != nil {
+			return fmt.Errorf("failed to upsert permission: %w", err)
+		}
 	}
 
 	return nil
@@ -126,7 +125,7 @@ func (app *DatabaseApp) DeleteDatabasePermission(input dto.DeleteDatabasePermiss
 
 	// Only creator or space admin/owner can manage permissions
 	isCreator := database.CreatedBy == input.UserId
-	isSpaceAdmin := *spaceRole == domain.SpaceRoleOwner || *spaceRole == domain.SpaceRoleAdmin
+	isSpaceAdmin := *spaceRole == domain.PermissionRoleOwner || *spaceRole == domain.PermissionRoleAdmin
 	if !isCreator && !isSpaceAdmin {
 		return fmt.Errorf("only creator or space admins can manage permissions")
 	}
@@ -137,11 +136,11 @@ func (app *DatabaseApp) DeleteDatabasePermission(input dto.DeleteDatabasePermiss
 	}
 
 	if input.TargetUserId != nil {
-		if err := app.DatabasePermissionPers.DeleteByDatabaseAndUser(input.DatabaseId, *input.TargetUserId); err != nil {
+		if err := app.PermissionPers.DeleteUser(domain.PermissionTypeDatabase, input.DatabaseId, *input.TargetUserId); err != nil {
 			return fmt.Errorf("failed to delete permission: %w", err)
 		}
 	} else {
-		if err := app.DatabasePermissionPers.DeleteByDatabaseAndGroup(input.DatabaseId, *input.GroupId); err != nil {
+		if err := app.PermissionPers.DeleteGroup(domain.PermissionTypeDatabase, input.DatabaseId, *input.GroupId); err != nil {
 			return fmt.Errorf("failed to delete permission: %w", err)
 		}
 	}

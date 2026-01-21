@@ -20,7 +20,7 @@ func (a *DocumentApp) DeleteDocument(input dto.DeleteDocumentInput) error {
 		return fmt.Errorf("failed to get document for delete: %w", err)
 	}
 
-	if !document.HasPermission(input.UserId, domain.DocumentRoleEditor) {
+	if !document.HasPermission(input.UserId, domain.PermissionRoleEditor) {
 		logger.Error().Msg("user does not have permission to delete document")
 		return fmt.Errorf("user does not have permission to delete document")
 	}

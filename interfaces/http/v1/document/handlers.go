@@ -510,16 +510,16 @@ func (ctrl *Controller) UpsertDocumentUserPermission(ctx *fiber.Ctx, req dtos.Up
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	var role domain.DocumentRole
+	var role domain.PermissionRole
 	switch req.Role {
-	case string(domain.DocumentRoleOwner):
-		role = domain.DocumentRoleOwner
-	case string(domain.DocumentRoleEditor):
-		role = domain.DocumentRoleEditor
-	case string(domain.DocumentRoleDenied):
-		role = domain.DocumentRoleDenied
+	case string(domain.PermissionRoleOwner):
+		role = domain.PermissionRoleOwner
+	case string(domain.PermissionRoleEditor):
+		role = domain.PermissionRoleEditor
+	case string(domain.PermissionRoleDenied):
+		role = domain.PermissionRoleDenied
 	default:
-		role = domain.DocumentRoleViewer
+		role = domain.PermissionRoleViewer
 	}
 
 	if err := ctrl.DocumentApp.UpsertDocumentUserPermission(docDto.UpsertDocumentUserPermissionInput{

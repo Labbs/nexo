@@ -22,7 +22,7 @@ func (a *DocumentApp) CreateDocument(input dto.CreateDocumentInput) (*dto.Create
 			return nil, fmt.Errorf("failed to get parent document: %w", err)
 		}
 
-		if !parent.HasPermission(input.UserId, domain.DocumentRoleEditor) {
+		if !parent.HasPermission(input.UserId, domain.PermissionRoleEditor) {
 			logger.Error().Msg("user does not have permission to create document under the specified parent")
 			return nil, fmt.Errorf("user does not have permission to create document under the specified parent")
 		}
@@ -41,7 +41,7 @@ func (a *DocumentApp) CreateDocument(input dto.CreateDocumentInput) (*dto.Create
 			return nil, fmt.Errorf("failed to get space for document creation: %w", err)
 		}
 
-		if !space.HasPermission(input.UserId, domain.SpaceRoleEditor) {
+		if !space.HasPermission(input.UserId, domain.PermissionRoleEditor) {
 			logger.Error().Msg("user does not have permission to create document in the specified space")
 			return nil, fmt.Errorf("user does not have permission to create document in the specified space")
 		}
@@ -65,7 +65,7 @@ func (a *DocumentApp) CreateDocument(input dto.CreateDocumentInput) (*dto.Create
 
 	// Auto-create owner permission for the creator
 	// This ensures they retain access and can manage permissions even if their space role is downgraded
-	if err := a.DocumentPermissionPers.Upsert(document.Id, input.UserId, domain.DocumentRoleOwner); err != nil {
+	if err := a.PermissionPers.UpsertUser(domain.PermissionTypeDocument, document.Id, input.UserId, domain.PermissionRoleOwner); err != nil {
 		// Log but don't fail - the document is already created
 		logger.Warn().Err(err).Str("document_id", document.Id).Str("user_id", input.UserId).Msg("failed to create creator permission")
 	}

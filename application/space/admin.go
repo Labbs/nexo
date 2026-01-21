@@ -83,10 +83,10 @@ func (c *SpaceApp) AdminDeleteSpace(spaceId string) error {
 }
 
 // AdminListSpacePermissions lists all permissions for a space with user/group details (admin only)
-func (c *SpaceApp) AdminListSpacePermissions(spaceId string) ([]domain.SpacePermission, error) {
+func (c *SpaceApp) AdminListSpacePermissions(spaceId string) ([]domain.Permission, error) {
 	logger := c.Logger.With().Str("component", "application.space.admin_list_permissions").Logger()
 
-	permissions, err := c.SpacePres.ListPermissionsWithDetails(spaceId)
+	permissions, err := c.PermissionPers.ListByResource(domain.PermissionTypeSpace, spaceId)
 	if err != nil {
 		logger.Error().Err(err).Str("spaceId", spaceId).Msg("failed to list permissions")
 		return nil, fmt.Errorf("failed to list permissions: %w", err)
@@ -96,10 +96,10 @@ func (c *SpaceApp) AdminListSpacePermissions(spaceId string) ([]domain.SpacePerm
 }
 
 // AdminAddSpaceUserPermission adds a user permission to a space (admin only)
-func (c *SpaceApp) AdminAddSpaceUserPermission(spaceId, userId string, role domain.SpaceRole) error {
+func (c *SpaceApp) AdminAddSpaceUserPermission(spaceId, userId string, role domain.PermissionRole) error {
 	logger := c.Logger.With().Str("component", "application.space.admin_add_user_permission").Logger()
 
-	err := c.SpacePres.UpsertUserPermission(spaceId, userId, role)
+	err := c.PermissionPers.UpsertUser(domain.PermissionTypeSpace, spaceId, userId, role)
 	if err != nil {
 		logger.Error().Err(err).Str("spaceId", spaceId).Str("userId", userId).Msg("failed to add user permission")
 		return fmt.Errorf("failed to add user permission: %w", err)
@@ -112,7 +112,7 @@ func (c *SpaceApp) AdminAddSpaceUserPermission(spaceId, userId string, role doma
 func (c *SpaceApp) AdminRemoveSpaceUserPermission(spaceId, userId string) error {
 	logger := c.Logger.With().Str("component", "application.space.admin_remove_user_permission").Logger()
 
-	err := c.SpacePres.DeleteUserPermission(spaceId, userId)
+	err := c.PermissionPers.DeleteUser(domain.PermissionTypeSpace, spaceId, userId)
 	if err != nil {
 		logger.Error().Err(err).Str("spaceId", spaceId).Str("userId", userId).Msg("failed to remove user permission")
 		return fmt.Errorf("failed to remove user permission: %w", err)
@@ -122,10 +122,10 @@ func (c *SpaceApp) AdminRemoveSpaceUserPermission(spaceId, userId string) error 
 }
 
 // AdminAddSpaceGroupPermission adds a group permission to a space (admin only)
-func (c *SpaceApp) AdminAddSpaceGroupPermission(spaceId, groupId string, role domain.SpaceRole) error {
+func (c *SpaceApp) AdminAddSpaceGroupPermission(spaceId, groupId string, role domain.PermissionRole) error {
 	logger := c.Logger.With().Str("component", "application.space.admin_add_group_permission").Logger()
 
-	err := c.SpacePres.UpsertGroupPermission(spaceId, groupId, role)
+	err := c.PermissionPers.UpsertGroup(domain.PermissionTypeSpace, spaceId, groupId, role)
 	if err != nil {
 		logger.Error().Err(err).Str("spaceId", spaceId).Str("groupId", groupId).Msg("failed to add group permission")
 		return fmt.Errorf("failed to add group permission: %w", err)
@@ -138,7 +138,7 @@ func (c *SpaceApp) AdminAddSpaceGroupPermission(spaceId, groupId string, role do
 func (c *SpaceApp) AdminRemoveSpaceGroupPermission(spaceId, groupId string) error {
 	logger := c.Logger.With().Str("component", "application.space.admin_remove_group_permission").Logger()
 
-	err := c.SpacePres.DeleteGroupPermission(spaceId, groupId)
+	err := c.PermissionPers.DeleteGroup(domain.PermissionTypeSpace, spaceId, groupId)
 	if err != nil {
 		logger.Error().Err(err).Str("spaceId", spaceId).Str("groupId", groupId).Msg("failed to remove group permission")
 		return fmt.Errorf("failed to remove group permission: %w", err)

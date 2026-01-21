@@ -60,7 +60,7 @@ func (p *documentPers) GetDocumentByIdOrSlugWithUserPermissions(spaceId string, 
 	}
 
 	// Verify if the user has at least viewer permissions
-	if !doc.HasPermission(userId, domain.DocumentRoleViewer) {
+	if !doc.HasPermission(userId, domain.PermissionRoleViewer) {
 		return nil, fmt.Errorf("access denied: insufficient permissions")
 	}
 
@@ -89,7 +89,7 @@ func (p *documentPers) GetRootDocumentsFromSpaceWithUserPermissions(spaceId, use
 	// Filter documents based on permissions
 	var accessibleDocs []domain.Document
 	for _, doc := range docs {
-		if doc.HasPermission(userId, domain.DocumentRoleViewer) {
+		if doc.HasPermission(userId, domain.PermissionRoleViewer) {
 			accessibleDocs = append(accessibleDocs, doc)
 		}
 	}
@@ -121,7 +121,7 @@ func (p *documentPers) GetChildDocumentsWithUserPermissions(parentId, userId str
 	// Filter documents based on permissions
 	var accessibleDocs []domain.Document
 	for _, doc := range docs {
-		if doc.HasPermission(userId, domain.DocumentRoleViewer) {
+		if doc.HasPermission(userId, domain.PermissionRoleViewer) {
 			accessibleDocs = append(accessibleDocs, doc)
 		}
 	}
@@ -138,7 +138,7 @@ func (p *documentPers) Create(document *domain.Document, userId string) error {
 		}
 
 		// Check if the user can edit the parent document
-		if !parentDoc.HasPermission(userId, domain.DocumentRoleEditor) {
+		if !parentDoc.HasPermission(userId, domain.PermissionRoleEditor) {
 			return fmt.Errorf("access denied: insufficient permissions to create document in parent")
 		}
 	} else {
@@ -154,7 +154,7 @@ func (p *documentPers) Create(document *domain.Document, userId string) error {
 		}
 
 		// Check if the user can edit in the space
-		if !space.HasPermission(userId, domain.SpaceRoleEditor) {
+		if !space.HasPermission(userId, domain.PermissionRoleEditor) {
 			return fmt.Errorf("access denied: insufficient permissions to create document in space")
 		}
 	}
@@ -171,7 +171,7 @@ func (p *documentPers) Update(document *domain.Document, userId string) error {
 	}
 
 	// Check if the user can edit the document
-	if !existingDoc.HasPermission(userId, domain.DocumentRoleEditor) {
+	if !existingDoc.HasPermission(userId, domain.PermissionRoleEditor) {
 		return fmt.Errorf("access denied: insufficient permissions to update document")
 	}
 
@@ -187,7 +187,7 @@ func (p *documentPers) Delete(documentId, userId string) error {
 	}
 
 	// Check if the user can edit/delete the document
-	if !existingDoc.HasPermission(userId, domain.DocumentRoleEditor) {
+	if !existingDoc.HasPermission(userId, domain.PermissionRoleEditor) {
 		return fmt.Errorf("access denied: insufficient permissions to delete document")
 	}
 
@@ -215,7 +215,7 @@ func (p *documentPers) Move(documentId string, newParentId *string, userId strin
 		return nil, fmt.Errorf("failed to get document: %w", err)
 	}
 
-	if !doc.HasPermission(userId, domain.DocumentRoleEditor) {
+	if !doc.HasPermission(userId, domain.PermissionRoleEditor) {
 		return nil, fmt.Errorf("access denied: insufficient permissions to move document")
 	}
 
@@ -230,7 +230,7 @@ func (p *documentPers) Move(documentId string, newParentId *string, userId strin
 		if err != nil {
 			return nil, fmt.Errorf("failed to get parent document: %w", err)
 		}
-		if !parent.HasPermission(userId, domain.DocumentRoleEditor) {
+		if !parent.HasPermission(userId, domain.PermissionRoleEditor) {
 			return nil, fmt.Errorf("access denied: insufficient permissions on target parent")
 		}
 		if parent.SpaceId != doc.SpaceId {
@@ -268,7 +268,7 @@ func (p *documentPers) GetDeletedDocuments(spaceId, userId string) ([]domain.Doc
 	// Filter based on space permissions (user must be at least editor to see trash)
 	var accessibleDocs []domain.Document
 	for _, doc := range docs {
-		if doc.Space.HasPermission(userId, domain.SpaceRoleEditor) {
+		if doc.Space.HasPermission(userId, domain.PermissionRoleEditor) {
 			accessibleDocs = append(accessibleDocs, doc)
 		}
 	}
@@ -291,7 +291,7 @@ func (p *documentPers) Restore(documentId, userId string) error {
 	}
 
 	// Check if user has editor permission on the space
-	if !doc.Space.HasPermission(userId, domain.SpaceRoleEditor) {
+	if !doc.Space.HasPermission(userId, domain.PermissionRoleEditor) {
 		return fmt.Errorf("access denied: insufficient permissions to restore document")
 	}
 
@@ -322,7 +322,7 @@ func (p *documentPers) SetPublic(documentId string, public bool, userId string) 
 	}
 
 	// Check if user has editor permission
-	if !doc.HasPermission(userId, domain.DocumentRoleEditor) {
+	if !doc.HasPermission(userId, domain.PermissionRoleEditor) {
 		return fmt.Errorf("access denied: insufficient permissions")
 	}
 
@@ -387,7 +387,7 @@ func (p *documentPers) Search(query string, userId string, spaceId *string, limi
 	// Filter documents based on permissions
 	var accessibleDocs []domain.Document
 	for _, doc := range docs {
-		if doc.HasPermission(userId, domain.DocumentRoleViewer) {
+		if doc.HasPermission(userId, domain.PermissionRoleViewer) {
 			accessibleDocs = append(accessibleDocs, doc)
 		}
 	}

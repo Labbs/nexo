@@ -100,7 +100,7 @@ func (app *DocumentApp) RestoreVersion(input dto.RestoreVersionInput) error {
 		return fmt.Errorf("access denied: %w", err)
 	}
 
-	if !doc.HasPermission(input.UserId, domain.DocumentRoleEditor) {
+	if !doc.HasPermission(input.UserId, domain.PermissionRoleEditor) {
 		return fmt.Errorf("access denied: insufficient permissions")
 	}
 
@@ -128,7 +128,7 @@ func (app *DocumentApp) CreateVersion(input dto.CreateVersionInput) (*dto.Create
 		return nil, fmt.Errorf("document not found or access denied: %w", err)
 	}
 
-	if !doc.HasPermission(input.UserId, domain.DocumentRoleEditor) {
+	if !doc.HasPermission(input.UserId, domain.PermissionRoleEditor) {
 		return nil, fmt.Errorf("access denied: insufficient permissions")
 	}
 

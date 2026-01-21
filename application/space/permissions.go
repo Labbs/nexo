@@ -13,10 +13,10 @@ func (c *SpaceApp) ListSpacePermissions(input dto.ListSpacePermissionsInput) (*d
 	if err != nil || space == nil {
 		return nil, fmt.Errorf("not_found")
 	}
-	if !space.HasPermission(input.UserId, domain.SpaceRoleAdmin) {
+	if !space.HasPermission(input.UserId, domain.PermissionRoleAdmin) {
 		return nil, fmt.Errorf("forbidden")
 	}
-	permissions, err := c.SpacePres.ListPermissions(input.SpaceId)
+	permissions, err := c.PermissionPers.ListByResource(domain.PermissionTypeSpace, input.SpaceId)
 	if err != nil {
 		return nil, err
 	}
@@ -28,17 +28,17 @@ func (c *SpaceApp) UpsertSpaceUserPermission(input dto.UpsertSpaceUserPermission
 	if err != nil || space == nil {
 		return fmt.Errorf("not_found")
 	}
-	if !space.HasPermission(input.RequesterId, domain.SpaceRoleAdmin) {
+	if !space.HasPermission(input.RequesterId, domain.PermissionRoleAdmin) {
 		return fmt.Errorf("forbidden")
 	}
 
 	// Prevent changing the owner's role on personal/private spaces
 	if (space.Type == domain.SpaceTypePersonal || space.Type == domain.SpaceTypePrivate) &&
-		space.OwnerId != nil && *space.OwnerId == input.TargetUserId && input.Role != domain.SpaceRoleOwner {
+		space.OwnerId != nil && *space.OwnerId == input.TargetUserId && input.Role != domain.PermissionRoleOwner {
 		return fmt.Errorf("cannot_change_owner_role")
 	}
 
-	return c.SpacePres.UpsertUserPermission(input.SpaceId, input.TargetUserId, input.Role)
+	return c.PermissionPers.UpsertUser(domain.PermissionTypeSpace, input.SpaceId, input.TargetUserId, input.Role)
 }
 
 func (c *SpaceApp) DeleteSpaceUserPermission(input dto.DeleteSpaceUserPermissionInput) error {
@@ -46,7 +46,7 @@ func (c *SpaceApp) DeleteSpaceUserPermission(input dto.DeleteSpaceUserPermission
 	if err != nil || space == nil {
 		return fmt.Errorf("not_found")
 	}
-	if !space.HasPermission(input.RequesterId, domain.SpaceRoleAdmin) {
+	if !space.HasPermission(input.RequesterId, domain.PermissionRoleAdmin) {
 		return fmt.Errorf("forbidden")
 	}
 
@@ -56,5 +56,5 @@ func (c *SpaceApp) DeleteSpaceUserPermission(input dto.DeleteSpaceUserPermission
 		return fmt.Errorf("cannot_remove_owner")
 	}
 
-	return c.SpacePres.DeleteUserPermission(input.SpaceId, input.TargetUserId)
+	return c.PermissionPers.DeleteUser(domain.PermissionTypeSpace, input.SpaceId, input.TargetUserId)
 }

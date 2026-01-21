@@ -677,7 +677,7 @@ func (ctrl *Controller) AdminAddSpaceUserPermission(ctx *fiber.Ctx, req dtos.Adm
 		return nil, errResp
 	}
 
-	role := domain.SpaceRole(req.Role)
+	role := domain.PermissionRole(req.Role)
 	err := ctrl.SpaceApp.AdminAddSpaceUserPermission(req.SpaceId, req.UserId, role)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to add user permission")
@@ -724,7 +724,7 @@ func (ctrl *Controller) AdminAddSpaceGroupPermission(ctx *fiber.Ctx, req dtos.Ad
 		return nil, errResp
 	}
 
-	role := domain.SpaceRole(req.Role)
+	role := domain.PermissionRole(req.Role)
 	err := ctrl.SpaceApp.AdminAddSpaceGroupPermission(req.SpaceId, req.GroupId, role)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to add group permission")

@@ -16,7 +16,7 @@ func (c *SpaceApp) DeleteSpace(input dto.DeleteSpaceInput) error {
 	}
 
 	// Only owner can delete (MVP policy)
-	if !space.HasPermission(input.UserId, domain.SpaceRoleOwner) {
+	if !space.HasPermission(input.UserId, domain.PermissionRoleOwner) {
 		return fmt.Errorf("forbidden")
 	}
 

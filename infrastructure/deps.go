@@ -6,6 +6,7 @@ import (
 	"github.com/labbs/nexo/application/auth"
 	databaseApp "github.com/labbs/nexo/application/database"
 	"github.com/labbs/nexo/application/document"
+	"github.com/labbs/nexo/application/drawing"
 	"github.com/labbs/nexo/application/group"
 	"github.com/labbs/nexo/application/session"
 	"github.com/labbs/nexo/application/space"
@@ -33,6 +34,7 @@ type Deps struct {
 	ApiKeyApp   *apikey.ApiKeyApp
 	WebhookApp  *webhook.WebhookApp
 	DatabaseApp *databaseApp.DatabaseApp
+	DrawingApp  *drawing.DrawingApp
 	ActionApp   *action.ActionApp
 	GroupApp    *group.GroupApp
 }

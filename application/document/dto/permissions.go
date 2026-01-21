@@ -9,7 +9,7 @@ type ListDocumentPermissionsInput struct {
 }
 
 type ListDocumentPermissionsOutput struct {
-	Permissions []domain.DocumentPermission
+	Permissions []domain.Permission
 }
 
 type UpsertDocumentUserPermissionInput struct {
@@ -17,7 +17,7 @@ type UpsertDocumentUserPermissionInput struct {
 	SpaceId      string
 	DocumentId   string
 	TargetUserId string
-	Role         domain.DocumentRole
+	Role         domain.PermissionRole
 }
 
 type DeleteDocumentUserPermissionInput struct {

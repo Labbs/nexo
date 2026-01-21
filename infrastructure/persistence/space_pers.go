@@ -1,7 +1,6 @@
 package persistence
 
 import (
-	"github.com/gofiber/fiber/v2/utils"
 	"github.com/labbs/nexo/domain"
 	"gorm.io/gorm"
 )
@@ -22,13 +21,15 @@ func (s *spacePers) GetSpacesForUser(userId string) ([]domain.Space, error) {
 	var spaces []domain.Space
 
 	err := s.db.Preload("Owner").
-		Preload("Permissions").
+		Preload("Permissions", "type = ?", domain.PermissionTypeSpace).
+		Preload("Permissions.User").
+		Preload("Permissions.Group").
 		Where(
 			s.db.Where("owner_id = ?", userId).
 				Or("id IN (?)",
-					s.db.Table("space_permission").
+					s.db.Table("permission").
 						Select("space_id").
-						Where("user_id = ? AND deleted_at IS NULL", userId),
+						Where("type = ? AND user_id = ? AND deleted_at IS NULL", domain.PermissionTypeSpace, userId),
 				).
 				Or("type = ?", domain.SpaceTypePublic),
 		).
@@ -41,7 +42,9 @@ func (s *spacePers) GetSpaceById(spaceId string) (*domain.Space, error) {
 	var space domain.Space
 
 	err := s.db.Preload("Owner").
-		Preload("Permissions").
+		Preload("Permissions", "type = ?", domain.PermissionTypeSpace).
+		Preload("Permissions.User").
+		Preload("Permissions.Group").
 		First(&space, "id = ?", spaceId).Error
 
 	if err != nil {
@@ -52,61 +55,11 @@ func (s *spacePers) GetSpaceById(spaceId string) (*domain.Space, error) {
 }
 
 func (s *spacePers) Update(space *domain.Space) error {
-    return s.db.Save(space).Error
+	return s.db.Save(space).Error
 }
 
 func (s *spacePers) Delete(spaceId string) error {
-    return s.db.Where("id = ?", spaceId).Delete(&domain.Space{}).Error
-}
-
-func (s *spacePers) ListPermissions(spaceId string) ([]domain.SpacePermission, error) {
-    var perms []domain.SpacePermission
-    err := s.db.Where("space_id = ? AND deleted_at IS NULL", spaceId).Find(&perms).Error
-    return perms, err
-}
-
-func (s *spacePers) UpsertUserPermission(spaceId string, userId string, role domain.SpaceRole) error {
-    var perm domain.SpacePermission
-    err := s.db.Where("space_id = ? AND user_id = ?", spaceId, userId).First(&perm).Error
-    if err != nil {
-        // create if not exists
-        perm = domain.SpacePermission{
-            Id:      utils.UUIDv4(),
-            SpaceId: spaceId,
-            UserId:  &userId,
-            Role:    role,
-        }
-        return s.db.Create(&perm).Error
-    }
-    perm.Role = role
-    return s.db.Save(&perm).Error
-}
-
-func (s *spacePers) DeleteUserPermission(spaceId string, userId string) error {
-	return s.db.Where("space_id = ? AND user_id = ?", spaceId, userId).Delete(&domain.SpacePermission{}).Error
-}
-
-// Group permissions
-
-func (s *spacePers) UpsertGroupPermission(spaceId string, groupId string, role domain.SpaceRole) error {
-	var perm domain.SpacePermission
-	err := s.db.Where("space_id = ? AND group_id = ?", spaceId, groupId).First(&perm).Error
-	if err != nil {
-		// create if not exists
-		perm = domain.SpacePermission{
-			Id:      utils.UUIDv4(),
-			SpaceId: spaceId,
-			GroupId: &groupId,
-			Role:    role,
-		}
-		return s.db.Create(&perm).Error
-	}
-	perm.Role = role
-	return s.db.Save(&perm).Error
-}
-
-func (s *spacePers) DeleteGroupPermission(spaceId string, groupId string) error {
-	return s.db.Where("space_id = ? AND group_id = ?", spaceId, groupId).Delete(&domain.SpacePermission{}).Error
+	return s.db.Where("id = ?", spaceId).Delete(&domain.Space{}).Error
 }
 
 // Admin methods
@@ -130,12 +83,4 @@ func (s *spacePers) GetAll(limit, offset int) ([]domain.Space, int64, error) {
 	}
 
 	return spaces, total, nil
-}
-
-func (s *spacePers) ListPermissionsWithDetails(spaceId string) ([]domain.SpacePermission, error) {
-	var perms []domain.SpacePermission
-	err := s.db.Preload("User").Preload("Group").
-		Where("space_id = ? AND deleted_at IS NULL", spaceId).
-		Find(&perms).Error
-	return perms, err
 }

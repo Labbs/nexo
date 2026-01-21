@@ -15,11 +15,11 @@ func (c *DocumentApp) ListDocumentPermissions(input dto.ListDocumentPermissionsI
 	}
 
 	// User must have at least viewer access to the document to see permissions
-	if !doc.HasPermission(input.RequesterId, domain.DocumentRoleViewer) {
+	if !doc.HasPermission(input.RequesterId, domain.PermissionRoleViewer) {
 		return nil, fmt.Errorf("forbidden")
 	}
 
-	permissions, err := c.DocumentPermissionPers.ListByDocumentId(input.DocumentId)
+	permissions, err := c.PermissionPers.ListByResource(domain.PermissionTypeDocument, input.DocumentId)
 	if err != nil {
 		return nil, err
 	}
@@ -41,11 +41,11 @@ func (c *DocumentApp) UpsertDocumentUserPermission(input dto.UpsertDocumentUserP
 
 	// Prevent changing the owner's role on documents in personal/private spaces
 	if (doc.Space.Type == domain.SpaceTypePersonal || doc.Space.Type == domain.SpaceTypePrivate) &&
-		doc.Space.OwnerId != nil && *doc.Space.OwnerId == input.TargetUserId && input.Role != domain.DocumentRoleOwner {
+		doc.Space.OwnerId != nil && *doc.Space.OwnerId == input.TargetUserId && input.Role != domain.PermissionRoleOwner {
 		return fmt.Errorf("cannot_change_owner_role")
 	}
 
-	return c.DocumentPermissionPers.Upsert(input.DocumentId, input.TargetUserId, input.Role)
+	return c.PermissionPers.UpsertUser(domain.PermissionTypeDocument, input.DocumentId, input.TargetUserId, input.Role)
 }
 
 func (c *DocumentApp) DeleteDocumentUserPermission(input dto.DeleteDocumentUserPermissionInput) error {
@@ -66,5 +66,5 @@ func (c *DocumentApp) DeleteDocumentUserPermission(input dto.DeleteDocumentUserP
 		return fmt.Errorf("cannot_remove_owner")
 	}
 
-	return c.DocumentPermissionPers.Delete(input.DocumentId, input.TargetUserId)
+	return c.PermissionPers.DeleteUser(domain.PermissionTypeDocument, input.DocumentId, input.TargetUserId)
 }

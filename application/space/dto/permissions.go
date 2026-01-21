@@ -8,14 +8,14 @@ type ListSpacePermissionsInput struct {
 }
 
 type ListSpacePermissionsOutput struct {
-	Permissions []domain.SpacePermission
+	Permissions []domain.Permission
 }
 
 type UpsertSpaceUserPermissionInput struct {
 	RequesterId  string
 	SpaceId      string
 	TargetUserId string
-	Role         domain.SpaceRole
+	Role         domain.PermissionRole
 }
 
 type DeleteSpaceUserPermissionInput struct {

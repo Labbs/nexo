@@ -144,7 +144,18 @@ func (ctrl *Controller) ListPermissions(ctx *fiber.Ctx, req dtos.ListSpacePermis
 
 	resp := &dtos.ListSpacePermissionsResponse{Permissions: make([]dtos.SpacePermission, len(result.Permissions))}
 	for i, p := range result.Permissions {
-		resp.Permissions[i] = dtos.SpacePermission{UserId: p.UserId, Role: string(p.Role)}
+		resp.Permissions[i] = dtos.SpacePermission{
+			Id:      p.Id,
+			UserId:  p.UserId,
+			GroupId: p.GroupId,
+			Role:    string(p.Role),
+		}
+		if p.User != nil {
+			resp.Permissions[i].Username = p.User.Username
+		}
+		if p.Group != nil {
+			resp.Permissions[i].GroupName = p.Group.Name
+		}
 	}
 	return resp, nil
 }
@@ -159,16 +170,16 @@ func (ctrl *Controller) UpsertUserPermission(ctx *fiber.Ctx, req dtos.UpsertSpac
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	var role domain.SpaceRole
+	var role domain.PermissionRole
 	switch req.Role {
-	case string(domain.SpaceRoleOwner):
-		role = domain.SpaceRoleOwner
-	case string(domain.SpaceRoleAdmin):
-		role = domain.SpaceRoleAdmin
-	case string(domain.SpaceRoleEditor):
-		role = domain.SpaceRoleEditor
+	case string(domain.PermissionRoleOwner):
+		role = domain.PermissionRoleOwner
+	case string(domain.PermissionRoleAdmin):
+		role = domain.PermissionRoleAdmin
+	case string(domain.PermissionRoleEditor):
+		role = domain.PermissionRoleEditor
 	default:
-		role = domain.SpaceRoleViewer
+		role = domain.PermissionRoleViewer
 	}
 
 	if err := ctrl.SpaceApp.UpsertSpaceUserPermission(spaceDto.UpsertSpaceUserPermissionInput{

@@ -18,7 +18,7 @@ func (c *SpaceApp) UpdateSpace(input dto.UpdateSpaceInput) (*dto.UpdateSpaceOutp
 	}
 
 	// Require admin to update
-	if !space.HasPermission(input.UserId, domain.SpaceRoleAdmin) {
+	if !space.HasPermission(input.UserId, domain.PermissionRoleAdmin) {
 		return nil, fmt.Errorf("forbidden")
 	}
 

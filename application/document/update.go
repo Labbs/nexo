@@ -18,7 +18,7 @@ func (a *DocumentApp) UpdateDocument(input dto.UpdateDocumentInput) (*dto.Update
 		return nil, fmt.Errorf("failed to get document for update: %w", err)
 	}
 
-	if !document.HasPermission(input.UserId, domain.DocumentRoleEditor) {
+	if !document.HasPermission(input.UserId, domain.PermissionRoleEditor) {
 		logger.Error().Msg("user does not have permission to update document")
 		return nil, fmt.Errorf("user does not have permission to update document")
 	}

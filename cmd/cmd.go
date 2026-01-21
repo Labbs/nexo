@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 
+	genoapi "github.com/labbs/nexo/interfaces/cli/gen-oapi"
 	"github.com/labbs/nexo/interfaces/cli/migration"
 	"github.com/labbs/nexo/interfaces/cli/server"
 
@@ -39,6 +40,7 @@ func main() {
 		Commands: []*cli.Command{
 			server.NewInstance(version),
 			migration.NewInstance(version),
+			genoapi.NewInstance(version),
 		},
 	}
 

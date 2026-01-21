@@ -8,6 +8,7 @@ import (
 	"github.com/labbs/nexo/interfaces/http/v1/auth"
 	"github.com/labbs/nexo/interfaces/http/v1/database"
 	"github.com/labbs/nexo/interfaces/http/v1/document"
+	"github.com/labbs/nexo/interfaces/http/v1/drawing"
 	"github.com/labbs/nexo/interfaces/http/v1/space"
 	"github.com/labbs/nexo/interfaces/http/v1/user"
 	"github.com/labbs/nexo/interfaces/http/v1/webhook"
@@ -74,6 +75,14 @@ func SetupRouterV1(deps infrastructure.Deps) {
 		DatabaseApp: deps.DatabaseApp,
 	}
 	database.SetupDatabaseRouter(databaseCtrl)
+
+	drawingCtrl := drawing.Controller{
+		Config:     deps.Config,
+		Logger:     deps.Logger,
+		FiberOapi:  grp.Group("/drawings"),
+		DrawingApp: deps.DrawingApp,
+	}
+	drawing.SetupDrawingRouter(drawingCtrl)
 
 	actionCtrl := action.Controller{
 		Config:    deps.Config,

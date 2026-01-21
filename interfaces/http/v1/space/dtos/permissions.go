@@ -5,8 +5,12 @@ type ListSpacePermissionsRequest struct {
 }
 
 type SpacePermission struct {
-    UserId *string `json:"user_id,omitempty"`
-    Role   string  `json:"role"`
+    Id        string  `json:"id"`
+    UserId    *string `json:"user_id,omitempty"`
+    Username  string  `json:"username,omitempty"`
+    GroupId   *string `json:"group_id,omitempty"`
+    GroupName string  `json:"group_name,omitempty"`
+    Role      string  `json:"role"`
 }
 
 type ListSpacePermissionsResponse struct {

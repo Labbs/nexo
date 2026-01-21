@@ -18,7 +18,7 @@ func (a *FavoriteApp) AddFavorite(input dto.AddFavoriteInput) (*dto.AddFavoriteO
 		return nil, fmt.Errorf("failed to get document: %w", err)
 	}
 
-	if !doc.HasPermission(input.UserId, domain.DocumentRoleViewer) {
+	if !doc.HasPermission(input.UserId, domain.PermissionRoleViewer) {
 		logger.Error().Msg("user does not have permission to view document")
 		return nil, fmt.Errorf("user does not have permission to view document")
 	}

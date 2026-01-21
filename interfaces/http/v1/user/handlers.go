@@ -101,7 +101,7 @@ func (ctrl *Controller) GetMySpaces(ctx *fiber.Ctx, input struct{}) (*dtos.GetMy
 			spaceItem.MyRole = string(*userRole)
 		} else if space.Type == domain.SpaceTypePublic {
 			// For public spaces without explicit permission, user is a viewer
-			spaceItem.MyRole = string(domain.SpaceRoleViewer)
+			spaceItem.MyRole = string(domain.PermissionRoleViewer)
 		}
 
 		spaceDtoList[i] = spaceItem

@@ -26,7 +26,7 @@ type Document struct {
 	Public bool
 
 	// Permissions spécifiques au document (optionnelles)
-	Permissions []DocumentPermission `gorm:"foreignKey:DocumentId;references:Id"`
+	Permissions []Permission `gorm:"foreignKey:DocumentId;references:Id"`
 
 	Content datatypes.JSON
 
@@ -74,11 +74,11 @@ func (dc *DocumentConfig) Scan(value any) error {
 	}
 }
 
-func (d *Document) HasPermission(userId string, requiredRole DocumentRole) bool {
+func (d *Document) HasPermission(userId string, requiredRole PermissionRole) bool {
 	// 1. Vérifier les permissions spécifiques au document d'abord
 	for _, perm := range d.Permissions {
 		if perm.UserId != nil && *perm.UserId == userId {
-			if perm.Role == DocumentRoleDenied {
+			if perm.Role == PermissionRoleDenied {
 				return false // Refus explicite
 			}
 			return d.documentRoleHasPermission(perm.Role, requiredRole)
@@ -86,25 +86,25 @@ func (d *Document) HasPermission(userId string, requiredRole DocumentRole) bool 
 	}
 
 	// 2. Si pas de permission spécifique, hériter du space
-	if d.Space.HasPermission(userId, SpaceRoleViewer) {
+	if d.Space.HasPermission(userId, PermissionRoleViewer) {
 		// Si l'user a accès au space, il peut au moins voir le document
-		if requiredRole == DocumentRoleViewer {
+		if requiredRole == PermissionRoleViewer {
 			return true
 		}
 		// Pour éditer, il faut au moins être editor du space
-		if requiredRole == DocumentRoleEditor {
-			return d.Space.HasPermission(userId, SpaceRoleEditor)
+		if requiredRole == PermissionRoleEditor {
+			return d.Space.HasPermission(userId, PermissionRoleEditor)
 		}
 	}
 
 	return false
 }
 
-func (d *Document) documentRoleHasPermission(userRole, requiredRole DocumentRole) bool {
-	roleHierarchy := map[DocumentRole]int{
-		DocumentRoleViewer: 1,
-		DocumentRoleEditor: 2,
-		DocumentRoleOwner:  3,
+func (d *Document) documentRoleHasPermission(userRole, requiredRole PermissionRole) bool {
+	roleHierarchy := map[PermissionRole]int{
+		PermissionRoleViewer: 1,
+		PermissionRoleEditor: 2,
+		PermissionRoleOwner:  3,
 	}
 	return roleHierarchy[userRole] >= roleHierarchy[requiredRole]
 }
@@ -114,13 +114,13 @@ func (d *Document) documentRoleHasPermission(userRole, requiredRole DocumentRole
 func (d *Document) CanManagePermissions(userId string) bool {
 	// Check if user is owner of this document
 	for _, perm := range d.Permissions {
-		if perm.UserId != nil && *perm.UserId == userId && perm.Role == DocumentRoleOwner {
+		if perm.UserId != nil && *perm.UserId == userId && perm.Role == PermissionRoleOwner {
 			return true
 		}
 	}
 
 	// Check if user is admin or owner of the space
-	return d.Space.HasPermission(userId, SpaceRoleAdmin)
+	return d.Space.HasPermission(userId, PermissionRoleAdmin)
 }
 
 type DocumentPers interface {
