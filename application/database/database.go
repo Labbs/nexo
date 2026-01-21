@@ -13,22 +13,22 @@ import (
 )
 
 type DatabaseApp struct {
-	Config                 config.Config
-	Logger                 zerolog.Logger
-	DatabasePers           domain.DatabasePers
-	DatabaseRowPers        domain.DatabaseRowPers
-	SpacePers              domain.SpacePers
-	DatabasePermissionPers domain.DatabasePermissionPers
+	Config          config.Config
+	Logger          zerolog.Logger
+	DatabasePers    domain.DatabasePers
+	DatabaseRowPers domain.DatabaseRowPers
+	SpacePers       domain.SpacePers
+	PermissionPers  domain.PermissionPers
 }
 
-func NewDatabaseApp(config config.Config, logger zerolog.Logger, databasePers domain.DatabasePers, databaseRowPers domain.DatabaseRowPers, spacePers domain.SpacePers, databasePermissionPers domain.DatabasePermissionPers) *DatabaseApp {
+func NewDatabaseApp(config config.Config, logger zerolog.Logger, databasePers domain.DatabasePers, databaseRowPers domain.DatabaseRowPers, spacePers domain.SpacePers, permissionPers domain.PermissionPers) *DatabaseApp {
 	return &DatabaseApp{
-		Config:                 config,
-		Logger:                 logger,
-		DatabasePers:           databasePers,
-		DatabaseRowPers:        databaseRowPers,
-		SpacePers:              spacePers,
-		DatabasePermissionPers: databasePermissionPers,
+		Config:          config,
+		Logger:          logger,
+		DatabasePers:    databasePers,
+		DatabaseRowPers: databaseRowPers,
+		SpacePers:       spacePers,
+		PermissionPers:  permissionPers,
 	}
 }
 
@@ -110,12 +110,7 @@ func (app *DatabaseApp) CreateDatabase(input dto.CreateDatabaseInput) (*dto.Crea
 
 	// Auto-create editor permission for the creator
 	// This ensures they retain access even if their space role is downgraded
-	creatorPerm := &domain.DatabasePermission{
-		DatabaseId: database.Id,
-		UserId:     &input.UserId,
-		Role:       domain.DatabaseRoleEditor,
-	}
-	if err := app.DatabasePermissionPers.Upsert(creatorPerm); err != nil {
+	if err := app.PermissionPers.UpsertUser(domain.PermissionTypeDatabase, database.Id, input.UserId, domain.PermissionRoleEditor); err != nil {
 		// Log but don't fail - the database is already created
 		app.Logger.Warn().Err(err).Str("database_id", database.Id).Str("user_id", input.UserId).Msg("failed to create creator permission")
 	}
