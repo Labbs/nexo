@@ -512,14 +512,30 @@ func (ctrl *Controller) ListRows(ctx *fiber.Ctx, req dtos.ListRowsRequest) (*dto
 		TotalCount: result.TotalCount,
 	}
 	for i, row := range result.Rows {
-		resp.Rows[i] = dtos.RowItem{
+		rowItem := dtos.RowItem{
 			Id:            row.Id,
 			Properties:    row.Properties,
 			ShowInSidebar: row.ShowInSidebar,
 			CreatedBy:     row.CreatedBy,
+			UpdatedBy:     row.UpdatedBy,
 			CreatedAt:     row.CreatedAt,
 			UpdatedAt:     row.UpdatedAt,
 		}
+		if row.CreatedByUser != nil {
+			rowItem.CreatedByUser = &dtos.UserInfo{
+				Id:        row.CreatedByUser.Id,
+				Username:  row.CreatedByUser.Username,
+				AvatarUrl: row.CreatedByUser.AvatarUrl,
+			}
+		}
+		if row.UpdatedByUser != nil {
+			rowItem.UpdatedByUser = &dtos.UserInfo{
+				Id:        row.UpdatedByUser.Id,
+				Username:  row.UpdatedByUser.Username,
+				AvatarUrl: row.UpdatedByUser.AvatarUrl,
+			}
+		}
+		resp.Rows[i] = rowItem
 	}
 
 	return resp, nil
@@ -551,16 +567,32 @@ func (ctrl *Controller) GetRow(ctx *fiber.Ctx, req dtos.GetRowRequest) (*dtos.Ge
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusInternalServerError, Details: "Failed to get row", Type: "INTERNAL_SERVER_ERROR"}
 	}
 
-	return &dtos.GetRowResponse{
+	resp := &dtos.GetRowResponse{
 		Id:            result.Id,
 		DatabaseId:    result.DatabaseId,
 		Properties:    result.Properties,
 		Content:       result.Content,
 		ShowInSidebar: result.ShowInSidebar,
 		CreatedBy:     result.CreatedBy,
+		UpdatedBy:     result.UpdatedBy,
 		CreatedAt:     result.CreatedAt,
 		UpdatedAt:     result.UpdatedAt,
-	}, nil
+	}
+	if result.CreatedByUser != nil {
+		resp.CreatedByUser = &dtos.UserInfo{
+			Id:        result.CreatedByUser.Id,
+			Username:  result.CreatedByUser.Username,
+			AvatarUrl: result.CreatedByUser.AvatarUrl,
+		}
+	}
+	if result.UpdatedByUser != nil {
+		resp.UpdatedByUser = &dtos.UserInfo{
+			Id:        result.UpdatedByUser.Id,
+			Username:  result.UpdatedByUser.Username,
+			AvatarUrl: result.UpdatedByUser.AvatarUrl,
+		}
+	}
+	return resp, nil
 }
 
 func (ctrl *Controller) UpdateRow(ctx *fiber.Ctx, req dtos.UpdateRowRequest) (*dtos.MessageResponse, *fiberoapi.ErrorResponse) {
