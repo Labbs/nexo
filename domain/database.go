@@ -115,8 +115,11 @@ type DatabaseRow struct {
 	// ShowInSidebar indicates if this row should appear in sidebar (for document databases)
 	ShowInSidebar bool
 
-	CreatedBy string
-	User      User `gorm:"foreignKey:CreatedBy;references:Id"`
+	CreatedBy   string
+	CreatedUser User `gorm:"foreignKey:CreatedBy;references:Id"`
+
+	UpdatedBy   string
+	UpdatedUser User `gorm:"foreignKey:UpdatedBy;references:Id"`
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
