@@ -340,3 +340,54 @@ func (ctrl *Controller) ChangePassword(ctx *fiber.Ctx, req dtos.ChangePasswordRe
 
 	return &dtos.ChangePasswordResponse{Message: "Password changed successfully"}, nil
 }
+
+func (ctrl *Controller) ListUsers(ctx *fiber.Ctx, req dtos.ListUsersRequest) (*dtos.ListUsersResponse, *fiberoapi.ErrorResponse) {
+	requestId := ctx.Locals("requestid").(string)
+	logger := ctrl.Logger.With().Str("request_id", requestId).Str("component", "http.api.v1.user.list_users").Logger()
+
+	// Get the authenticated user context (just to ensure user is authenticated)
+	_, err := fiberoapi.GetAuthContext(ctx)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to get auth context")
+		return nil, &fiberoapi.ErrorResponse{
+			Code:    fiber.StatusUnauthorized,
+			Details: "Authentication required",
+			Type:    "AUTHENTICATION_REQUIRED",
+		}
+	}
+
+	// Set default limit if not provided
+	limit := req.Limit
+	if limit <= 0 {
+		limit = 100
+	}
+	if limit > 500 {
+		limit = 500
+	}
+
+	// Get users from persistence layer
+	users, totalCount, err := ctrl.UserApp.UserPres.GetAll(limit, req.Offset)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to get users")
+		return nil, &fiberoapi.ErrorResponse{
+			Code:    fiber.StatusInternalServerError,
+			Details: "Failed to retrieve users",
+			Type:    "INTERNAL_SERVER_ERROR",
+		}
+	}
+
+	// Map to simplified DTO (only id, username, avatar)
+	userItems := make([]dtos.UserListItem, len(users))
+	for i, user := range users {
+		userItems[i] = dtos.UserListItem{
+			Id:        user.Id,
+			Username:  user.Username,
+			AvatarUrl: user.AvatarUrl,
+		}
+	}
+
+	return &dtos.ListUsersResponse{
+		Users:      userItems,
+		TotalCount: totalCount,
+	}, nil
+}
