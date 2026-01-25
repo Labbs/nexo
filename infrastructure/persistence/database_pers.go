@@ -81,7 +81,8 @@ func (p *databaseRowPers) GetById(id string) (*domain.DatabaseRow, error) {
 	var row domain.DatabaseRow
 	err := p.db.Debug().
 		Preload("Database").
-		Preload("User").
+		Preload("CreatedUser").
+		Preload("UpdatedUser").
 		Where("id = ?", id).
 		First(&row).Error
 	if err != nil {
@@ -93,7 +94,8 @@ func (p *databaseRowPers) GetById(id string) (*domain.DatabaseRow, error) {
 func (p *databaseRowPers) GetByDatabaseId(databaseId string, limit, offset int) ([]domain.DatabaseRow, error) {
 	var rows []domain.DatabaseRow
 	query := p.db.Debug().
-		Preload("User").
+		Preload("CreatedUser").
+		Preload("UpdatedUser").
 		Where("database_id = ?", databaseId).
 		Order("created_at DESC")
 
@@ -114,7 +116,8 @@ func (p *databaseRowPers) GetByDatabaseId(databaseId string, limit, offset int) 
 func (p *databaseRowPers) GetByDatabaseIdWithOptions(databaseId string, options domain.RowQueryOptions) ([]domain.DatabaseRow, error) {
 	var rows []domain.DatabaseRow
 	query := p.db.Debug().
-		Preload("User").
+		Preload("CreatedUser").
+		Preload("UpdatedUser").
 		Where("database_id = ?", databaseId)
 
 	// Apply filters
