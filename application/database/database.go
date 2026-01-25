@@ -641,18 +641,30 @@ func (app *DatabaseApp) ListRows(input dto.ListRowsInput) (*dto.ListRowsOutput, 
 	}
 
 	for i, row := range rows {
-		createdBy := ""
-		if row.User.Id != "" {
-			createdBy = row.User.Username
-		}
-		output.Rows[i] = dto.RowItem{
+		rowItem := dto.RowItem{
 			Id:            row.Id,
 			Properties:    map[string]interface{}(row.Properties),
 			ShowInSidebar: row.ShowInSidebar,
-			CreatedBy:     createdBy,
+			CreatedBy:     row.CreatedBy,
+			UpdatedBy:     row.UpdatedBy,
 			CreatedAt:     row.CreatedAt,
 			UpdatedAt:     row.UpdatedAt,
 		}
+		if row.CreatedUser.Id != "" {
+			rowItem.CreatedByUser = &dto.UserInfo{
+				Id:        row.CreatedUser.Id,
+				Username:  row.CreatedUser.Username,
+				AvatarUrl: row.CreatedUser.AvatarUrl,
+			}
+		}
+		if row.UpdatedUser.Id != "" {
+			rowItem.UpdatedByUser = &dto.UserInfo{
+				Id:        row.UpdatedUser.Id,
+				Username:  row.UpdatedUser.Username,
+				AvatarUrl: row.UpdatedUser.AvatarUrl,
+			}
+		}
+		output.Rows[i] = rowItem
 	}
 
 	return output, nil
@@ -727,16 +739,32 @@ func (app *DatabaseApp) GetRow(input dto.GetRowInput) (*dto.GetRowOutput, error)
 		return nil, fmt.Errorf("access denied")
 	}
 
-	return &dto.GetRowOutput{
+	output := &dto.GetRowOutput{
 		Id:            row.Id,
 		DatabaseId:    row.DatabaseId,
 		Properties:    map[string]interface{}(row.Properties),
 		Content:       map[string]interface{}(row.Content),
 		ShowInSidebar: row.ShowInSidebar,
-		CreatedBy:     row.User.Username,
+		CreatedBy:     row.CreatedBy,
+		UpdatedBy:     row.UpdatedBy,
 		CreatedAt:     row.CreatedAt,
 		UpdatedAt:     row.UpdatedAt,
-	}, nil
+	}
+	if row.CreatedUser.Id != "" {
+		output.CreatedByUser = &dto.UserInfo{
+			Id:        row.CreatedUser.Id,
+			Username:  row.CreatedUser.Username,
+			AvatarUrl: row.CreatedUser.AvatarUrl,
+		}
+	}
+	if row.UpdatedUser.Id != "" {
+		output.UpdatedByUser = &dto.UserInfo{
+			Id:        row.UpdatedUser.Id,
+			Username:  row.UpdatedUser.Username,
+			AvatarUrl: row.UpdatedUser.AvatarUrl,
+		}
+	}
+	return output, nil
 }
 
 func (app *DatabaseApp) UpdateRow(input dto.UpdateRowInput) error {
@@ -776,6 +804,7 @@ func (app *DatabaseApp) UpdateRow(input dto.UpdateRowInput) error {
 		row.ShowInSidebar = *input.ShowInSidebar
 	}
 
+	row.UpdatedBy = input.UserId
 	row.UpdatedAt = time.Now()
 
 	if err := app.DatabaseRowPers.Update(row); err != nil {
