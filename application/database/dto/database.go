@@ -2,6 +2,13 @@ package dto
 
 import "time"
 
+// UserInfo contains basic user information
+type UserInfo struct {
+	Id        string
+	Username  string
+	AvatarUrl string
+}
+
 // Property schema
 type PropertySchema struct {
 	Id      string                 `json:"id"`
@@ -178,6 +185,9 @@ type RowItem struct {
 	Properties    map[string]interface{}
 	ShowInSidebar bool
 	CreatedBy     string
+	CreatedByUser *UserInfo
+	UpdatedBy     string
+	UpdatedByUser *UserInfo
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 }
@@ -200,6 +210,9 @@ type GetRowOutput struct {
 	Content       map[string]interface{}
 	ShowInSidebar bool
 	CreatedBy     string
+	CreatedByUser *UserInfo
+	UpdatedBy     string
+	UpdatedByUser *UserInfo
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 }
