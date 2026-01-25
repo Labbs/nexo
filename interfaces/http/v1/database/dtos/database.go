@@ -140,6 +140,13 @@ type MessageResponse struct {
 	Message string `json:"message"`
 }
 
+// UserInfo contains basic user information for display
+type UserInfo struct {
+	Id        string `json:"id"`
+	Username  string `json:"username"`
+	AvatarUrl string `json:"avatar_url,omitempty"`
+}
+
 type CreateDatabaseResponse struct {
 	Id          string           `json:"id"`
 	Name        string           `json:"name"`
@@ -195,6 +202,9 @@ type RowItem struct {
 	Properties    map[string]interface{} `json:"properties"`
 	ShowInSidebar bool                   `json:"show_in_sidebar"`
 	CreatedBy     string                 `json:"created_by"`
+	CreatedByUser *UserInfo              `json:"created_by_user,omitempty"`
+	UpdatedBy     string                 `json:"updated_by,omitempty"`
+	UpdatedByUser *UserInfo              `json:"updated_by_user,omitempty"`
 	CreatedAt     time.Time              `json:"created_at"`
 	UpdatedAt     time.Time              `json:"updated_at"`
 }
@@ -211,6 +221,9 @@ type GetRowResponse struct {
 	Content       map[string]interface{} `json:"content,omitempty"`
 	ShowInSidebar bool                   `json:"show_in_sidebar"`
 	CreatedBy     string                 `json:"created_by"`
+	CreatedByUser *UserInfo              `json:"created_by_user,omitempty"`
+	UpdatedBy     string                 `json:"updated_by,omitempty"`
+	UpdatedByUser *UserInfo              `json:"updated_by_user,omitempty"`
 	CreatedAt     time.Time              `json:"created_at"`
 	UpdatedAt     time.Time              `json:"updated_at"`
 }
