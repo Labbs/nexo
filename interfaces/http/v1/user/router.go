@@ -68,4 +68,11 @@ func SetupUserRouter(controller Controller) {
 		OperationID: "user.changePassword",
 		Tags:        []string{"User"},
 	})
+
+	fiberoapi.Get(controller.FiberOapi, "/list", controller.ListUsers, fiberoapi.OpenAPIOptions{
+		Summary:     "List users",
+		Description: "Get a simplified list of all users (id, username, avatar) for use in person pickers",
+		OperationID: "user.listUsers",
+		Tags:        []string{"User"},
+	})
 }
