@@ -48,11 +48,13 @@ func upDatabase(ctx context.Context, tx *sql.Tx) error {
 			content TEXT,
 			show_in_sidebar INTEGER DEFAULT 0,
 			created_by TEXT NOT NULL,
+			updated_by TEXT,
 			created_at TIMESTAMP NOT NULL,
 			updated_at TIMESTAMP NOT NULL,
 			deleted_at TIMESTAMP,
 			FOREIGN KEY (database_id) REFERENCES database(id) ON DELETE CASCADE,
-			FOREIGN KEY (created_by) REFERENCES user(id)
+			FOREIGN KEY (created_by) REFERENCES user(id),
+			FOREIGN KEY (updated_by) REFERENCES user(id)
 		);
 		CREATE INDEX IF NOT EXISTS idx_database_row_database_id ON database_row(database_id);
 		CREATE INDEX IF NOT EXISTS idx_database_row_deleted_at ON database_row(deleted_at);
@@ -86,6 +88,7 @@ func upDatabase(ctx context.Context, tx *sql.Tx) error {
 			content JSONB,
 			show_in_sidebar BOOLEAN DEFAULT false,
 			created_by UUID NOT NULL REFERENCES "user"(id),
+			updated_by UUID REFERENCES "user"(id),
 			created_at TIMESTAMPTZ NOT NULL,
 			updated_at TIMESTAMPTZ NOT NULL,
 			deleted_at TIMESTAMPTZ
