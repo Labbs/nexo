@@ -30,6 +30,8 @@ type Document struct {
 
 	Content datatypes.JSON
 
+	Position int
+
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt
@@ -140,4 +142,13 @@ type DocumentPers interface {
 	GetPublicDocument(spaceId string, id *string, slug *string) (*Document, error)
 	// Search
 	Search(query string, userId string, spaceId *string, limit int) ([]Document, error)
+	// Reorder
+	Reorder(spaceId string, items []ReorderItem, userId string) error
+	GetMaxPosition(spaceId string, parentId *string) (int, error)
+}
+
+// ReorderItem represents a single item in a reorder request
+type ReorderItem struct {
+	Id       string
+	Position int
 }

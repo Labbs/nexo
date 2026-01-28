@@ -69,6 +69,14 @@ func SetupUserRouter(controller Controller) {
 		Tags:        []string{"User"},
 	})
 
+	// Space order preferences
+	fiberoapi.Put(controller.FiberOapi, "/preferences/space-order", controller.UpdateSpaceOrder, fiberoapi.OpenAPIOptions{
+		Summary:     "Update space order",
+		Description: "Update the order of spaces in the sidebar (user preference)",
+		OperationID: "user.updateSpaceOrder",
+		Tags:        []string{"User", "Preferences"},
+	})
+
 	fiberoapi.Get(controller.FiberOapi, "/list", controller.ListUsers, fiberoapi.OpenAPIOptions{
 		Summary:     "List users",
 		Description: "Get a simplified list of all users (id, username, avatar) for use in person pickers",

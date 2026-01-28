@@ -21,6 +21,7 @@ type ViewConfig struct {
 	Sort          []SortConfig           `json:"sort,omitempty"`
 	Columns       []string               `json:"columns,omitempty"`
 	HiddenColumns []string               `json:"hidden_columns,omitempty"`
+	GroupBy       string                 `json:"group_by,omitempty"`
 }
 
 type SortConfig struct {
@@ -111,10 +112,12 @@ type UpdateViewRequest struct {
 	DatabaseId    string                 `path:"database_id"`
 	ViewId        string                 `path:"view_id"`
 	Name          *string                `json:"name,omitempty"`
+	Type          *string                `json:"type,omitempty"`
 	Filter        map[string]interface{} `json:"filter,omitempty"`
 	Sort          []SortConfig           `json:"sort,omitempty"`
 	Columns       []string               `json:"columns,omitempty"`
 	HiddenColumns []string               `json:"hidden_columns,omitempty"`
+	GroupBy       *string                `json:"group_by,omitempty"`
 }
 
 type DeleteViewRequest struct {
@@ -200,6 +203,7 @@ type CreateRowResponse struct {
 type RowItem struct {
 	Id            string                 `json:"id"`
 	Properties    map[string]interface{} `json:"properties"`
+	Content       map[string]interface{} `json:"content,omitempty"`
 	ShowInSidebar bool                   `json:"show_in_sidebar"`
 	CreatedBy     string                 `json:"created_by"`
 	CreatedByUser *UserInfo              `json:"created_by_user,omitempty"`

@@ -52,6 +52,12 @@ func SetupDocumentRouter(controller Controller) {
 		OperationID: "document.getTrash",
 		Tags:        []string{"Document", "Trash"},
 	})
+	fiberoapi.Patch(controller.FiberOapi, "/space/:space_id/reorder", controller.ReorderDocuments, fiberoapi.OpenAPIOptions{
+		Summary:     "Reorder documents",
+		Description: "Reorder documents within a space by updating their positions",
+		OperationID: "document.reorderDocuments",
+		Tags:        []string{"Document"},
+	})
 
 	// Routes with specific suffixes - MUST be before generic /:identifier routes
 	// Version history

@@ -26,6 +26,7 @@ type ViewConfig struct {
 	Sort          []SortConfig           `json:"sort,omitempty"`
 	Columns       []string               `json:"columns,omitempty"`
 	HiddenColumns []string               `json:"hidden_columns,omitempty"`
+	GroupBy       string                 `json:"group_by,omitempty"`
 }
 
 type SortConfig struct {
@@ -144,10 +145,12 @@ type UpdateViewInput struct {
 	DatabaseId    string
 	ViewId        string
 	Name          *string
+	Type          *string
 	Filter        map[string]interface{}
 	Sort          []SortConfig
 	Columns       []string
 	HiddenColumns []string
+	GroupBy       *string
 }
 
 // Delete view
@@ -183,6 +186,7 @@ type ListRowsInput struct {
 type RowItem struct {
 	Id            string
 	Properties    map[string]interface{}
+	Content       map[string]interface{}
 	ShowInSidebar bool
 	CreatedBy     string
 	CreatedByUser *UserInfo

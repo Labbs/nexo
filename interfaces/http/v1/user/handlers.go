@@ -50,6 +50,11 @@ func (ctrl *Controller) GetProfile(ctx *fiber.Ctx, input struct{}) (*dtos.Profil
 	// Add role (not auto-mapped because it's a custom type)
 	profile.Role = string(result.User.Role)
 
+	// Add preferences (not auto-mapped because domain.JSONB != map[string]any for mapper)
+	if result.User.Preferences != nil {
+		profile.Preferences = map[string]any(result.User.Preferences)
+	}
+
 	return &profile, nil
 }
 
@@ -339,6 +344,28 @@ func (ctrl *Controller) ChangePassword(ctx *fiber.Ctx, req dtos.ChangePasswordRe
 	}
 
 	return &dtos.ChangePasswordResponse{Message: "Password changed successfully"}, nil
+}
+
+func (ctrl *Controller) UpdateSpaceOrder(ctx *fiber.Ctx, req dtos.UpdateSpaceOrderRequest) (*dtos.UpdateSpaceOrderResponse, *fiberoapi.ErrorResponse) {
+	requestId := ctx.Locals("requestid").(string)
+	logger := ctrl.Logger.With().Str("request_id", requestId).Str("component", "http.api.v1.user.update_space_order").Logger()
+
+	authCtx, err := fiberoapi.GetAuthContext(ctx)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to get auth context")
+		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
+	}
+
+	result, err := ctrl.UserApp.UpdateSpaceOrder(userDto.UpdateSpaceOrderInput{
+		UserId:   authCtx.UserID,
+		SpaceIds: req.SpaceIds,
+	})
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to update space order")
+		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusInternalServerError, Details: "Failed to update space order", Type: "INTERNAL_SERVER_ERROR"}
+	}
+
+	return &dtos.UpdateSpaceOrderResponse{SpaceIds: result.SpaceIds}, nil
 }
 
 func (ctrl *Controller) ListUsers(ctx *fiber.Ctx, req dtos.ListUsersRequest) (*dtos.ListUsersResponse, *fiberoapi.ErrorResponse) {

@@ -391,10 +391,12 @@ func (ctrl *Controller) UpdateView(ctx *fiber.Ctx, req dtos.UpdateViewRequest) (
 		DatabaseId:    req.DatabaseId,
 		ViewId:        req.ViewId,
 		Name:          req.Name,
+		Type:          req.Type,
 		Filter:        req.Filter,
 		Sort:          sort,
 		Columns:       req.Columns,
 		HiddenColumns: req.HiddenColumns,
+		GroupBy:       req.GroupBy,
 	})
 	if err != nil {
 		if strings.Contains(err.Error(), "access denied") {
@@ -515,6 +517,7 @@ func (ctrl *Controller) ListRows(ctx *fiber.Ctx, req dtos.ListRowsRequest) (*dto
 		rowItem := dtos.RowItem{
 			Id:            row.Id,
 			Properties:    row.Properties,
+			Content:       row.Content,
 			ShowInSidebar: row.ShowInSidebar,
 			CreatedBy:     row.CreatedBy,
 			UpdatedBy:     row.UpdatedBy,

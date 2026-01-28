@@ -28,6 +28,8 @@ type Drawing struct {
 	// Base64 PNG thumbnail for preview
 	Thumbnail string
 
+	Position int
+
 	CreatedBy string
 	User      User `gorm:"foreignKey:CreatedBy;references:Id"`
 

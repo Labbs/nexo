@@ -41,6 +41,8 @@ type Database struct {
 	// Type of database: "spreadsheet" or "document"
 	Type DatabaseType
 
+	Position int
+
 	CreatedBy string
 	User      User `gorm:"foreignKey:CreatedBy;references:Id"`
 

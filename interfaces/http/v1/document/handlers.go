@@ -1069,6 +1069,42 @@ func (ctrl *Controller) CreateVersion(ctx *fiber.Ctx, req dtos.CreateVersionRequ
 	}, nil
 }
 
+// Reorder handler
+
+func (ctrl *Controller) ReorderDocuments(ctx *fiber.Ctx, req dtos.ReorderDocumentsRequest) (*dtos.ReorderDocumentsResponse, *fiberoapi.ErrorResponse) {
+	requestId := ctx.Locals("requestid").(string)
+	logger := ctrl.Logger.With().Str("request_id", requestId).Str("component", "http.api.v1.document.reorder_documents").Logger()
+
+	authCtx, err := fiberoapi.GetAuthContext(ctx)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to get auth context")
+		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
+	}
+
+	items := make([]docDto.ReorderItem, len(req.Items))
+	for i, item := range req.Items {
+		items[i] = docDto.ReorderItem{
+			Id:       item.Id,
+			Position: item.Position,
+		}
+	}
+
+	err = ctrl.DocumentApp.ReorderDocuments(docDto.ReorderDocumentsInput{
+		UserId:  authCtx.UserID,
+		SpaceId: req.SpaceId,
+		Items:   items,
+	})
+	if err != nil {
+		if strings.Contains(err.Error(), "insufficient permissions") {
+			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
+		}
+		logger.Error().Err(err).Msg("failed to reorder documents")
+		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusInternalServerError, Details: "Failed to reorder documents", Type: "INTERNAL_SERVER_ERROR"}
+	}
+
+	return &dtos.ReorderDocumentsResponse{Message: "Documents reordered successfully"}, nil
+}
+
 // Helper functions for converting blocks
 func convertToHttpInlineContent(content []docDto.InlineContent) []dtos.InlineContent {
 	result := make([]dtos.InlineContent, len(content))

@@ -74,11 +74,8 @@ func (app *DatabaseApp) CreateDatabase(input dto.CreateDatabaseInput) (*dto.Crea
 	var schema domain.JSONBArray
 	json.Unmarshal(schemaJSON, &schema)
 
-	// Create default view (list for document databases, table for spreadsheets)
+	// Create default view (always table)
 	defaultViewType := domain.ViewTypeTable
-	if dbType == domain.DatabaseTypeDocument {
-		defaultViewType = domain.ViewTypeList
-	}
 	defaultView := dto.ViewConfig{
 		Id:   uuid.New().String(),
 		Name: "Default",
@@ -410,6 +407,9 @@ func (app *DatabaseApp) UpdateView(input dto.UpdateViewInput) error {
 			if input.Name != nil {
 				views[i].Name = *input.Name
 			}
+			if input.Type != nil {
+				views[i].Type = *input.Type
+			}
 			// Filter: nil means no change, empty map {} means clear, otherwise update
 			if input.Filter != nil {
 				if len(input.Filter) == 0 {
@@ -434,6 +434,10 @@ func (app *DatabaseApp) UpdateView(input dto.UpdateViewInput) error {
 			// HiddenColumns: always update when provided (even empty array means "show all")
 			if input.HiddenColumns != nil {
 				views[i].HiddenColumns = input.HiddenColumns
+			}
+			// GroupBy: update when provided (used for board view grouping)
+			if input.GroupBy != nil {
+				views[i].GroupBy = *input.GroupBy
 			}
 			found = true
 			break
@@ -644,6 +648,7 @@ func (app *DatabaseApp) ListRows(input dto.ListRowsInput) (*dto.ListRowsOutput, 
 		rowItem := dto.RowItem{
 			Id:            row.Id,
 			Properties:    map[string]interface{}(row.Properties),
+			Content:       map[string]interface{}(row.Content),
 			ShowInSidebar: row.ShowInSidebar,
 			CreatedBy:     row.CreatedBy,
 			UpdatedBy:     row.UpdatedBy,

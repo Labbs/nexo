@@ -79,7 +79,7 @@ func (p *documentPers) GetRootDocumentsFromSpaceWithUserPermissions(spaceId, use
 		// Preload document permissions for this user
 		Preload("Permissions", "user_id = ? AND deleted_at IS NULL", userId).
 		Where("space_id = ? AND parent_id IS NULL AND deleted_at IS NULL", spaceId).
-		Order("created_at ASC").
+		Order("position ASC, created_at ASC").
 		Find(&docs).Error
 
 	if err != nil {
@@ -111,7 +111,7 @@ func (p *documentPers) GetChildDocumentsWithUserPermissions(parentId, userId str
 		// Preload the parent to have the complete context
 		Preload("Parent").
 		Where("parent_id = ? AND deleted_at IS NULL", parentId).
-		Order("created_at ASC").
+		Order("position ASC, created_at ASC").
 		Find(&docs).Error
 
 	if err != nil {
@@ -158,6 +158,13 @@ func (p *documentPers) Create(document *domain.Document, userId string) error {
 			return fmt.Errorf("access denied: insufficient permissions to create document in space")
 		}
 	}
+
+	// Assign position at the end
+	maxPos, err := p.GetMaxPosition(document.SpaceId, document.ParentId)
+	if err != nil {
+		return fmt.Errorf("failed to get max position: %w", err)
+	}
+	document.Position = maxPos + 1
 
 	// Perform the creation
 	return p.db.Debug().Create(document).Error
@@ -241,6 +248,13 @@ func (p *documentPers) Move(documentId string, newParentId *string, userId strin
 		// Move to root
 		doc.ParentId = nil
 	}
+
+	// Assign position at the end of the new parent's children
+	maxPos, err := p.GetMaxPosition(doc.SpaceId, doc.ParentId)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get max position: %w", err)
+	}
+	doc.Position = maxPos + 1
 
 	if err := p.db.Save(doc).Error; err != nil {
 		return nil, fmt.Errorf("failed to move document: %w", err)
@@ -393,4 +407,50 @@ func (p *documentPers) Search(query string, userId string, spaceId *string, limi
 	}
 
 	return accessibleDocs, nil
+}
+
+func (p *documentPers) Reorder(spaceId string, items []domain.ReorderItem, userId string) error {
+	// Verify user has editor access on the space
+	var space domain.Space
+	err := p.db.Debug().
+		Preload("Owner").
+		Preload("Permissions", "user_id = ? AND deleted_at IS NULL", userId).
+		Where("id = ?", spaceId).
+		First(&space).Error
+	if err != nil {
+		return fmt.Errorf("failed to get space: %w", err)
+	}
+	if !space.HasPermission(userId, domain.PermissionRoleEditor) {
+		return fmt.Errorf("access denied: insufficient permissions to reorder documents")
+	}
+
+	// Update positions in a transaction
+	return p.db.Transaction(func(tx *gorm.DB) error {
+		for _, item := range items {
+			if err := tx.Model(&domain.Document{}).
+				Where("id = ? AND space_id = ?", item.Id, spaceId).
+				Update("position", item.Position).Error; err != nil {
+				return fmt.Errorf("failed to update position for document %s: %w", item.Id, err)
+			}
+		}
+		return nil
+	})
+}
+
+func (p *documentPers) GetMaxPosition(spaceId string, parentId *string) (int, error) {
+	var maxPos int
+	query := p.db.Model(&domain.Document{}).
+		Where("space_id = ? AND deleted_at IS NULL", spaceId)
+
+	if parentId != nil {
+		query = query.Where("parent_id = ?", *parentId)
+	} else {
+		query = query.Where("parent_id IS NULL")
+	}
+
+	err := query.Select("COALESCE(MAX(position), -1)").Scan(&maxPos).Error
+	if err != nil {
+		return -1, err
+	}
+	return maxPos, nil
 }
