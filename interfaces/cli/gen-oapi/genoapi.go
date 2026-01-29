@@ -56,27 +56,18 @@ func runCommand(cfg config.Config) error {
 
 	routes.SetupRoutes(deps)
 
-	if cfg.ExportOapi.Format != "yaml" && cfg.ExportOapi.Format != "json" {
-		logger.Fatal().Str("event", "http.genoapi.invalid_format").Msg("Invalid format for OpenAPI export. Use 'yaml' or 'json'.")
-		return nil
-	}
-
 	spec, err := deps.Http.FiberOapi.GenerateOpenAPISpecYAML()
 	if err != nil {
 		logger.Fatal().Err(err).Str("event", "http.genoapi.generate_openapi_spec_yaml").Msg("Failed to generate OpenAPI spec in YAML format.")
 		return err
 	}
 
-	if cfg.ExportOapi.Format == "yaml" {
-		err = os.WriteFile(cfg.ExportOapi.FileName, []byte(spec), 0644)
-		if err != nil {
-			logger.Fatal().Err(err).Str("event", "http.genoapi.write_openapi_yaml_file").Msg("Failed to write OpenAPI YAML file.")
-			return err
-		}
-		logger.Info().Str("event", "http.genoapi.openapi_yaml_exported").Str("file", cfg.ExportOapi.FileName).Msg("OpenAPI spec exported in YAML format.")
-	} else {
-		logger.Warn().Str("event", "http.genoapi.convert_openapi_yaml_to_json").Msg("not implemented: convert OpenAPI YAML to JSON yet")
+	err = os.WriteFile(cfg.ExportOapi.FileName, []byte(spec), 0644)
+	if err != nil {
+		logger.Fatal().Err(err).Str("event", "http.genoapi.write_openapi_yaml_file").Msg("Failed to write OpenAPI YAML file.")
+		return err
 	}
+	logger.Info().Str("event", "http.genoapi.openapi_yaml_exported").Str("file", cfg.ExportOapi.FileName).Msg("OpenAPI spec exported in YAML format.")
 
 	return nil
 }

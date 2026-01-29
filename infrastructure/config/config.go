@@ -50,6 +50,5 @@ type Config struct {
 
 	ExportOapi struct {
 		FileName string
-		Format   string
 	}
 }

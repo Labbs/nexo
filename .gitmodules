@@ -1,3 +1,3 @@
 [submodule "ui"]
 	path = ui
-	url = git@github.com:Labbs/nexo-ui.git
+	url = https://github.com/labbs/nexo-ui.git

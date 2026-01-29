@@ -19,16 +19,5 @@ func ExportOapiFlags(cfg *Config) []cli.Flag {
 				altsrcyaml.YAML("export-oapi.filename", altsrc.NewStringPtrSourcer(&cfg.ConfigFile)),
 			),
 		},
-		&cli.StringFlag{
-			Name:        "export-oapi.format",
-			Usage:       "The format of the OpenAPI export (yaml or json)",
-			Aliases:     []string{"export.oapi.format"},
-			Value:       "yaml",
-			Destination: &cfg.ExportOapi.Format,
-			Sources: cli.NewValueSourceChain(
-				cli.EnvVar("EXPORT_OAPI_FORMAT"),
-				altsrcyaml.YAML("export-oapi.format", altsrc.NewStringPtrSourcer(&cfg.ConfigFile)),
-			),
-		},
 	}
 }
