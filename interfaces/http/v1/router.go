@@ -2,6 +2,7 @@ package v1
 
 import (
 	"github.com/labbs/nexo/infrastructure"
+	"github.com/labbs/nexo/interfaces/http/app"
 	"github.com/labbs/nexo/interfaces/http/v1/action"
 	"github.com/labbs/nexo/interfaces/http/v1/admin"
 	"github.com/labbs/nexo/interfaces/http/v1/apikey"
@@ -102,4 +103,6 @@ func SetupRouterV1(deps infrastructure.Deps) {
 		GroupApp:  deps.GroupApp,
 	}
 	admin.SetupAdminRouter(adminCtrl)
+
+	app.SetupRouterApp(deps)
 }
