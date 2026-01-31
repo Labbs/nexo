@@ -851,6 +851,35 @@ func (app *DatabaseApp) DeleteRow(input dto.DeleteRowInput) error {
 	return nil
 }
 
+func (app *DatabaseApp) MoveDatabase(input dto.MoveDatabaseInput) (*dto.MoveDatabaseOutput, error) {
+	database, err := app.DatabasePers.GetById(input.DatabaseId)
+	if err != nil {
+		return nil, fmt.Errorf("database not found: %w", err)
+	}
+
+	// Verify user has access to the space
+	space, err := app.SpacePers.GetSpaceById(database.SpaceId)
+	if err != nil {
+		return nil, fmt.Errorf("space not found: %w", err)
+	}
+
+	if space.GetUserRole(input.UserId) == nil {
+		return nil, fmt.Errorf("access denied")
+	}
+
+	database.DocumentId = input.DocumentId
+	database.UpdatedAt = time.Now()
+
+	if err := app.DatabasePers.Update(database); err != nil {
+		return nil, fmt.Errorf("failed to move database: %w", err)
+	}
+
+	return &dto.MoveDatabaseOutput{
+		Id:         database.Id,
+		DocumentId: database.DocumentId,
+	}, nil
+}
+
 func (app *DatabaseApp) BulkDeleteRows(input dto.BulkDeleteRowsInput) error {
 	database, err := app.DatabasePers.GetById(input.DatabaseId)
 	if err != nil {
@@ -872,4 +901,34 @@ func (app *DatabaseApp) BulkDeleteRows(input dto.BulkDeleteRowsInput) error {
 	}
 
 	return nil
+}
+
+func (app *DatabaseApp) Search(input dto.SearchDatabasesInput) (*dto.SearchDatabasesOutput, error) {
+	if len(input.Query) < 2 {
+		return nil, fmt.Errorf("query must be at least 2 characters")
+	}
+
+	databases, err := app.DatabasePers.Search(input.Query, input.UserId, input.SpaceId, input.Limit)
+	if err != nil {
+		return nil, fmt.Errorf("failed to search databases: %w", err)
+	}
+
+	output := &dto.SearchDatabasesOutput{
+		Results: make([]dto.SearchDatabaseResultItem, len(databases)),
+	}
+
+	for i, db := range databases {
+		output.Results[i] = dto.SearchDatabaseResultItem{
+			Id:          db.Id,
+			Name:        db.Name,
+			Description: db.Description,
+			Icon:        db.Icon,
+			Type:        string(db.Type),
+			SpaceId:     db.SpaceId,
+			SpaceName:   db.Space.Name,
+			UpdatedAt:   db.UpdatedAt,
+		}
+	}
+
+	return output, nil
 }

@@ -20,6 +20,29 @@ func (c *SpaceApp) ListSpacePermissions(input dto.ListSpacePermissionsInput) (*d
 	if err != nil {
 		return nil, err
 	}
+
+	// Include the space owner if not already in the permissions list
+	if space.OwnerId != nil {
+		ownerFound := false
+		for _, p := range permissions {
+			if p.UserId != nil && *p.UserId == *space.OwnerId {
+				ownerFound = true
+				break
+			}
+		}
+		if !ownerFound {
+			ownerPerm := domain.Permission{
+				Id:      "owner-" + space.Id,
+				Type:    domain.PermissionTypeSpace,
+				SpaceId: &space.Id,
+				UserId:  space.OwnerId,
+				Role:    domain.PermissionRoleOwner,
+				User:    space.Owner,
+			}
+			permissions = append([]domain.Permission{ownerPerm}, permissions...)
+		}
+	}
+
 	return &dto.ListSpacePermissionsOutput{Permissions: permissions}, nil
 }
 

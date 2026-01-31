@@ -125,6 +125,17 @@ type DeleteViewRequest struct {
 	ViewId     string `path:"view_id"`
 }
 
+// Move database
+type MoveDatabaseRequest struct {
+	DatabaseId string  `path:"database_id"`
+	DocumentId *string `json:"document_id"`
+}
+
+type MoveDatabaseResponse struct {
+	Id         string  `json:"id"`
+	DocumentId *string `json:"document_id,omitempty"`
+}
+
 // Filter rule for querying rows
 type FilterRule struct {
 	Property  string      `json:"property"`
@@ -250,4 +261,26 @@ type AvailableTypesResponse struct {
 type TypeInfo struct {
 	Type        string `json:"type"`
 	Description string `json:"description"`
+}
+
+// Search
+type SearchDatabasesRequest struct {
+	Query   string  `query:"q"`
+	SpaceId *string `query:"space_id"`
+	Limit   int     `query:"limit"`
+}
+
+type SearchDatabaseResultItem struct {
+	Id          string    `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	Icon        string    `json:"icon,omitempty"`
+	Type        string    `json:"type"`
+	SpaceId     string    `json:"space_id"`
+	SpaceName   string    `json:"space_name"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}
+
+type SearchDatabasesResponse struct {
+	Results []SearchDatabaseResultItem `json:"results"`
 }

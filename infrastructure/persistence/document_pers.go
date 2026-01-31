@@ -376,14 +376,58 @@ func (p *documentPers) Search(query string, userId string, spaceId *string, limi
 
 	searchPattern := "%" + query + "%"
 
-	dbQuery := p.db.
-		Preload("Space", func(db *gorm.DB) *gorm.DB {
-			return db.Preload("Owner").
-				Preload("Permissions", "user_id = ? AND deleted_at IS NULL", userId)
-		}).
-		Preload("Permissions", "user_id = ? AND deleted_at IS NULL", userId).
+	// Subquery: group IDs the user belongs to
+	userGroupIds := p.db.Table("group_members").Select("group_id").Where("user_id = ?", userId)
+
+	// Subquery: space IDs the user can access (public, owned, or via user/group permission)
+	accessibleSpaceIds := p.db.Table("space").
+		Select("id").
 		Where("deleted_at IS NULL").
-		Where("(name LIKE ? OR content LIKE ?)", searchPattern, searchPattern)
+		Where(
+			p.db.Where("type = ?", domain.SpaceTypePublic).
+				Or("owner_id = ?", userId).
+				Or("id IN (?)",
+					p.db.Table("permission").
+						Select("space_id").
+						Where("type = ? AND space_id IS NOT NULL AND deleted_at IS NULL", domain.PermissionTypeSpace).
+						Where("role != ?", domain.PermissionRoleDenied).
+						Where(
+							p.db.Where("user_id = ?", userId).
+								Or("group_id IN (?)", userGroupIds),
+						),
+				),
+		)
+
+	// Subquery: document IDs where user is explicitly denied
+	deniedDocIds := p.db.Table("permission").
+		Select("document_id").
+		Where("type = ? AND document_id IS NOT NULL AND deleted_at IS NULL AND role = ?", domain.PermissionTypeDocument, domain.PermissionRoleDenied).
+		Where(
+			p.db.Where("user_id = ?", userId).
+				Or("group_id IN (?)", userGroupIds),
+		)
+
+	// Subquery: document IDs where user has explicit access (viewer+)
+	grantedDocIds := p.db.Table("permission").
+		Select("document_id").
+		Where("type = ? AND document_id IS NOT NULL AND deleted_at IS NULL", domain.PermissionTypeDocument).
+		Where("role IN ?", []domain.PermissionRole{domain.PermissionRoleViewer, domain.PermissionRoleEditor, domain.PermissionRoleOwner}).
+		Where(
+			p.db.Where("user_id = ?", userId).
+				Or("group_id IN (?)", userGroupIds),
+		)
+
+	dbQuery := p.db.
+		Preload("Space").
+		Where("deleted_at IS NULL").
+		Where("(name LIKE ? OR content LIKE ?)", searchPattern, searchPattern).
+		// Exclude documents where user is explicitly denied
+		Where("id NOT IN (?)", deniedDocIds).
+		// Must have either document-level access OR space-level access
+		Where(
+			p.db.Where("id IN (?)", grantedDocIds).
+				Or("space_id IN (?)", accessibleSpaceIds),
+		)
 
 	if spaceId != nil {
 		dbQuery = dbQuery.Where("space_id = ?", *spaceId)
@@ -398,15 +442,7 @@ func (p *documentPers) Search(query string, userId string, spaceId *string, limi
 		return nil, err
 	}
 
-	// Filter documents based on permissions
-	var accessibleDocs []domain.Document
-	for _, doc := range docs {
-		if doc.HasPermission(userId, domain.PermissionRoleViewer) {
-			accessibleDocs = append(accessibleDocs, doc)
-		}
-	}
-
-	return accessibleDocs, nil
+	return docs, nil
 }
 
 func (p *documentPers) Reorder(spaceId string, items []domain.ReorderItem, userId string) error {

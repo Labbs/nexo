@@ -13,13 +13,13 @@ import (
 func (c *SpaceApp) CreatePrivateSpaceForUser(input dto.CreatePrivateSpaceForUserInput) (*dto.CreatePrivateSpaceForUserOutput, error) {
 	logger := c.Logger.With().Str("component", "application.space.createPrivateSpaceForUser").Logger()
 
-	name := "Private Space"
+	name := "Personal Space"
 
 	space := &domain.Space{
 		Id:      utils.UUIDv4(),
 		Slug:    slug.Make(name + "-" + shortuuid.GenerateShortUUID()),
 		Name:    name,
-		Type:    domain.SpaceTypePrivate,
+		Type:    domain.SpaceTypePersonal,
 		OwnerId: &input.UserId,
 	}
 
@@ -29,17 +29,22 @@ func (c *SpaceApp) CreatePrivateSpaceForUser(input dto.CreatePrivateSpaceForUser
 		return nil, fmt.Errorf("failed to create private space for user: %w", err)
 	}
 
+	// Auto-create owner permission for the creator
+	if err := c.PermissionPers.UpsertUser(domain.PermissionTypeSpace, space.Id, input.UserId, domain.PermissionRoleOwner); err != nil {
+		logger.Warn().Err(err).Str("space_id", space.Id).Str("user_id", input.UserId).Msg("failed to create owner permission")
+	}
+
 	return &dto.CreatePrivateSpaceForUserOutput{Space: space}, nil
 }
 
-func (c *SpaceApp) CreatePublicSpace(input dto.CreatePublicSpaceInput) (*dto.CreatePublicSpaceOutput, error) {
-	logger := c.Logger.With().Str("component", "application.space.createPublicSpace").Logger()
+func (c *SpaceApp) CreateSpace(input dto.CreateSpaceInput) (*dto.CreateSpaceOutput, error) {
+	logger := c.Logger.With().Str("component", "application.space.createSpace").Logger()
 
 	space := &domain.Space{
 		Id:        utils.UUIDv4(),
 		Slug:      slug.Make(input.Name + "-" + shortuuid.GenerateShortUUID()),
 		Name:      input.Name,
-		Type:      domain.SpaceTypePublic,
+		Type:      input.Type,
 		OwnerId:   input.OwnerId,
 		Icon:      *input.Icon,
 		IconColor: *input.IconColor,
@@ -47,9 +52,16 @@ func (c *SpaceApp) CreatePublicSpace(input dto.CreatePublicSpaceInput) (*dto.Cre
 
 	err := c.SpacePres.Create(space)
 	if err != nil {
-		logger.Error().Err(err).Str("name", input.Name).Msg("failed to create public space")
-		return nil, fmt.Errorf("failed to create public space: %w", err)
+		logger.Error().Err(err).Str("name", input.Name).Msg("failed to create space")
+		return nil, fmt.Errorf("failed to create space: %w", err)
 	}
 
-	return &dto.CreatePublicSpaceOutput{Space: space}, nil
+	// Auto-create owner permission for the creator
+	if input.OwnerId != nil {
+		if err := c.PermissionPers.UpsertUser(domain.PermissionTypeSpace, space.Id, *input.OwnerId, domain.PermissionRoleOwner); err != nil {
+			logger.Warn().Err(err).Str("space_id", space.Id).Str("user_id", *input.OwnerId).Msg("failed to create owner permission")
+		}
+	}
+
+	return &dto.CreateSpaceOutput{Space: space}, nil
 }

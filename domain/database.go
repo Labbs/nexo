@@ -99,6 +99,7 @@ type DatabasePers interface {
 	GetByDocumentId(documentId string) ([]Database, error)
 	Update(database *Database) error
 	Delete(id string) error
+	Search(query string, userId string, spaceId *string, limit int) ([]Database, error)
 }
 
 // DatabaseRow represents a row/page in a database

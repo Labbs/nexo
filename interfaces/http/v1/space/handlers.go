@@ -23,11 +23,18 @@ func (ctrl *Controller) CreateSpace(ctx *fiber.Ctx, req dtos.CreateSpaceRequest)
 		}
 	}
 
-	result, err := ctrl.SpaceApp.CreatePublicSpace(spaceDto.CreatePublicSpaceInput{
+	// Default to public if not specified
+	spaceType := domain.SpaceTypePublic
+	if req.Type != nil && *req.Type == string(domain.SpaceTypePrivate) {
+		spaceType = domain.SpaceTypePrivate
+	}
+
+	result, err := ctrl.SpaceApp.CreateSpace(spaceDto.CreateSpaceInput{
 		Name:      req.Name,
 		Icon:      req.Icon,
 		IconColor: req.IconColor,
 		OwnerId:   &authCtx.UserID,
+		Type:      spaceType,
 	})
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to create space")

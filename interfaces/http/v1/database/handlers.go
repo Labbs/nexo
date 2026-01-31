@@ -659,6 +659,38 @@ func (ctrl *Controller) DeleteRow(ctx *fiber.Ctx, req dtos.DeleteRowRequest) (*d
 	return &dtos.MessageResponse{Message: "Row deleted"}, nil
 }
 
+func (ctrl *Controller) MoveDatabase(ctx *fiber.Ctx, req dtos.MoveDatabaseRequest) (*dtos.MoveDatabaseResponse, *fiberoapi.ErrorResponse) {
+	requestId := ctx.Locals("requestid").(string)
+	logger := ctrl.Logger.With().Str("request_id", requestId).Str("component", "http.api.v1.database.move").Logger()
+
+	authCtx, err := fiberoapi.GetAuthContext(ctx)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to get auth context")
+		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
+	}
+
+	result, err := ctrl.DatabaseApp.MoveDatabase(databaseDto.MoveDatabaseInput{
+		UserId:     authCtx.UserID,
+		DatabaseId: req.DatabaseId,
+		DocumentId: req.DocumentId,
+	})
+	if err != nil {
+		if strings.Contains(err.Error(), "access denied") {
+			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
+		}
+		if strings.Contains(err.Error(), "not found") {
+			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Database not found", Type: "NOT_FOUND"}
+		}
+		logger.Error().Err(err).Msg("failed to move database")
+		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusInternalServerError, Details: "Failed to move database", Type: "INTERNAL_SERVER_ERROR"}
+	}
+
+	return &dtos.MoveDatabaseResponse{
+		Id:         result.Id,
+		DocumentId: result.DocumentId,
+	}, nil
+}
+
 func (ctrl *Controller) BulkDeleteRows(ctx *fiber.Ctx, req dtos.BulkDeleteRowsRequest) (*dtos.MessageResponse, *fiberoapi.ErrorResponse) {
 	requestId := ctx.Locals("requestid").(string)
 	logger := ctrl.Logger.With().Str("request_id", requestId).Str("component", "http.api.v1.database.row.bulk_delete").Logger()
@@ -690,4 +722,46 @@ func (ctrl *Controller) BulkDeleteRows(ctx *fiber.Ctx, req dtos.BulkDeleteRowsRe
 	}
 
 	return &dtos.MessageResponse{Message: "Rows deleted"}, nil
+}
+
+func (ctrl *Controller) SearchDatabases(ctx *fiber.Ctx, req dtos.SearchDatabasesRequest) (*dtos.SearchDatabasesResponse, *fiberoapi.ErrorResponse) {
+	requestId := ctx.Locals("requestid").(string)
+	logger := ctrl.Logger.With().Str("request_id", requestId).Str("component", "http.api.v1.database.search").Logger()
+
+	authCtx, err := fiberoapi.GetAuthContext(ctx)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to get auth context")
+		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
+	}
+
+	if len(req.Query) < 2 {
+		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusBadRequest, Details: "Query must be at least 2 characters", Type: "BAD_REQUEST"}
+	}
+
+	result, err := ctrl.DatabaseApp.Search(databaseDto.SearchDatabasesInput{
+		UserId:  authCtx.UserID,
+		Query:   req.Query,
+		SpaceId: req.SpaceId,
+		Limit:   req.Limit,
+	})
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to search databases")
+		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusInternalServerError, Details: "Failed to search databases", Type: "INTERNAL_SERVER_ERROR"}
+	}
+
+	resp := &dtos.SearchDatabasesResponse{Results: make([]dtos.SearchDatabaseResultItem, len(result.Results))}
+	for i, r := range result.Results {
+		resp.Results[i] = dtos.SearchDatabaseResultItem{
+			Id:          r.Id,
+			Name:        r.Name,
+			Description: r.Description,
+			Icon:        r.Icon,
+			Type:        r.Type,
+			SpaceId:     r.SpaceId,
+			SpaceName:   r.SpaceName,
+			UpdatedAt:   r.UpdatedAt,
+		}
+	}
+
+	return resp, nil
 }

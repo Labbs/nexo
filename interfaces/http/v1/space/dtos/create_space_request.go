@@ -4,6 +4,7 @@ type CreateSpaceRequest struct {
 	Name      string  `json:"name" validate:"required,min=3,max=100"`
 	Icon      *string `json:"icon,omitempty"`
 	IconColor *string `json:"icon_color,omitempty"`
+	Type      *string `json:"type,omitempty" validate:"omitempty,oneof=public private"`
 }
 
 type CreateSpaceResponse struct {

@@ -25,6 +25,13 @@ func SetupDatabaseRouter(ctrl Controller) {
 		Tags:        []string{"Databases"},
 	})
 
+	fiberoapi.Get(ctrl.FiberOapi, "/search", ctrl.SearchDatabases, fiberoapi.OpenAPIOptions{
+		Summary:     "Search databases",
+		Description: "Search databases by name or description",
+		OperationID: "database.search",
+		Tags:        []string{"Databases", "Search"},
+	})
+
 	fiberoapi.Get(ctrl.FiberOapi, "/:database_id", ctrl.GetDatabase, fiberoapi.OpenAPIOptions{
 		Summary:     "Get database",
 		Description: "Get a specific database by ID",
@@ -43,6 +50,13 @@ func SetupDatabaseRouter(ctrl Controller) {
 		Summary:     "Delete database",
 		Description: "Delete a database and all its rows",
 		OperationID: "database.delete",
+		Tags:        []string{"Databases"},
+	})
+
+	fiberoapi.Patch(ctrl.FiberOapi, "/:database_id/move", ctrl.MoveDatabase, fiberoapi.OpenAPIOptions{
+		Summary:     "Move database",
+		Description: "Move a database to a document or to root level",
+		OperationID: "database.move",
 		Tags:        []string{"Databases"},
 	})
 

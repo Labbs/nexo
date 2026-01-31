@@ -38,6 +38,13 @@ func SetupDrawingRouter(ctrl Controller) {
 		Tags:        []string{"Drawings"},
 	})
 
+	fiberoapi.Patch(ctrl.FiberOapi, "/:drawing_id/move", ctrl.MoveDrawing, fiberoapi.OpenAPIOptions{
+		Summary:     "Move drawing",
+		Description: "Move a drawing to a document or to root level",
+		OperationID: "drawing.move",
+		Tags:        []string{"Drawings"},
+	})
+
 	// Permission routes
 	fiberoapi.Get(ctrl.FiberOapi, "/:drawing_id/permissions", ctrl.ListDrawingPermissions, fiberoapi.OpenAPIOptions{
 		Summary:     "List drawing permissions",

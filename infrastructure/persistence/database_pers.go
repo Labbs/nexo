@@ -64,6 +64,91 @@ func (p *databasePers) Delete(id string) error {
 	return p.db.Debug().Where("id = ?", id).Delete(&domain.Database{}).Error
 }
 
+func (p *databasePers) Search(query string, userId string, spaceId *string, limit int) ([]domain.Database, error) {
+	var databases []domain.Database
+
+	if limit <= 0 || limit > 50 {
+		limit = 20
+	}
+
+	searchPattern := "%" + query + "%"
+
+	// Subquery: group IDs the user belongs to
+	userGroupIds := p.db.Table("group_members").Select("group_id").Where("user_id = ?", userId)
+
+	// Subquery: space IDs the user can access (public, owned, or via user/group permission)
+	accessibleSpaceIds := p.db.Table("space").
+		Select("id").
+		Where("deleted_at IS NULL").
+		Where(
+			p.db.Where("type = ?", domain.SpaceTypePublic).
+				Or("owner_id = ?", userId).
+				Or("id IN (?)",
+					p.db.Table("permission").
+						Select("space_id").
+						Where("type = ? AND space_id IS NOT NULL AND deleted_at IS NULL", domain.PermissionTypeSpace).
+						Where("role != ?", domain.PermissionRoleDenied).
+						Where(
+							p.db.Where("user_id = ?", userId).
+								Or("group_id IN (?)", userGroupIds),
+						),
+				),
+		)
+
+	// Subquery: database IDs where user is explicitly denied
+	deniedDbIds := p.db.Table("permission").
+		Select("database_id").
+		Where("type = ? AND database_id IS NOT NULL AND deleted_at IS NULL AND role = ?", domain.PermissionTypeDatabase, domain.PermissionRoleDenied).
+		Where(
+			p.db.Where("user_id = ?", userId).
+				Or("group_id IN (?)", userGroupIds),
+		)
+
+	// Subquery: database IDs where user has explicit access (viewer+)
+	grantedDbIds := p.db.Table("permission").
+		Select("database_id").
+		Where("type = ? AND database_id IS NOT NULL AND deleted_at IS NULL", domain.PermissionTypeDatabase).
+		Where("role IN ?", []domain.PermissionRole{domain.PermissionRoleViewer, domain.PermissionRoleEditor, domain.PermissionRoleOwner}).
+		Where(
+			p.db.Where("user_id = ?", userId).
+				Or("group_id IN (?)", userGroupIds),
+		)
+
+	dbQuery := p.db.
+		Preload("Space").
+		Preload("User").
+		Where("deleted_at IS NULL").
+		Where("(name LIKE ? OR description LIKE ? OR id IN (?))",
+			searchPattern, searchPattern,
+			p.db.Table("database_row").
+				Select("database_id").
+				Where("deleted_at IS NULL").
+				Where("(properties LIKE ? OR content LIKE ?)", searchPattern, searchPattern),
+		).
+		// Exclude databases where user is explicitly denied
+		Where("id NOT IN (?)", deniedDbIds).
+		// Must have either database-level access OR space-level access
+		Where(
+			p.db.Where("id IN (?)", grantedDbIds).
+				Or("space_id IN (?)", accessibleSpaceIds),
+		)
+
+	if spaceId != nil {
+		dbQuery = dbQuery.Where("space_id = ?", *spaceId)
+	}
+
+	err := dbQuery.
+		Order("updated_at DESC").
+		Limit(limit).
+		Find(&databases).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return databases, nil
+}
+
 // DatabaseRow persistence
 type databaseRowPers struct {
 	db *gorm.DB

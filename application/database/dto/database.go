@@ -241,3 +241,38 @@ type BulkDeleteRowsInput struct {
 	DatabaseId string
 	RowIds     []string
 }
+
+// Move database
+type MoveDatabaseInput struct {
+	UserId     string
+	DatabaseId string
+	DocumentId *string // nil = move to root (no parent document)
+}
+
+type MoveDatabaseOutput struct {
+	Id         string
+	DocumentId *string
+}
+
+// Search databases
+type SearchDatabasesInput struct {
+	UserId  string
+	Query   string
+	SpaceId *string
+	Limit   int
+}
+
+type SearchDatabaseResultItem struct {
+	Id          string
+	Name        string
+	Description string
+	Icon        string
+	Type        string
+	SpaceId     string
+	SpaceName   string
+	UpdatedAt   time.Time
+}
+
+type SearchDatabasesOutput struct {
+	Results []SearchDatabaseResultItem
+}

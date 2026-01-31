@@ -6,7 +6,7 @@ import (
 
 type SpacePort interface {
 	CreatePrivateSpaceForUser(input dto.CreatePrivateSpaceForUserInput) (*dto.CreatePrivateSpaceForUserOutput, error)
-	CreatePublicSpace(input dto.CreatePublicSpaceInput) (*dto.CreatePublicSpaceOutput, error)
+	CreateSpace(input dto.CreateSpaceInput) (*dto.CreateSpaceOutput, error)
 	GetSpacesForUser(input dto.GetSpacesForUserInput) (*dto.GetSpacesForUserOutput, error)
 	UpdateSpace(input dto.UpdateSpaceInput) (*dto.UpdateSpaceOutput, error)
 	DeleteSpace(input dto.DeleteSpaceInput) error

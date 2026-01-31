@@ -96,6 +96,13 @@ func (app *DrawingApp) CreateDrawing(input dto.CreateDrawingInput) (*dto.CreateD
 		return nil, fmt.Errorf("failed to create drawing: %w", err)
 	}
 
+	// Auto-create owner permission for the creator
+	// This ensures they retain access and can manage permissions even if their space role is downgraded
+	if err := app.PermissionPers.UpsertUser(domain.PermissionTypeDrawing, drawing.Id, input.UserId, domain.PermissionRoleOwner); err != nil {
+		// Log but don't fail - the drawing is already created
+		app.Logger.Warn().Err(err).Str("drawing_id", drawing.Id).Str("user_id", input.UserId).Msg("failed to create creator permission")
+	}
+
 	return &dto.CreateDrawingOutput{
 		Id:        drawing.Id,
 		Name:      drawing.Name,
@@ -255,6 +262,35 @@ func (app *DrawingApp) UpdateDrawing(input dto.UpdateDrawingInput) error {
 	}
 
 	return nil
+}
+
+func (app *DrawingApp) MoveDrawing(input dto.MoveDrawingInput) (*dto.MoveDrawingOutput, error) {
+	drawing, err := app.DrawingPers.GetById(input.DrawingId)
+	if err != nil {
+		return nil, fmt.Errorf("drawing not found: %w", err)
+	}
+
+	// Verify user has access to the space
+	space, err := app.SpacePers.GetSpaceById(drawing.SpaceId)
+	if err != nil {
+		return nil, fmt.Errorf("space not found: %w", err)
+	}
+
+	if space.GetUserRole(input.UserId) == nil {
+		return nil, fmt.Errorf("access denied")
+	}
+
+	drawing.DocumentId = input.DocumentId
+	drawing.UpdatedAt = time.Now()
+
+	if err := app.DrawingPers.Update(drawing); err != nil {
+		return nil, fmt.Errorf("failed to move drawing: %w", err)
+	}
+
+	return &dto.MoveDrawingOutput{
+		Id:         drawing.Id,
+		DocumentId: drawing.DocumentId,
+	}, nil
 }
 
 func (app *DrawingApp) DeleteDrawing(input dto.DeleteDrawingInput) error {

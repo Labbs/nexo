@@ -200,6 +200,38 @@ func (ctrl *Controller) DeleteDrawing(ctx *fiber.Ctx, req dtos.DeleteDrawingRequ
 	return &dtos.MessageResponse{Message: "Drawing deleted successfully"}, nil
 }
 
+func (ctrl *Controller) MoveDrawing(ctx *fiber.Ctx, req dtos.MoveDrawingRequest) (*dtos.MoveDrawingResponse, *fiberoapi.ErrorResponse) {
+	requestId := ctx.Locals("requestid").(string)
+	logger := ctrl.Logger.With().Str("request_id", requestId).Str("component", "http.api.v1.drawing.move").Logger()
+
+	authCtx, err := fiberoapi.GetAuthContext(ctx)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to get auth context")
+		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
+	}
+
+	result, err := ctrl.DrawingApp.MoveDrawing(drawingDto.MoveDrawingInput{
+		UserId:     authCtx.UserID,
+		DrawingId:  req.DrawingId,
+		DocumentId: req.DocumentId,
+	})
+	if err != nil {
+		if strings.Contains(err.Error(), "access denied") {
+			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
+		}
+		if strings.Contains(err.Error(), "not found") {
+			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Drawing not found", Type: "NOT_FOUND"}
+		}
+		logger.Error().Err(err).Msg("failed to move drawing")
+		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusInternalServerError, Details: "Failed to move drawing", Type: "INTERNAL_SERVER_ERROR"}
+	}
+
+	return &dtos.MoveDrawingResponse{
+		Id:         result.Id,
+		DocumentId: result.DocumentId,
+	}, nil
+}
+
 // Permission handlers
 
 func (ctrl *Controller) ListDrawingPermissions(ctx *fiber.Ctx, req dtos.ListDrawingPermissionsRequest) (*dtos.ListDrawingPermissionsResponse, *fiberoapi.ErrorResponse) {

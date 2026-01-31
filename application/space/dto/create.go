@@ -10,13 +10,14 @@ type CreatePrivateSpaceForUserOutput struct {
 	Space *domain.Space
 }
 
-type CreatePublicSpaceInput struct {
+type CreateSpaceInput struct {
 	Name      string
 	Icon      *string
 	IconColor *string
 	OwnerId   *string
+	Type      domain.SpaceType
 }
 
-type CreatePublicSpaceOutput struct {
+type CreateSpaceOutput struct {
 	Space *domain.Space
 }

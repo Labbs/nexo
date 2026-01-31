@@ -37,6 +37,17 @@ type DeleteDrawingRequest struct {
 	DrawingId string `path:"drawing_id"`
 }
 
+// Move drawing
+type MoveDrawingRequest struct {
+	DrawingId  string  `path:"drawing_id"`
+	DocumentId *string `json:"document_id"`
+}
+
+type MoveDrawingResponse struct {
+	Id         string  `json:"id"`
+	DocumentId *string `json:"document_id,omitempty"`
+}
+
 // Response DTOs
 
 type MessageResponse struct {
