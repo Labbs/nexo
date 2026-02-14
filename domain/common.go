@@ -16,6 +16,10 @@ func (j JSONB) Value() (driver.Value, error) {
 
 // Scan implements the sql.Scanner interface
 func (j *JSONB) Scan(value any) error {
+	if value == nil {
+		*j = nil
+		return nil
+	}
 	return json.Unmarshal([]byte(value.(string)), j)
 }
 
