@@ -1,6 +1,7 @@
 package group
 
 import (
+	"github.com/labbs/nexo/application/group/dto"
 	"github.com/labbs/nexo/domain"
 	"github.com/labbs/nexo/infrastructure/config"
 	"github.com/rs/zerolog"
@@ -23,14 +24,14 @@ func NewGroupApp(config config.Config, logger zerolog.Logger, groupPers domain.G
 }
 
 // CreateGroup creates a new group
-func (app *GroupApp) CreateGroup(name, description, ownerId string, role domain.Role) (*domain.Group, error) {
+func (app *GroupApp) CreateGroup(input dto.CreateGroupInput) (*dto.CreateGroupOutput, error) {
 	logger := app.Logger.With().Str("component", "application.group.create").Logger()
 
 	group := &domain.Group{
-		Name:        name,
-		Description: description,
-		OwnerId:     ownerId,
-		Role:        role,
+		Name:        input.Name,
+		Description: input.Description,
+		OwnerId:     input.OwnerId,
+		Role:        input.Role,
 	}
 
 	if err := app.GroupPers.Create(group); err != nil {
@@ -38,40 +39,45 @@ func (app *GroupApp) CreateGroup(name, description, ownerId string, role domain.
 		return nil, err
 	}
 
-	return group, nil
+	return &dto.CreateGroupOutput{Group: group}, nil
 }
 
 // GetGroup retrieves a group by ID
-func (app *GroupApp) GetGroup(groupId string) (*domain.Group, error) {
-	return app.GroupPers.GetById(groupId)
+func (app *GroupApp) GetGroup(input dto.GetGroupInput) (*dto.GetGroupOutput, error) {
+	group, err := app.GroupPers.GetById(input.GroupId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.GetGroupOutput{Group: group}, nil
 }
 
 // GetAllGroups retrieves all groups with pagination
-func (app *GroupApp) GetAllGroups(limit, offset int) ([]domain.Group, int64, error) {
+func (app *GroupApp) GetAllGroups(input dto.GetAllGroupsInput) (*dto.GetAllGroupsOutput, error) {
 	logger := app.Logger.With().Str("component", "application.group.get_all").Logger()
 
-	groups, total, err := app.GroupPers.GetAll(limit, offset)
+	groups, total, err := app.GroupPers.GetAll(input.Limit, input.Offset)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to get all groups")
-		return nil, 0, err
+		return nil, err
 	}
 
-	return groups, total, nil
+	return &dto.GetAllGroupsOutput{Groups: groups, TotalCount: total}, nil
 }
 
 // UpdateGroup updates a group's name, description, or role
-func (app *GroupApp) UpdateGroup(groupId, name, description string, role domain.Role) error {
+func (app *GroupApp) UpdateGroup(input dto.UpdateGroupInput) error {
 	logger := app.Logger.With().Str("component", "application.group.update").Logger()
 
-	group, err := app.GroupPers.GetById(groupId)
+	group, err := app.GroupPers.GetById(input.GroupId)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to get group")
 		return err
 	}
 
-	group.Name = name
-	group.Description = description
-	group.Role = role
+	group.Name = input.Name
+	group.Description = input.Description
+	group.Role = input.Role
 
 	if err := app.GroupPers.Update(group); err != nil {
 		logger.Error().Err(err).Msg("failed to update group")
@@ -82,10 +88,10 @@ func (app *GroupApp) UpdateGroup(groupId, name, description string, role domain.
 }
 
 // DeleteGroup deletes a group
-func (app *GroupApp) DeleteGroup(groupId string) error {
+func (app *GroupApp) DeleteGroup(input dto.DeleteGroupInput) error {
 	logger := app.Logger.With().Str("component", "application.group.delete").Logger()
 
-	if err := app.GroupPers.Delete(groupId); err != nil {
+	if err := app.GroupPers.Delete(input.GroupId); err != nil {
 		logger.Error().Err(err).Msg("failed to delete group")
 		return err
 	}
@@ -94,17 +100,17 @@ func (app *GroupApp) DeleteGroup(groupId string) error {
 }
 
 // AddMember adds a user to a group
-func (app *GroupApp) AddMember(groupId, userId string) error {
+func (app *GroupApp) AddMember(input dto.AddMemberInput) error {
 	logger := app.Logger.With().Str("component", "application.group.add_member").Logger()
 
 	// Verify user exists
-	_, err := app.UserPers.GetById(userId)
+	_, err := app.UserPers.GetById(input.UserId)
 	if err != nil {
-		logger.Error().Err(err).Str("user_id", userId).Msg("user not found")
+		logger.Error().Err(err).Str("user_id", input.UserId).Msg("user not found")
 		return err
 	}
 
-	if err := app.GroupPers.AddMember(groupId, userId); err != nil {
+	if err := app.GroupPers.AddMember(input.GroupId, input.UserId); err != nil {
 		logger.Error().Err(err).Msg("failed to add member to group")
 		return err
 	}
@@ -113,10 +119,10 @@ func (app *GroupApp) AddMember(groupId, userId string) error {
 }
 
 // RemoveMember removes a user from a group
-func (app *GroupApp) RemoveMember(groupId, userId string) error {
+func (app *GroupApp) RemoveMember(input dto.RemoveMemberInput) error {
 	logger := app.Logger.With().Str("component", "application.group.remove_member").Logger()
 
-	if err := app.GroupPers.RemoveMember(groupId, userId); err != nil {
+	if err := app.GroupPers.RemoveMember(input.GroupId, input.UserId); err != nil {
 		logger.Error().Err(err).Msg("failed to remove member from group")
 		return err
 	}
@@ -125,6 +131,11 @@ func (app *GroupApp) RemoveMember(groupId, userId string) error {
 }
 
 // GetMembers retrieves all members of a group
-func (app *GroupApp) GetMembers(groupId string) ([]domain.User, error) {
-	return app.GroupPers.GetMembers(groupId)
+func (app *GroupApp) GetMembers(input dto.GetMembersInput) (*dto.GetMembersOutput, error) {
+	members, err := app.GroupPers.GetMembers(input.GroupId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.GetMembersOutput{Members: members}, nil
 }
