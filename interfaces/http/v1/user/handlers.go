@@ -3,10 +3,12 @@ package user
 import (
 	"github.com/gofiber/fiber/v2"
 	fiberoapi "github.com/labbs/fiber-oapi"
+	fdto "github.com/labbs/nexo/application/favorite/dto"
 	spaceDto "github.com/labbs/nexo/application/space/dto"
 	userDto "github.com/labbs/nexo/application/user/dto"
 	"github.com/labbs/nexo/domain"
 	"github.com/labbs/nexo/infrastructure/helpers/mapper"
+	ddtos "github.com/labbs/nexo/interfaces/http/v1/document/dtos"
 	spaceDtos "github.com/labbs/nexo/interfaces/http/v1/space/dtos"
 	"github.com/labbs/nexo/interfaces/http/v1/user/dtos"
 )
@@ -134,7 +136,9 @@ func (ctrl *Controller) GetMyFavorites(ctx *fiber.Ctx, input struct{}) (*dtos.Ge
 		}
 	}
 
-	result, err := ctrl.UserApp.GetMyFavorites(userDto.GetMyFavoritesInput{UserId: authCtx.UserID})
+	result, err := ctrl.FavoriteApp.GetMyFavorites(fdto.GetMyFavoritesInput{
+		UserId: authCtx.UserID,
+	})
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to get my favorites")
 		return nil, &fiberoapi.ErrorResponse{
@@ -155,14 +159,13 @@ func (ctrl *Controller) GetMyFavorites(ctx *fiber.Ctx, input struct{}) (*dtos.Ge
 
 		// Manually map the document
 		if favorite.Document.Id != "" {
-			err := mapper.MapStructByFieldNames(&favorite.Document, &favoriteDto.Document)
-			if err != nil {
-				logger.Error().Err(err).Msg("failed to map favorite document to DTO")
-				return nil, &fiberoapi.ErrorResponse{
-					Code:    fiber.StatusInternalServerError,
-					Details: "Failed to process favorites",
-					Type:    "INTERNAL_SERVER_ERROR",
-				}
+			favoriteDto.Document = ddtos.Document{
+				Id:   favorite.Document.Id,
+				Name: favorite.Document.Name,
+				Slug: favorite.Document.Slug,
+				Config: ddtos.DocumentConfig{
+					Icon: favorite.Document.Icon,
+				},
 			}
 		}
 
@@ -191,11 +194,7 @@ func (ctrl *Controller) AddFavorite(ctx *fiber.Ctx, req dtos.AddFavoriteRequest)
 		}
 	}
 
-	err = ctrl.UserApp.CreateFavorite(userDto.CreateFavoriteInput{
-		DocumentId: req.DocumentId,
-		SpaceId:    req.SpaceId,
-		UserId:     authCtx.UserID,
-	})
+	err = ctrl.FavoriteApp.
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to add favorite")
 		return nil, &fiberoapi.ErrorResponse{

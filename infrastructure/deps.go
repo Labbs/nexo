@@ -7,6 +7,7 @@ import (
 	databaseApp "github.com/labbs/nexo/application/database"
 	"github.com/labbs/nexo/application/document"
 	"github.com/labbs/nexo/application/drawing"
+	"github.com/labbs/nexo/application/favorite"
 	"github.com/labbs/nexo/application/group"
 	"github.com/labbs/nexo/application/session"
 	"github.com/labbs/nexo/application/space"
@@ -37,4 +38,5 @@ type Deps struct {
 	DrawingApp  *drawing.DrawingApp
 	ActionApp   *action.ActionApp
 	GroupApp    *group.GroupApp
+	FavoriteApp *favorite.FavoriteApp
 }

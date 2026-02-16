@@ -3,6 +3,7 @@ package admin
 import (
 	"github.com/gofiber/fiber/v2"
 	fiberoapi "github.com/labbs/fiber-oapi"
+	groupDto "github.com/labbs/nexo/application/group/dto"
 	"github.com/labbs/nexo/domain"
 	"github.com/labbs/nexo/interfaces/http/v1/admin/dtos"
 )
@@ -361,7 +362,10 @@ func (ctrl *Controller) ListGroups(ctx *fiber.Ctx, req dtos.ListGroupsRequest) (
 		limit = 50
 	}
 
-	groups, total, err := ctrl.GroupApp.GetAllGroups(limit, offset)
+	result, err := ctrl.GroupApp.GetAllGroups(groupDto.GetAllGroupsInput{
+		Limit:  limit,
+		Offset: offset,
+	})
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to get groups")
 		return nil, &fiberoapi.ErrorResponse{
@@ -371,8 +375,8 @@ func (ctrl *Controller) ListGroups(ctx *fiber.Ctx, req dtos.ListGroupsRequest) (
 		}
 	}
 
-	groupItems := make([]dtos.GroupItem, len(groups))
-	for i, g := range groups {
+	groupItems := make([]dtos.GroupItem, len(result.Groups))
+	for i, g := range result.Groups {
 		members := make([]dtos.MemberItem, len(g.Members))
 		for j, m := range g.Members {
 			members[j] = dtos.MemberItem{
@@ -401,7 +405,7 @@ func (ctrl *Controller) ListGroups(ctx *fiber.Ctx, req dtos.ListGroupsRequest) (
 
 	return &dtos.ListGroupsResponse{
 		Groups:     groupItems,
-		TotalCount: total,
+		TotalCount: result.TotalCount,
 	}, nil
 }
 
@@ -414,7 +418,12 @@ func (ctrl *Controller) CreateGroup(ctx *fiber.Ctx, req dtos.CreateGroupRequest)
 		return nil, errResp
 	}
 
-	group, err := ctrl.GroupApp.CreateGroup(req.Name, req.Description, authCtx.UserID, domain.Role(req.Role))
+	result, err := ctrl.GroupApp.CreateGroup(groupDto.CreateGroupInput{
+		Name:        req.Name,
+		Description: req.Description,
+		OwnerId:     authCtx.UserID,
+		Role:        domain.Role(req.Role),
+	})
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to create group")
 		return nil, &fiberoapi.ErrorResponse{
@@ -425,7 +434,7 @@ func (ctrl *Controller) CreateGroup(ctx *fiber.Ctx, req dtos.CreateGroupRequest)
 	}
 
 	return &dtos.CreateGroupResponse{
-		Id:      group.Id,
+		Id:      result.Group.Id,
 		Message: "Group created successfully",
 	}, nil
 }
@@ -438,7 +447,12 @@ func (ctrl *Controller) UpdateGroup(ctx *fiber.Ctx, req dtos.UpdateGroupRequest)
 		return nil, errResp
 	}
 
-	err := ctrl.GroupApp.UpdateGroup(req.GroupId, req.Name, req.Description, domain.Role(req.Role))
+	err := ctrl.GroupApp.UpdateGroup(groupDto.UpdateGroupInput{
+		GroupId:     req.GroupId,
+		Name:        req.Name,
+		Description: req.Description,
+		Role:        domain.Role(req.Role),
+	})
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to update group")
 		return nil, &fiberoapi.ErrorResponse{
@@ -461,7 +475,9 @@ func (ctrl *Controller) DeleteGroup(ctx *fiber.Ctx, req dtos.DeleteGroupRequest)
 		return nil, errResp
 	}
 
-	err := ctrl.GroupApp.DeleteGroup(req.GroupId)
+	err := ctrl.GroupApp.DeleteGroup(groupDto.DeleteGroupInput{
+		GroupId: req.GroupId,
+	})
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to delete group")
 		return nil, &fiberoapi.ErrorResponse{
@@ -484,7 +500,9 @@ func (ctrl *Controller) GetGroupMembers(ctx *fiber.Ctx, req dtos.GetGroupMembers
 		return nil, errResp
 	}
 
-	members, err := ctrl.GroupApp.GetMembers(req.GroupId)
+	result, err := ctrl.GroupApp.GetMembers(groupDto.GetMembersInput{
+		GroupId: req.GroupId,
+	})
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to get group members")
 		return nil, &fiberoapi.ErrorResponse{
@@ -494,8 +512,8 @@ func (ctrl *Controller) GetGroupMembers(ctx *fiber.Ctx, req dtos.GetGroupMembers
 		}
 	}
 
-	memberItems := make([]dtos.MemberItem, len(members))
-	for i, m := range members {
+	memberItems := make([]dtos.MemberItem, len(result.Members))
+	for i, m := range result.Members {
 		memberItems[i] = dtos.MemberItem{
 			Id:        m.Id,
 			Username:  m.Username,
@@ -517,7 +535,10 @@ func (ctrl *Controller) AddGroupMember(ctx *fiber.Ctx, req dtos.AddGroupMemberRe
 		return nil, errResp
 	}
 
-	err := ctrl.GroupApp.AddMember(req.GroupId, req.UserId)
+	err := ctrl.GroupApp.AddMember(groupDto.AddMemberInput{
+		GroupId: req.GroupId,
+		UserId:  req.UserId,
+	})
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to add member to group")
 		return nil, &fiberoapi.ErrorResponse{
@@ -540,7 +561,10 @@ func (ctrl *Controller) RemoveGroupMember(ctx *fiber.Ctx, req dtos.RemoveGroupMe
 		return nil, errResp
 	}
 
-	err := ctrl.GroupApp.RemoveMember(req.GroupId, req.UserId)
+	err := ctrl.GroupApp.RemoveMember(groupDto.RemoveMemberInput{
+		GroupId: req.GroupId,
+		UserId:  req.UserId,
+	})
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to remove member from group")
 		return nil, &fiberoapi.ErrorResponse{

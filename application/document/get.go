@@ -20,7 +20,19 @@ func (a *DocumentApp) GetDocumentWithSpace(input dto.GetDocumentWithSpaceInput) 
 		return nil, err
 	}
 
-	return &dto.GetDocumentWithSpaceOutput{Document: document}, nil
+	return &dto.GetDocumentWithSpaceOutput{Document: &dto.Document{
+		Id:       document.Id,
+		Name:     document.Name,
+		Slug:     document.Slug,
+		SpaceId:  document.SpaceId,
+		ParentId: document.ParentId,
+		Config: dto.DocumentConfig{
+			Icon:             document.Config.Icon,
+			FullWidth:        document.Config.FullWidth,
+			Lock:             document.Config.Lock,
+			HeaderBackground: document.Config.HeaderBackground,
+		},
+	}}, nil
 }
 
 func (a DocumentApp) GetDocumentsFromSpaceWithUserPermissions(input dto.GetDocumentsFromSpaceInput) (*dto.GetDocumentsFromSpaceOutput, error) {

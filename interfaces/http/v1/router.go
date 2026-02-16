@@ -28,11 +28,12 @@ func SetupRouterV1(deps infrastructure.Deps) {
 	auth.SetupAuthRouter(authCtrl)
 
 	userCtrl := user.Controller{
-		Config:    deps.Config,
-		Logger:    deps.Logger,
-		FiberOapi: grp.Group("/user"),
-		UserApp:   deps.UserApp,
-		SpaceApp:  deps.SpaceApp,
+		Config:      deps.Config,
+		Logger:      deps.Logger,
+		FiberOapi:   grp.Group("/user"),
+		UserApp:     deps.UserApp,
+		SpaceApp:    deps.SpaceApp,
+		FavoriteApp: deps.FavoriteApp,
 	}
 	user.SetupUserRouter(userCtrl)
 

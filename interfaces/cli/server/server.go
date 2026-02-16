@@ -10,6 +10,7 @@ import (
 	databaseApp "github.com/labbs/nexo/application/database"
 	"github.com/labbs/nexo/application/document"
 	"github.com/labbs/nexo/application/drawing"
+	"github.com/labbs/nexo/application/favorite"
 	"github.com/labbs/nexo/application/group"
 	"github.com/labbs/nexo/application/session"
 	"github.com/labbs/nexo/application/space"
@@ -103,7 +104,7 @@ func runServer(cfg config.Config) error {
 	actionPers := persistence.NewActionPers(deps.Database.Db)
 	actionRunPers := persistence.NewActionRunPers(deps.Database.Db)
 
-	deps.UserApp = user.NewUserApp(deps.Config, deps.Logger, userPers, groupPers, favoritePers)
+	deps.UserApp = user.NewUserApp(deps.Config, deps.Logger, userPers)
 	deps.SessionApp = session.NewSessionApp(deps.Config, deps.Logger, sessionPers, deps.UserApp)
 	deps.SpaceApp = space.NewSpaceApp(deps.Config, deps.Logger, spacePers, documentPers, permissionPers)
 	deps.DocumentApp = document.NewDocumentApp(deps.Config, deps.Logger, documentPers, spacePers, permissionPers, commentPers, documentVersionPers)
@@ -114,6 +115,10 @@ func runServer(cfg config.Config) error {
 	deps.DrawingApp = drawing.NewDrawingApp(deps.Config, deps.Logger, drawingPers, permissionPers, spacePers)
 	deps.ActionApp = action.NewActionApp(deps.Config, deps.Logger, actionPers, actionRunPers)
 	deps.GroupApp = group.NewGroupApp(deps.Config, deps.Logger, groupPers, userPers)
+	deps.FavoriteApp = favorite.NewFavoriteApp(deps.Config, deps.Logger, favoritePers)
+
+	deps.UserApp.GroupApp = deps.GroupApp
+	deps.FavoriteApp.DocumentApp = deps.DocumentApp
 
 	// Initialize HTTP server (fiber + fiberoapi)
 	deps.Http, err = http.Configure(deps.Config, deps.Logger, deps.SessionApp, true)

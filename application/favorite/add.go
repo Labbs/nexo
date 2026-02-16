@@ -12,7 +12,7 @@ func (a *FavoriteApp) AddFavorite(input dto.AddFavoriteInput) (*dto.AddFavoriteO
 	logger := a.Logger.With().Str("component", "application.favorite.add_favorite").Logger()
 
 	// Verify user has access to the document
-	doc, err := a.DocumentPers.GetDocumentByIdOrSlugWithUserPermissions(input.SpaceId, &input.DocumentId, nil, input.UserId)
+	doc, err := a.DocumentApp.GetDocumentByIdOrSlugWithUserPermissions(input.SpaceId, &input.DocumentId, nil, input.UserId)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to get document")
 		return nil, fmt.Errorf("failed to get document: %w", err)
