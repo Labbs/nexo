@@ -6,7 +6,7 @@ import (
 	"github.com/rs/zerolog"
 )
 
-type DocumentApp struct {
+type DocumentApplication struct {
 	Config              config.Config
 	Logger              zerolog.Logger
 	DocumentPers        domain.DocumentPers
@@ -16,8 +16,8 @@ type DocumentApp struct {
 	DocumentVersionPers domain.DocumentVersionPers
 }
 
-func NewDocumentApp(config config.Config, logger zerolog.Logger, documentPers domain.DocumentPers, spacePers domain.SpacePers, permissionPers domain.PermissionPers, commentPers domain.CommentPers, documentVersionPers domain.DocumentVersionPers) *DocumentApp {
-	return &DocumentApp{
+func NewDocumentApplication(config config.Config, logger zerolog.Logger, documentPers domain.DocumentPers, spacePers domain.SpacePers, permissionPers domain.PermissionPers, commentPers domain.CommentPers, documentVersionPers domain.DocumentVersionPers) *DocumentApplication {
+	return &DocumentApplication{
 		Config:              config,
 		Logger:              logger,
 		DocumentPers:        documentPers,

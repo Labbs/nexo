@@ -10,7 +10,7 @@ import (
 )
 
 // GetAllSpaces returns all spaces with pagination (admin only)
-func (c *SpaceApp) GetAllSpaces(limit, offset int) ([]domain.Space, int64, error) {
+func (c *SpaceApplication) GetAllSpaces(limit, offset int) ([]domain.Space, int64, error) {
 	logger := c.Logger.With().Str("component", "application.space.get_all_spaces").Logger()
 
 	spaces, total, err := c.SpacePres.GetAll(limit, offset)
@@ -23,7 +23,7 @@ func (c *SpaceApp) GetAllSpaces(limit, offset int) ([]domain.Space, int64, error
 }
 
 // AdminCreateSpace creates a space without requiring an owner (admin only)
-func (c *SpaceApp) AdminCreateSpace(name, icon, iconColor string, spaceType domain.SpaceType, ownerId *string) (*domain.Space, error) {
+func (c *SpaceApplication) AdminCreateSpace(name, icon, iconColor string, spaceType domain.SpaceType, ownerId *string) (*domain.Space, error) {
 	logger := c.Logger.With().Str("component", "application.space.admin_create_space").Logger()
 
 	space := &domain.Space{
@@ -46,7 +46,7 @@ func (c *SpaceApp) AdminCreateSpace(name, icon, iconColor string, spaceType doma
 }
 
 // AdminUpdateSpace updates a space (admin only)
-func (c *SpaceApp) AdminUpdateSpace(spaceId, name, icon, iconColor string, spaceType domain.SpaceType, ownerId *string) error {
+func (c *SpaceApplication) AdminUpdateSpace(spaceId, name, icon, iconColor string, spaceType domain.SpaceType, ownerId *string) error {
 	logger := c.Logger.With().Str("component", "application.space.admin_update_space").Logger()
 
 	space, err := c.SpacePres.GetSpaceById(spaceId)
@@ -70,7 +70,7 @@ func (c *SpaceApp) AdminUpdateSpace(spaceId, name, icon, iconColor string, space
 }
 
 // AdminDeleteSpace deletes a space (admin only)
-func (c *SpaceApp) AdminDeleteSpace(spaceId string) error {
+func (c *SpaceApplication) AdminDeleteSpace(spaceId string) error {
 	logger := c.Logger.With().Str("component", "application.space.admin_delete_space").Logger()
 
 	err := c.SpacePres.Delete(spaceId)
@@ -83,7 +83,7 @@ func (c *SpaceApp) AdminDeleteSpace(spaceId string) error {
 }
 
 // AdminListSpacePermissions lists all permissions for a space with user/group details (admin only)
-func (c *SpaceApp) AdminListSpacePermissions(spaceId string) ([]domain.Permission, error) {
+func (c *SpaceApplication) AdminListSpacePermissions(spaceId string) ([]domain.Permission, error) {
 	logger := c.Logger.With().Str("component", "application.space.admin_list_permissions").Logger()
 
 	permissions, err := c.PermissionPers.ListByResource(domain.PermissionTypeSpace, spaceId)
@@ -96,7 +96,7 @@ func (c *SpaceApp) AdminListSpacePermissions(spaceId string) ([]domain.Permissio
 }
 
 // AdminAddSpaceUserPermission adds a user permission to a space (admin only)
-func (c *SpaceApp) AdminAddSpaceUserPermission(spaceId, userId string, role domain.PermissionRole) error {
+func (c *SpaceApplication) AdminAddSpaceUserPermission(spaceId, userId string, role domain.PermissionRole) error {
 	logger := c.Logger.With().Str("component", "application.space.admin_add_user_permission").Logger()
 
 	err := c.PermissionPers.UpsertUser(domain.PermissionTypeSpace, spaceId, userId, role)
@@ -109,7 +109,7 @@ func (c *SpaceApp) AdminAddSpaceUserPermission(spaceId, userId string, role doma
 }
 
 // AdminRemoveSpaceUserPermission removes a user permission from a space (admin only)
-func (c *SpaceApp) AdminRemoveSpaceUserPermission(spaceId, userId string) error {
+func (c *SpaceApplication) AdminRemoveSpaceUserPermission(spaceId, userId string) error {
 	logger := c.Logger.With().Str("component", "application.space.admin_remove_user_permission").Logger()
 
 	err := c.PermissionPers.DeleteUser(domain.PermissionTypeSpace, spaceId, userId)
@@ -122,7 +122,7 @@ func (c *SpaceApp) AdminRemoveSpaceUserPermission(spaceId, userId string) error 
 }
 
 // AdminAddSpaceGroupPermission adds a group permission to a space (admin only)
-func (c *SpaceApp) AdminAddSpaceGroupPermission(spaceId, groupId string, role domain.PermissionRole) error {
+func (c *SpaceApplication) AdminAddSpaceGroupPermission(spaceId, groupId string, role domain.PermissionRole) error {
 	logger := c.Logger.With().Str("component", "application.space.admin_add_group_permission").Logger()
 
 	err := c.PermissionPers.UpsertGroup(domain.PermissionTypeSpace, spaceId, groupId, role)
@@ -135,7 +135,7 @@ func (c *SpaceApp) AdminAddSpaceGroupPermission(spaceId, groupId string, role do
 }
 
 // AdminRemoveSpaceGroupPermission removes a group permission from a space (admin only)
-func (c *SpaceApp) AdminRemoveSpaceGroupPermission(spaceId, groupId string) error {
+func (c *SpaceApplication) AdminRemoveSpaceGroupPermission(spaceId, groupId string) error {
 	logger := c.Logger.With().Str("component", "application.space.admin_remove_group_permission").Logger()
 
 	err := c.PermissionPers.DeleteGroup(domain.PermissionTypeSpace, spaceId, groupId)

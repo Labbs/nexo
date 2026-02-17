@@ -11,5 +11,5 @@ type Controller struct {
 	Config     config.Config
 	Logger     zerolog.Logger
 	FiberOapi  *fiberoapi.OApiGroup
-	DrawingApp *drawing.DrawingApp
+	DrawingApp *drawing.DrawingApplication
 }

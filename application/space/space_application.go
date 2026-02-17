@@ -6,7 +6,7 @@ import (
 	"github.com/rs/zerolog"
 )
 
-type SpaceApp struct {
+type SpaceApplication struct {
 	Config         config.Config
 	Logger         zerolog.Logger
 	SpacePres      domain.SpacePers
@@ -14,8 +14,8 @@ type SpaceApp struct {
 	PermissionPers domain.PermissionPers
 }
 
-func NewSpaceApp(config config.Config, logger zerolog.Logger, spacePers domain.SpacePers, documentPers domain.DocumentPers, permissionPers domain.PermissionPers) *SpaceApp {
-	return &SpaceApp{
+func NewSpaceApplication(config config.Config, logger zerolog.Logger, spacePers domain.SpacePers, documentPers domain.DocumentPers, permissionPers domain.PermissionPers) *SpaceApplication {
+	return &SpaceApplication{
 		Config:         config,
 		Logger:         logger,
 		SpacePres:      spacePers,

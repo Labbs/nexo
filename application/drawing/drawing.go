@@ -12,7 +12,7 @@ import (
 	"github.com/rs/zerolog"
 )
 
-type DrawingApp struct {
+type DrawingApplication struct {
 	Config         config.Config
 	Logger         zerolog.Logger
 	DrawingPers    domain.DrawingPers
@@ -20,8 +20,8 @@ type DrawingApp struct {
 	SpacePers      domain.SpacePers
 }
 
-func NewDrawingApp(config config.Config, logger zerolog.Logger, drawingPers domain.DrawingPers, permissionPers domain.PermissionPers, spacePers domain.SpacePers) *DrawingApp {
-	return &DrawingApp{
+func NewDrawingApplication(config config.Config, logger zerolog.Logger, drawingPers domain.DrawingPers, permissionPers domain.PermissionPers, spacePers domain.SpacePers) *DrawingApplication {
+	return &DrawingApplication{
 		Config:         config,
 		Logger:         logger,
 		DrawingPers:    drawingPers,
@@ -30,7 +30,7 @@ func NewDrawingApp(config config.Config, logger zerolog.Logger, drawingPers doma
 	}
 }
 
-func (app *DrawingApp) CreateDrawing(input dto.CreateDrawingInput) (*dto.CreateDrawingOutput, error) {
+func (app *DrawingApplication) CreateDrawing(input dto.CreateDrawingInput) (*dto.CreateDrawingOutput, error) {
 	// Verify user has access to the space
 	space, err := app.SpacePers.GetSpaceById(input.SpaceId)
 	if err != nil {
@@ -110,7 +110,7 @@ func (app *DrawingApp) CreateDrawing(input dto.CreateDrawingInput) (*dto.CreateD
 	}, nil
 }
 
-func (app *DrawingApp) ListDrawings(input dto.ListDrawingsInput) (*dto.ListDrawingsOutput, error) {
+func (app *DrawingApplication) ListDrawings(input dto.ListDrawingsInput) (*dto.ListDrawingsOutput, error) {
 	// Verify user has access to the space
 	space, err := app.SpacePers.GetSpaceById(input.SpaceId)
 	if err != nil {
@@ -146,7 +146,7 @@ func (app *DrawingApp) ListDrawings(input dto.ListDrawingsInput) (*dto.ListDrawi
 	return output, nil
 }
 
-func (app *DrawingApp) GetDrawing(input dto.GetDrawingInput) (*dto.GetDrawingOutput, error) {
+func (app *DrawingApplication) GetDrawing(input dto.GetDrawingInput) (*dto.GetDrawingOutput, error) {
 	drawing, err := app.DrawingPers.GetById(input.DrawingId)
 	if err != nil {
 		return nil, fmt.Errorf("drawing not found: %w", err)
@@ -197,7 +197,7 @@ func (app *DrawingApp) GetDrawing(input dto.GetDrawingInput) (*dto.GetDrawingOut
 	}, nil
 }
 
-func (app *DrawingApp) UpdateDrawing(input dto.UpdateDrawingInput) error {
+func (app *DrawingApplication) UpdateDrawing(input dto.UpdateDrawingInput) error {
 	drawing, err := app.DrawingPers.GetById(input.DrawingId)
 	if err != nil {
 		return fmt.Errorf("drawing not found: %w", err)
@@ -264,7 +264,7 @@ func (app *DrawingApp) UpdateDrawing(input dto.UpdateDrawingInput) error {
 	return nil
 }
 
-func (app *DrawingApp) MoveDrawing(input dto.MoveDrawingInput) (*dto.MoveDrawingOutput, error) {
+func (app *DrawingApplication) MoveDrawing(input dto.MoveDrawingInput) (*dto.MoveDrawingOutput, error) {
 	drawing, err := app.DrawingPers.GetById(input.DrawingId)
 	if err != nil {
 		return nil, fmt.Errorf("drawing not found: %w", err)
@@ -293,7 +293,7 @@ func (app *DrawingApp) MoveDrawing(input dto.MoveDrawingInput) (*dto.MoveDrawing
 	}, nil
 }
 
-func (app *DrawingApp) DeleteDrawing(input dto.DeleteDrawingInput) error {
+func (app *DrawingApplication) DeleteDrawing(input dto.DeleteDrawingInput) error {
 	drawing, err := app.DrawingPers.GetById(input.DrawingId)
 	if err != nil {
 		return fmt.Errorf("drawing not found: %w", err)

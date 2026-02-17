@@ -7,7 +7,7 @@ import (
 	s "github.com/labbs/nexo/application/session/dto"
 )
 
-func (c *AuthApp) Logout(input dto.LogoutInput) error {
+func (c *AuthApplication) Logout(input dto.LogoutInput) error {
 	logger := c.Logger.With().Str("component", "application.auth.logout").Logger()
 
 	err := c.SessionApp.InvalidateSession(s.InvalidateSessionInput{SessionId: input.SessionId})

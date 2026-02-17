@@ -6,7 +6,7 @@ import (
 	"github.com/labbs/nexo/domain"
 )
 
-func (c *SessionApp) Create(input dto.CreateSessionInput) (*dto.CreateSessionOutput, error) {
+func (c *SessionApplication) Create(input dto.CreateSessionInput) (*dto.CreateSessionOutput, error) {
 	logger := c.Logger.With().Str("component", "application.session.create").Logger()
 
 	session := &domain.Session{
@@ -26,7 +26,7 @@ func (c *SessionApp) Create(input dto.CreateSessionInput) (*dto.CreateSessionOut
 	return &dto.CreateSessionOutput{SessionId: session.Id}, nil
 }
 
-func (c *SessionApp) DeleteExpired() error {
+func (c *SessionApplication) DeleteExpired() error {
 	// logger := c.Logger.With().Str("component", "application.session.delete_expired").Logger()
 
 	return nil

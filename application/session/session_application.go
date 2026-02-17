@@ -7,15 +7,15 @@ import (
 	"github.com/rs/zerolog"
 )
 
-type SessionApp struct {
+type SessionApplication struct {
 	Config      config.Config
 	Logger      zerolog.Logger
 	SessionPers domain.SessionPers
 	UserApp     ports.UserPort
 }
 
-func NewSessionApp(config config.Config, logger zerolog.Logger, sessionPers domain.SessionPers, userApp ports.UserPort) *SessionApp {
-	return &SessionApp{
+func NewSessionApplication(config config.Config, logger zerolog.Logger, sessionPers domain.SessionPers, userApp ports.UserPort) *SessionApplication {
+	return &SessionApplication{
 		Config:      config,
 		Logger:      logger,
 		SessionPers: sessionPers,

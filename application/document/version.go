@@ -12,7 +12,7 @@ import (
 
 const MaxVersionsPerDocument = 50
 
-func (app *DocumentApp) ListVersions(input dto.ListVersionsInput) (*dto.ListVersionsOutput, error) {
+func (app *DocumentApplication) ListVersions(input dto.ListVersionsInput) (*dto.ListVersionsOutput, error) {
 	// Verify user has access to the document (accept ID or slug)
 	doc, err := app.DocumentPers.GetDocumentByIdOrSlugWithUserPermissions(input.SpaceId, &input.DocumentId, &input.DocumentId, input.UserId)
 	if err != nil {
@@ -49,7 +49,7 @@ func (app *DocumentApp) ListVersions(input dto.ListVersionsInput) (*dto.ListVers
 	return output, nil
 }
 
-func (app *DocumentApp) GetVersion(input dto.GetVersionInput) (*dto.GetVersionOutput, error) {
+func (app *DocumentApplication) GetVersion(input dto.GetVersionInput) (*dto.GetVersionOutput, error) {
 	version, err := app.DocumentVersionPers.GetById(input.VersionId)
 	if err != nil {
 		return nil, fmt.Errorf("version not found: %w", err)
@@ -88,7 +88,7 @@ func (app *DocumentApp) GetVersion(input dto.GetVersionInput) (*dto.GetVersionOu
 	}, nil
 }
 
-func (app *DocumentApp) RestoreVersion(input dto.RestoreVersionInput) error {
+func (app *DocumentApplication) RestoreVersion(input dto.RestoreVersionInput) error {
 	version, err := app.DocumentVersionPers.GetById(input.VersionId)
 	if err != nil {
 		return fmt.Errorf("version not found: %w", err)
@@ -121,7 +121,7 @@ func (app *DocumentApp) RestoreVersion(input dto.RestoreVersionInput) error {
 	return nil
 }
 
-func (app *DocumentApp) CreateVersion(input dto.CreateVersionInput) (*dto.CreateVersionOutput, error) {
+func (app *DocumentApplication) CreateVersion(input dto.CreateVersionInput) (*dto.CreateVersionOutput, error) {
 	// Verify user has editor access to the document
 	doc, err := app.DocumentPers.GetDocumentWithPermissions(input.DocumentId, input.UserId)
 	if err != nil {
@@ -144,7 +144,7 @@ func (app *DocumentApp) CreateVersion(input dto.CreateVersionInput) (*dto.Create
 }
 
 // createVersionFromDocument creates a new version snapshot of a document
-func (app *DocumentApp) createVersionFromDocument(doc *domain.Document, userId string, description string) (*domain.DocumentVersion, error) {
+func (app *DocumentApplication) createVersionFromDocument(doc *domain.Document, userId string, description string) (*domain.DocumentVersion, error) {
 	// Get the next version number
 	latestVersion, err := app.DocumentVersionPers.GetLatestVersion(doc.Id)
 	if err != nil {
@@ -182,7 +182,7 @@ func (app *DocumentApp) createVersionFromDocument(doc *domain.Document, userId s
 }
 
 // CreateVersionOnUpdate should be called when a document is updated to create an automatic version
-func (app *DocumentApp) CreateVersionOnUpdate(doc *domain.Document, userId string) {
+func (app *DocumentApplication) CreateVersionOnUpdate(doc *domain.Document, userId string) {
 	logger := app.Logger.With().Str("component", "application.document.version_on_update").Logger()
 	// Create version silently - don't fail the update if versioning fails
 	_, err := app.createVersionFromDocument(doc, userId, "Auto-save")

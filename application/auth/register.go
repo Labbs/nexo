@@ -11,7 +11,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (c *AuthApp) Register(input dto.RegisterInput) error {
+func (c *AuthApplication) Register(input dto.RegisterInput) error {
 	logger := c.Logger.With().Str("component", "application.auth.register").Logger()
 
 	// check if the email is already in use

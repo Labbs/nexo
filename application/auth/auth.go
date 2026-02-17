@@ -6,7 +6,7 @@ import (
 	"github.com/rs/zerolog"
 )
 
-type AuthApp struct {
+type AuthApplication struct {
 	Config      config.Config
 	Logger      zerolog.Logger
 	UserApp     ports.UserPort
@@ -15,8 +15,8 @@ type AuthApp struct {
 	DocumentApp ports.DocumentPort
 }
 
-func NewAuthApp(config config.Config, logger zerolog.Logger, userApp ports.UserPort, sessionApp ports.SessionPort, spaceApp ports.SpacePort, documentApp ports.DocumentPort) *AuthApp {
-	return &AuthApp{
+func NewAuthApplication(config config.Config, logger zerolog.Logger, userApp ports.UserPort, sessionApp ports.SessionPort, spaceApp ports.SpacePort, documentApp ports.DocumentPort) *AuthApplication {
+	return &AuthApplication{
 		Config:      config,
 		Logger:      logger,
 		UserApp:     userApp,

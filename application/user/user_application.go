@@ -7,18 +7,18 @@ import (
 	"github.com/rs/zerolog"
 )
 
-type UserApp struct {
+type UserApplication struct {
 	Config   config.Config
 	Logger   zerolog.Logger
 	UserPres domain.UserPers
 	GroupApp ports.GroupPort
 }
 
-func NewUserApp(
+func NewUserApplication(
 	config config.Config,
 	logger zerolog.Logger,
-	userPers domain.UserPers) *UserApp {
-	return &UserApp{
+	userPers domain.UserPers) *UserApplication {
+	return &UserApplication{
 		Config:   config,
 		Logger:   logger,
 		UserPres: userPers,

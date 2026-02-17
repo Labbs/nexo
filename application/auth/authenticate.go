@@ -11,7 +11,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (c *AuthApp) Authenticate(input dto.AuthenticateInput) (*dto.AuthenticateOutput, error) {
+func (c *AuthApplication) Authenticate(input dto.AuthenticateInput) (*dto.AuthenticateOutput, error) {
 	logger := c.Logger.With().Str("component", "application.auth.authenticate").Logger()
 
 	resp, err := c.UserApp.GetByEmail(u.GetByEmailInput{Email: input.Email})

@@ -7,7 +7,7 @@ import (
 	"github.com/labbs/nexo/domain"
 )
 
-func (a *DocumentApp) DeleteDocument(input dto.DeleteDocumentInput) error {
+func (a *DocumentApplication) DeleteDocument(input dto.DeleteDocumentInput) error {
 	logger := a.Logger.With().Str("component", "application.document.delete_document").Logger()
 
 	if input.DocumentId == nil && input.Slug == nil {

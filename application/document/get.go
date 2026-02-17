@@ -7,7 +7,7 @@ import (
 	"github.com/labbs/nexo/domain"
 )
 
-func (a *DocumentApp) GetDocumentWithSpace(input dto.GetDocumentWithSpaceInput) (*dto.GetDocumentWithSpaceOutput, error) {
+func (a *DocumentApplication) GetDocumentWithSpace(input dto.GetDocumentWithSpaceInput) (*dto.GetDocumentWithSpaceOutput, error) {
 	logger := a.Logger.With().Str("component", "application.document.get_document").Logger()
 
 	if input.DocumentId == nil && input.Slug == nil {
@@ -35,7 +35,7 @@ func (a *DocumentApp) GetDocumentWithSpace(input dto.GetDocumentWithSpaceInput) 
 	}}, nil
 }
 
-func (a DocumentApp) GetDocumentsFromSpaceWithUserPermissions(input dto.GetDocumentsFromSpaceInput) (*dto.GetDocumentsFromSpaceOutput, error) {
+func (a DocumentApplication) GetDocumentsFromSpaceWithUserPermissions(input dto.GetDocumentsFromSpaceInput) (*dto.GetDocumentsFromSpaceOutput, error) {
 	logger := a.Logger.With().Str("component", "application.document.get_documents_from_space").Logger()
 
 	var documents []domain.Document

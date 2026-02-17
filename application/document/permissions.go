@@ -7,7 +7,7 @@ import (
 	"github.com/labbs/nexo/domain"
 )
 
-func (c *DocumentApp) ListDocumentPermissions(input dto.ListDocumentPermissionsInput) (*dto.ListDocumentPermissionsOutput, error) {
+func (c *DocumentApplication) ListDocumentPermissions(input dto.ListDocumentPermissionsInput) (*dto.ListDocumentPermissionsOutput, error) {
 	// Get the document with space to check permissions
 	doc, err := c.DocumentPers.GetDocumentByIdOrSlugWithUserPermissions(input.SpaceId, &input.DocumentId, nil, input.RequesterId)
 	if err != nil || doc == nil {
@@ -27,7 +27,7 @@ func (c *DocumentApp) ListDocumentPermissions(input dto.ListDocumentPermissionsI
 	return &dto.ListDocumentPermissionsOutput{Permissions: permissions}, nil
 }
 
-func (c *DocumentApp) UpsertDocumentUserPermission(input dto.UpsertDocumentUserPermissionInput) error {
+func (c *DocumentApplication) UpsertDocumentUserPermission(input dto.UpsertDocumentUserPermissionInput) error {
 	// Get the document with space to check permissions
 	doc, err := c.DocumentPers.GetDocumentByIdOrSlugWithUserPermissions(input.SpaceId, &input.DocumentId, nil, input.RequesterId)
 	if err != nil || doc == nil {
@@ -48,7 +48,7 @@ func (c *DocumentApp) UpsertDocumentUserPermission(input dto.UpsertDocumentUserP
 	return c.PermissionPers.UpsertUser(domain.PermissionTypeDocument, input.DocumentId, input.TargetUserId, input.Role)
 }
 
-func (c *DocumentApp) DeleteDocumentUserPermission(input dto.DeleteDocumentUserPermissionInput) error {
+func (c *DocumentApplication) DeleteDocumentUserPermission(input dto.DeleteDocumentUserPermissionInput) error {
 	// Get the document with space to check permissions
 	doc, err := c.DocumentPers.GetDocumentByIdOrSlugWithUserPermissions(input.SpaceId, &input.DocumentId, nil, input.RequesterId)
 	if err != nil || doc == nil {

@@ -8,7 +8,7 @@ import (
 )
 
 // Permissions (MVP: user-level only)
-func (c *SpaceApp) ListSpacePermissions(input dto.ListSpacePermissionsInput) (*dto.ListSpacePermissionsOutput, error) {
+func (c *SpaceApplication) ListSpacePermissions(input dto.ListSpacePermissionsInput) (*dto.ListSpacePermissionsOutput, error) {
 	space, err := c.SpacePres.GetSpaceById(input.SpaceId)
 	if err != nil || space == nil {
 		return nil, fmt.Errorf("not_found")
@@ -46,7 +46,7 @@ func (c *SpaceApp) ListSpacePermissions(input dto.ListSpacePermissionsInput) (*d
 	return &dto.ListSpacePermissionsOutput{Permissions: permissions}, nil
 }
 
-func (c *SpaceApp) UpsertSpaceUserPermission(input dto.UpsertSpaceUserPermissionInput) error {
+func (c *SpaceApplication) UpsertSpaceUserPermission(input dto.UpsertSpaceUserPermissionInput) error {
 	space, err := c.SpacePres.GetSpaceById(input.SpaceId)
 	if err != nil || space == nil {
 		return fmt.Errorf("not_found")
@@ -64,7 +64,7 @@ func (c *SpaceApp) UpsertSpaceUserPermission(input dto.UpsertSpaceUserPermission
 	return c.PermissionPers.UpsertUser(domain.PermissionTypeSpace, input.SpaceId, input.TargetUserId, input.Role)
 }
 
-func (c *SpaceApp) DeleteSpaceUserPermission(input dto.DeleteSpaceUserPermissionInput) error {
+func (c *SpaceApplication) DeleteSpaceUserPermission(input dto.DeleteSpaceUserPermissionInput) error {
 	space, err := c.SpacePres.GetSpaceById(input.SpaceId)
 	if err != nil || space == nil {
 		return fmt.Errorf("not_found")

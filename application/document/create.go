@@ -10,7 +10,7 @@ import (
 	"github.com/labbs/nexo/infrastructure/helpers/shortuuid"
 )
 
-func (a *DocumentApp) CreateDocument(input dto.CreateDocumentInput) (*dto.CreateDocumentOutput, error) {
+func (a *DocumentApplication) CreateDocument(input dto.CreateDocumentInput) (*dto.CreateDocumentOutput, error) {
 	logger := a.Logger.With().Str("component", "application.document.create_document").Logger()
 
 	var space *domain.Space

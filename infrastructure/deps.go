@@ -27,15 +27,15 @@ type Deps struct {
 	CronScheduler cronscheduler.Config
 	Database      database.Config
 
-	UserApp     *user.UserApp
-	SessionApp  *session.SessionApp
-	AuthApp     *auth.AuthApp
-	SpaceApp    *space.SpaceApp
-	DocumentApp *document.DocumentApp
+	UserApp     *user.UserApplication
+	SessionApp  *session.SessionApplication
+	AuthApp     *auth.AuthApplication
+	SpaceApp    *space.SpaceApplication
+	DocumentApp *document.DocumentApplication
 	ApiKeyApp   *apikey.ApiKeyApp
-	WebhookApp  *webhook.WebhookApp
-	DatabaseApp *databaseApp.DatabaseApp
-	DrawingApp  *drawing.DrawingApp
+	WebhookApp  *webhook.WebhookApplication
+	DatabaseApp *databaseApp.DatabaseApplication
+	DrawingApp  *drawing.DrawingApplication
 	ActionApp   *action.ActionApp
 	GroupApp    *group.GroupApp
 	FavoriteApp *favorite.FavoriteApp

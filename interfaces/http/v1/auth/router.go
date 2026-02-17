@@ -11,7 +11,7 @@ type Controller struct {
 	Config    config.Config
 	Logger    zerolog.Logger
 	FiberOapi *fiberoapi.OApiGroup
-	AuthApp   *auth.AuthApp
+	AuthApp   *auth.AuthApplication
 }
 
 func SetupAuthRouter(controller Controller) {

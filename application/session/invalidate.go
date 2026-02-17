@@ -2,7 +2,7 @@ package session
 
 import "github.com/labbs/nexo/application/session/dto"
 
-func (c *SessionApp) InvalidateSession(input dto.InvalidateSessionInput) error {
+func (c *SessionApplication) InvalidateSession(input dto.InvalidateSessionInput) error {
 	logger := c.Logger.With().Str("component", "application.session.invalidate_session").Logger()
 
 	err := c.SessionPers.DeleteById(input.SessionId)

@@ -6,7 +6,7 @@ import (
 	"github.com/labbs/nexo/application/document/dto"
 )
 
-func (c *DocumentApp) SetPublic(input dto.SetPublicInput) error {
+func (c *DocumentApplication) SetPublic(input dto.SetPublicInput) error {
 	logger := c.Logger.With().Str("component", "application.document.set_public").Logger()
 
 	err := c.DocumentPers.SetPublic(input.DocumentId, input.Public, input.UserId)
@@ -18,7 +18,7 @@ func (c *DocumentApp) SetPublic(input dto.SetPublicInput) error {
 	return nil
 }
 
-func (c *DocumentApp) GetPublicDocument(input dto.GetPublicDocumentInput) (*dto.GetPublicDocumentOutput, error) {
+func (c *DocumentApplication) GetPublicDocument(input dto.GetPublicDocumentInput) (*dto.GetPublicDocumentOutput, error) {
 	logger := c.Logger.With().Str("component", "application.document.get_public_document").Logger()
 
 	doc, err := c.DocumentPers.GetPublicDocument(input.SpaceId, input.DocumentId, input.Slug)

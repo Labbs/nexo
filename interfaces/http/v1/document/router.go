@@ -13,7 +13,7 @@ type Controller struct {
 	Logger      zerolog.Logger
 	FiberOapi   *fiberoapi.OApiGroup
 	SpaceApp    *space.SpaceApp
-	DocumentApp *document.DocumentApp
+	DocumentApp *document.DocumentApplication
 }
 
 func SetupDocumentRouter(controller Controller) {

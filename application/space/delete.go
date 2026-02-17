@@ -7,7 +7,7 @@ import (
 	"github.com/labbs/nexo/domain"
 )
 
-func (c *SpaceApp) DeleteSpace(input dto.DeleteSpaceInput) error {
+func (c *SpaceApplication) DeleteSpace(input dto.DeleteSpaceInput) error {
 	logger := c.Logger.With().Str("component", "application.space.delete_space").Logger()
 
 	space, err := c.SpacePres.GetSpaceById(input.SpaceId)

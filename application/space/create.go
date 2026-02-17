@@ -10,7 +10,7 @@ import (
 	"github.com/labbs/nexo/infrastructure/helpers/shortuuid"
 )
 
-func (c *SpaceApp) CreatePrivateSpaceForUser(input dto.CreatePrivateSpaceForUserInput) (*dto.CreatePrivateSpaceForUserOutput, error) {
+func (c *SpaceApplication) CreatePrivateSpaceForUser(input dto.CreatePrivateSpaceForUserInput) (*dto.CreatePrivateSpaceForUserOutput, error) {
 	logger := c.Logger.With().Str("component", "application.space.createPrivateSpaceForUser").Logger()
 
 	name := "Personal Space"
@@ -37,7 +37,7 @@ func (c *SpaceApp) CreatePrivateSpaceForUser(input dto.CreatePrivateSpaceForUser
 	return &dto.CreatePrivateSpaceForUserOutput{Space: space}, nil
 }
 
-func (c *SpaceApp) CreateSpace(input dto.CreateSpaceInput) (*dto.CreateSpaceOutput, error) {
+func (c *SpaceApplication) CreateSpace(input dto.CreateSpaceInput) (*dto.CreateSpaceOutput, error) {
 	logger := c.Logger.With().Str("component", "application.space.createSpace").Logger()
 
 	space := &domain.Space{

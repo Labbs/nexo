@@ -7,7 +7,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (c *UserApp) UpdateProfile(input dto.UpdateProfileInput) (*dto.UpdateProfileOutput, error) {
+func (c *UserApplication) UpdateProfile(input dto.UpdateProfileInput) (*dto.UpdateProfileOutput, error) {
 	logger := c.Logger.With().Str("component", "application.user.update_profile").Logger()
 
 	user, err := c.UserPres.GetById(input.UserId)
@@ -35,7 +35,7 @@ func (c *UserApp) UpdateProfile(input dto.UpdateProfileInput) (*dto.UpdateProfil
 	return &dto.UpdateProfileOutput{User: &user}, nil
 }
 
-func (c *UserApp) ChangePassword(input dto.ChangePasswordInput) error {
+func (c *UserApplication) ChangePassword(input dto.ChangePasswordInput) error {
 	logger := c.Logger.With().Str("component", "application.user.change_password").Logger()
 
 	user, err := c.UserPres.GetById(input.UserId)

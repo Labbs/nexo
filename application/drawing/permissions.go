@@ -7,7 +7,7 @@ import (
 	"github.com/labbs/nexo/domain"
 )
 
-func (app *DrawingApp) ListDrawingPermissions(input dto.ListDrawingPermissionsInput) (*dto.ListDrawingPermissionsOutput, error) {
+func (app *DrawingApplication) ListDrawingPermissions(input dto.ListDrawingPermissionsInput) (*dto.ListDrawingPermissionsOutput, error) {
 	// Get the drawing
 	drawing, err := app.DrawingPers.GetById(input.DrawingId)
 	if err != nil {
@@ -32,7 +32,7 @@ func (app *DrawingApp) ListDrawingPermissions(input dto.ListDrawingPermissionsIn
 	return &dto.ListDrawingPermissionsOutput{Permissions: permissions}, nil
 }
 
-func (app *DrawingApp) UpsertDrawingUserPermission(input dto.UpsertDrawingUserPermissionInput) error {
+func (app *DrawingApplication) UpsertDrawingUserPermission(input dto.UpsertDrawingUserPermissionInput) error {
 	// Get the drawing
 	drawing, err := app.DrawingPers.GetById(input.DrawingId)
 	if err != nil {
@@ -60,7 +60,7 @@ func (app *DrawingApp) UpsertDrawingUserPermission(input dto.UpsertDrawingUserPe
 	return app.PermissionPers.UpsertUser(domain.PermissionTypeDrawing, input.DrawingId, input.TargetUserId, input.Role)
 }
 
-func (app *DrawingApp) DeleteDrawingUserPermission(input dto.DeleteDrawingUserPermissionInput) error {
+func (app *DrawingApplication) DeleteDrawingUserPermission(input dto.DeleteDrawingUserPermissionInput) error {
 	// Get the drawing
 	drawing, err := app.DrawingPers.GetById(input.DrawingId)
 	if err != nil {

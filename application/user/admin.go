@@ -5,7 +5,7 @@ import (
 )
 
 // GetAllUsers returns all users with pagination (admin only)
-func (c *UserApp) GetAllUsers(limit, offset int) ([]domain.User, int64, error) {
+func (c *UserApplication) GetAllUsers(limit, offset int) ([]domain.User, int64, error) {
 	logger := c.Logger.With().Str("component", "application.user.get_all_users").Logger()
 
 	users, total, err := c.UserPres.GetAll(limit, offset)
@@ -18,7 +18,7 @@ func (c *UserApp) GetAllUsers(limit, offset int) ([]domain.User, int64, error) {
 }
 
 // UpdateRole updates a user's role (admin only)
-func (c *UserApp) UpdateRole(userId string, role domain.Role) error {
+func (c *UserApplication) UpdateRole(userId string, role domain.Role) error {
 	logger := c.Logger.With().Str("component", "application.user.update_role").Logger()
 
 	err := c.UserPres.UpdateRole(userId, role)
@@ -31,7 +31,7 @@ func (c *UserApp) UpdateRole(userId string, role domain.Role) error {
 }
 
 // UpdateActive updates a user's active status (admin only)
-func (c *UserApp) UpdateActive(userId string, active bool) error {
+func (c *UserApplication) UpdateActive(userId string, active bool) error {
 	logger := c.Logger.With().Str("component", "application.user.update_active").Logger()
 
 	err := c.UserPres.UpdateActive(userId, active)
@@ -44,7 +44,7 @@ func (c *UserApp) UpdateActive(userId string, active bool) error {
 }
 
 // DeleteUser deletes a user (admin only)
-func (c *UserApp) DeleteUser(userId string) error {
+func (c *UserApplication) DeleteUser(userId string) error {
 	logger := c.Logger.With().Str("component", "application.user.delete_user").Logger()
 
 	err := c.UserPres.Delete(userId)

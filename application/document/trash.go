@@ -6,7 +6,7 @@ import (
 	"github.com/labbs/nexo/application/document/dto"
 )
 
-func (c *DocumentApp) GetTrash(input dto.GetTrashInput) (*dto.GetTrashOutput, error) {
+func (c *DocumentApplication) GetTrash(input dto.GetTrashInput) (*dto.GetTrashOutput, error) {
 	logger := c.Logger.With().Str("component", "application.document.get_trash").Logger()
 
 	docs, err := c.DocumentPers.GetDeletedDocuments(input.SpaceId, input.UserId)
@@ -18,7 +18,7 @@ func (c *DocumentApp) GetTrash(input dto.GetTrashInput) (*dto.GetTrashOutput, er
 	return &dto.GetTrashOutput{Documents: docs}, nil
 }
 
-func (c *DocumentApp) RestoreDocument(input dto.RestoreDocumentInput) error {
+func (c *DocumentApplication) RestoreDocument(input dto.RestoreDocumentInput) error {
 	logger := c.Logger.With().Str("component", "application.document.restore_document").Logger()
 
 	err := c.DocumentPers.Restore(input.DocumentId, input.UserId)
