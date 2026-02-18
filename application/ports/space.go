@@ -10,7 +10,4 @@ type SpacePort interface {
 	GetSpacesForUser(input dto.GetSpacesForUserInput) (*dto.GetSpacesForUserOutput, error)
 	UpdateSpace(input dto.UpdateSpaceInput) (*dto.UpdateSpaceOutput, error)
 	DeleteSpace(input dto.DeleteSpaceInput) error
-	ListSpacePermissions(input dto.ListSpacePermissionsInput) (*dto.ListSpacePermissionsOutput, error)
-	UpsertSpaceUserPermission(input dto.UpsertSpaceUserPermissionInput) error
-	DeleteSpaceUserPermission(input dto.DeleteSpaceUserPermissionInput) error
 }

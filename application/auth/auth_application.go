@@ -15,13 +15,9 @@ type AuthApplication struct {
 	DocumentApp ports.DocumentPort
 }
 
-func NewAuthApplication(config config.Config, logger zerolog.Logger, userApp ports.UserPort, sessionApp ports.SessionPort, spaceApp ports.SpacePort, documentApp ports.DocumentPort) *AuthApplication {
+func NewAuthApplication(config config.Config, logger zerolog.Logger) *AuthApplication {
 	return &AuthApplication{
-		Config:      config,
-		Logger:      logger,
-		UserApp:     userApp,
-		SessionApp:  sessionApp,
-		SpaceApp:    spaceApp,
-		DocumentApp: documentApp,
+		Config: config,
+		Logger: logger,
 	}
 }

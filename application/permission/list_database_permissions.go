@@ -1,14 +1,15 @@
-package database
+package permission
 
 import (
 	"fmt"
 
-	"github.com/labbs/nexo/application/database/dto"
+	dto "github.com/labbs/nexo/application/database/dto"
 	"github.com/labbs/nexo/domain"
 )
 
-// ListDatabasePermissions returns all permissions for a database
-func (app *DatabaseApplication) ListDatabasePermissions(input dto.ListDatabasePermissionsInput) (*dto.ListDatabasePermissionsOutput, error) {
+// ListDatabasePermissions returns all permissions for a database.
+// The requester must have access to the parent space.
+func (app *PermissionApplication) ListDatabasePermissions(input dto.ListDatabasePermissionsInput) (*dto.ListDatabasePermissionsOutput, error) {
 	database, err := app.DatabasePers.GetById(input.DatabaseId)
 	if err != nil {
 		return nil, fmt.Errorf("database not found: %w", err)

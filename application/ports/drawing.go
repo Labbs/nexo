@@ -11,7 +11,4 @@ type DrawingPort interface {
 	UpdateDrawing(input dto.UpdateDrawingInput) error
 	MoveDrawing(input dto.MoveDrawingInput) (*dto.MoveDrawingOutput, error)
 	DeleteDrawing(input dto.DeleteDrawingInput) error
-	ListDrawingPermissions(input dto.ListDrawingPermissionsInput) (*dto.ListDrawingPermissionsOutput, error)
-	UpsertDrawingUserPermission(input dto.UpsertDrawingUserPermissionInput) error
-	DeleteDrawingUserPermission(input dto.DeleteDrawingUserPermissionInput) error
 }

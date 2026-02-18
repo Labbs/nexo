@@ -1,14 +1,16 @@
-package database
+package permission
 
 import (
 	"fmt"
 
-	"github.com/labbs/nexo/application/database/dto"
+	dto "github.com/labbs/nexo/application/database/dto"
 	"github.com/labbs/nexo/domain"
 )
 
-// DeleteDatabasePermission removes a permission from a database
-func (app *DatabaseApplication) DeleteDatabasePermission(input dto.DeleteDatabasePermissionInput) error {
+// UpsertDatabasePermission adds or updates a permission for a database.
+// Only the database creator or a space admin/owner can manage permissions.
+// Supports both user and group permissions (mutually exclusive).
+func (app *PermissionApplication) UpsertDatabasePermission(input dto.UpsertDatabasePermissionInput) error {
 	database, err := app.DatabasePers.GetById(input.DatabaseId)
 	if err != nil {
 		return fmt.Errorf("database not found: %w", err)
@@ -32,18 +34,24 @@ func (app *DatabaseApplication) DeleteDatabasePermission(input dto.DeleteDatabas
 		return fmt.Errorf("only creator or space admins can manage permissions")
 	}
 
+	// Validate role
+	role := domain.PermissionRole(input.Role)
+	if role != domain.PermissionRoleEditor && role != domain.PermissionRoleViewer && role != domain.PermissionRoleDenied {
+		return fmt.Errorf("invalid role: %s", input.Role)
+	}
+
 	// Validate that either UserId or GroupId is provided, but not both
 	if (input.TargetUserId == nil && input.GroupId == nil) || (input.TargetUserId != nil && input.GroupId != nil) {
 		return fmt.Errorf("must provide either user_id or group_id, but not both")
 	}
 
 	if input.TargetUserId != nil {
-		if err := app.PermissionPers.DeleteUser(domain.PermissionTypeDatabase, input.DatabaseId, *input.TargetUserId); err != nil {
-			return fmt.Errorf("failed to delete permission: %w", err)
+		if err := app.PermissionPers.UpsertUser(domain.PermissionTypeDatabase, input.DatabaseId, *input.TargetUserId, role); err != nil {
+			return fmt.Errorf("failed to upsert permission: %w", err)
 		}
 	} else {
-		if err := app.PermissionPers.DeleteGroup(domain.PermissionTypeDatabase, input.DatabaseId, *input.GroupId); err != nil {
-			return fmt.Errorf("failed to delete permission: %w", err)
+		if err := app.PermissionPers.UpsertGroup(domain.PermissionTypeDatabase, input.DatabaseId, *input.GroupId, role); err != nil {
+			return fmt.Errorf("failed to upsert permission: %w", err)
 		}
 	}
 

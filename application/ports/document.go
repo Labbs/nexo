@@ -20,11 +20,6 @@ type DocumentPort interface {
 	// Reorder
 	ReorderDocuments(input dto.ReorderDocumentsInput) error
 
-	// Permissions
-	ListDocumentPermissions(input dto.ListDocumentPermissionsInput) (*dto.ListDocumentPermissionsOutput, error)
-	UpsertDocumentUserPermission(input dto.UpsertDocumentUserPermissionInput) error
-	DeleteDocumentUserPermission(input dto.DeleteDocumentUserPermissionInput) error
-
 	// Trash
 	GetTrash(input dto.GetTrashInput) (*dto.GetTrashOutput, error)
 	RestoreDocument(input dto.RestoreDocumentInput) error

@@ -26,9 +26,4 @@ type DatabasePort interface {
 	UpdateRow(input dto.UpdateRowInput) error
 	DeleteRow(input dto.DeleteRowInput) error
 	BulkDeleteRows(input dto.BulkDeleteRowsInput) error
-
-	// Permissions
-	ListDatabasePermissions(input dto.ListDatabasePermissionsInput) (*dto.ListDatabasePermissionsOutput, error)
-	UpsertDatabasePermission(input dto.UpsertDatabasePermissionInput) error
-	DeleteDatabasePermission(input dto.DeleteDatabasePermissionInput) error
 }
