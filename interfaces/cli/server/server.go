@@ -12,6 +12,7 @@ import (
 	"github.com/labbs/nexo/application/drawing"
 	"github.com/labbs/nexo/application/favorite"
 	"github.com/labbs/nexo/application/group"
+	"github.com/labbs/nexo/application/permission"
 	"github.com/labbs/nexo/application/session"
 	"github.com/labbs/nexo/application/space"
 	"github.com/labbs/nexo/application/user"
@@ -106,19 +107,38 @@ func runServer(cfg config.Config) error {
 
 	deps.UserApp = user.NewUserApplication(deps.Config, deps.Logger, userPers)
 	deps.SessionApp = session.NewSessionApplication(deps.Config, deps.Logger, sessionPers, deps.UserApp)
-	deps.SpaceApp = space.NewSpaceApplication(deps.Config, deps.Logger, spacePers, documentPers, permissionPers)
-	deps.DocumentApp = document.NewDocumentApplication(deps.Config, deps.Logger, documentPers, spacePers, permissionPers, commentPers, documentVersionPers)
-	deps.AuthApp = auth.NewAuthApplication(deps.Config, deps.Logger, deps.UserApp, deps.SessionApp, deps.SpaceApp, deps.DocumentApp)
-	deps.ApiKeyApp = apikey.NewApiKeyApp(deps.Config, deps.Logger, apiKeyPers)
+	deps.SpaceApp = space.NewSpaceApplication(deps.Config, deps.Logger, spacePers, permissionPers)
+	deps.DocumentApp = document.NewDocumentApplication(deps.Config, deps.Logger, documentPers, commentPers, documentVersionPers)
+	deps.AuthApp = auth.NewAuthApplication(deps.Config, deps.Logger)
+	deps.ApiKeyApp = apikey.NewApiKeyApplication(deps.Config, deps.Logger, apiKeyPers)
 	deps.WebhookApp = webhook.NewWebhookApplication(deps.Config, deps.Logger, webhookPers, webhookDeliveryPers)
-	deps.DatabaseApp = databaseApp.NewDatabaseApplication(deps.Config, deps.Logger, databasePers, databaseRowPers, spacePers, permissionPers)
-	deps.DrawingApp = drawing.NewDrawingApplication(deps.Config, deps.Logger, drawingPers, permissionPers, spacePers)
-	deps.ActionApp = action.NewActionApp(deps.Config, deps.Logger, actionPers, actionRunPers)
-	deps.GroupApp = group.NewGroupApp(deps.Config, deps.Logger, groupPers, userPers)
+	deps.DatabaseApp = databaseApp.NewDatabaseApplication(deps.Config, deps.Logger, databasePers, databaseRowPers)
+	deps.DrawingApp = drawing.NewDrawingApplication(deps.Config, deps.Logger, drawingPers)
+	deps.ActionApp = action.NewActionApplication(deps.Config, deps.Logger, actionPers, actionRunPers)
+	deps.GroupApp = group.NewGroupApp(deps.Config, deps.Logger, groupPers)
 	deps.FavoriteApp = favorite.NewFavoriteApp(deps.Config, deps.Logger, favoritePers)
+	deps.PermissionApp = permission.NewPermissionApplication(deps.Config, deps.Logger, permissionPers)
 
+	// Inject port dependencies (after construction to avoid circular dependencies)
+	deps.AuthApp.UserApp = deps.UserApp
+	deps.AuthApp.SessionApp = deps.SessionApp
+	deps.AuthApp.SpaceApp = deps.SpaceApp
+	deps.AuthApp.DocumentApp = deps.DocumentApp
 	deps.UserApp.GroupApp = deps.GroupApp
 	deps.FavoriteApp.DocumentApp = deps.DocumentApp
+	deps.SpaceApp.DocumentApp = deps.DocumentApp
+	deps.SpaceApp.PermissionApp = deps.PermissionApp
+	deps.DocumentApp.SpaceApp = deps.SpaceApp
+	deps.DocumentApp.PermissionApp = deps.PermissionApp
+	deps.DrawingApp.SpaceApp = deps.SpaceApp
+	deps.DrawingApp.PermissionApp = deps.PermissionApp
+	deps.DatabaseApp.SpaceApp = deps.SpaceApp
+	deps.DatabaseApp.PermissionApp = deps.PermissionApp
+	deps.GroupApp.UserApp = deps.UserApp
+	deps.PermissionApp.SpaceApp = deps.SpaceApp
+	deps.PermissionApp.DrawingApp = deps.DrawingApp
+	deps.PermissionApp.DocumentApp = deps.DocumentApp
+	deps.PermissionApp.DatabaseApp = deps.DatabaseApp
 
 	// Initialize HTTP server (fiber + fiberoapi)
 	deps.Http, err = http.Configure(deps.Config, deps.Logger, deps.SessionApp, true)

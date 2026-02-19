@@ -19,7 +19,7 @@ func (ctrl *Controller) ListDatabasePermissions(ctx *fiber.Ctx, req dtos.ListDat
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	result, err := ctrl.DatabaseApp.ListDatabasePermissions(databaseDto.ListDatabasePermissionsInput{
+	result, err := ctrl.PermissionApp.ListDatabasePermissions(databaseDto.ListDatabasePermissionsInput{
 		UserId:     authCtx.UserID,
 		DatabaseId: req.DatabaseId,
 	})
@@ -61,7 +61,7 @@ func (ctrl *Controller) UpsertDatabasePermission(ctx *fiber.Ctx, req dtos.Upsert
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	err = ctrl.DatabaseApp.UpsertDatabasePermission(databaseDto.UpsertDatabasePermissionInput{
+	err = ctrl.PermissionApp.UpsertDatabasePermission(databaseDto.UpsertDatabasePermissionInput{
 		UserId:       authCtx.UserID,
 		DatabaseId:   req.DatabaseId,
 		TargetUserId: req.UserId,
@@ -97,7 +97,7 @@ func (ctrl *Controller) DeleteDatabasePermission(ctx *fiber.Ctx, req dtos.Delete
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	err = ctrl.DatabaseApp.DeleteDatabasePermission(databaseDto.DeleteDatabasePermissionInput{
+	err = ctrl.PermissionApp.DeleteDatabasePermission(databaseDto.DeleteDatabasePermissionInput{
 		UserId:       authCtx.UserID,
 		DatabaseId:   req.DatabaseId,
 		TargetUserId: req.UserId,

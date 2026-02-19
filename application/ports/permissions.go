@@ -4,14 +4,20 @@ import (
 	databaseDto "github.com/labbs/nexo/application/database/dto"
 	documentDto "github.com/labbs/nexo/application/document/dto"
 	drawingDto "github.com/labbs/nexo/application/drawing/dto"
+	permissionDto "github.com/labbs/nexo/application/permission/dto"
 	spaceDto "github.com/labbs/nexo/application/space/dto"
 )
 
 type PermissionPort interface {
+	// Internal permission assignment (no authorization checks)
+	AssignOwnerPermission(input permissionDto.AssignOwnerPermissionInput) error
+
 	// Space permissions
 	ListSpacePermissions(input spaceDto.ListSpacePermissionsInput) (*spaceDto.ListSpacePermissionsOutput, error)
 	UpsertSpaceUserPermission(input spaceDto.UpsertSpaceUserPermissionInput) error
 	DeleteSpaceUserPermission(input spaceDto.DeleteSpaceUserPermissionInput) error
+	UpsertSpaceGroupPermission(input spaceDto.UpsertSpaceGroupPermissionInput) error
+	DeleteSpaceGroupPermission(input spaceDto.DeleteSpaceGroupPermissionInput) error
 
 	// Drawing permissions
 	ListDrawingPermissions(input drawingDto.ListDrawingPermissionsInput) (*drawingDto.ListDrawingPermissionsOutput, error)

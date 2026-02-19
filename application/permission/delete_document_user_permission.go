@@ -3,27 +3,31 @@ package permission
 import (
 	"fmt"
 
-	dto "github.com/labbs/nexo/application/document/dto"
+	documentDto "github.com/labbs/nexo/application/document/dto"
 	"github.com/labbs/nexo/domain"
 )
 
 // DeleteDocumentUserPermission removes a user permission from a document.
 // The requester must be able to manage permissions (owner of document OR admin of space).
-func (app *PermissionApplication) DeleteDocumentUserPermission(input dto.DeleteDocumentUserPermissionInput) error {
+func (app *PermissionApplication) DeleteDocumentUserPermission(input documentDto.DeleteDocumentUserPermissionInput) error {
 	// Get the document with space to check permissions
-	doc, err := app.DocumentPers.GetDocumentByIdOrSlugWithUserPermissions(input.SpaceId, &input.DocumentId, nil, input.RequesterId)
-	if err != nil || doc == nil {
+	docResult, err := app.DocumentApp.GetDocumentByIdOrSlugWithUserPermissions(documentDto.GetDocumentByIdOrSlugWithUserPermissionsInput{
+		SpaceId:    input.SpaceId,
+		DocumentId: &input.DocumentId,
+		UserId:     input.RequesterId,
+	})
+	if err != nil || docResult.Document == nil {
 		return fmt.Errorf("not_found")
 	}
 
 	// User must be able to manage permissions (owner of document OR admin of space)
-	if !doc.CanManagePermissions(input.RequesterId) {
+	if !docResult.Document.CanManagePermissions(input.RequesterId) {
 		return fmt.Errorf("forbidden")
 	}
 
 	// Prevent removing the space owner from documents in personal/private spaces
-	if (doc.Space.Type == domain.SpaceTypePersonal || doc.Space.Type == domain.SpaceTypePrivate) &&
-		doc.Space.OwnerId != nil && *doc.Space.OwnerId == input.TargetUserId {
+	if (docResult.Document.Space.Type == "personal" || docResult.Document.Space.Type == "private") &&
+		docResult.Document.Space.OwnerId != nil && *docResult.Document.Space.OwnerId == input.TargetUserId {
 		return fmt.Errorf("cannot_remove_owner")
 	}
 

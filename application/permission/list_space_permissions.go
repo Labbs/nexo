@@ -3,18 +3,18 @@ package permission
 import (
 	"fmt"
 
-	dto "github.com/labbs/nexo/application/space/dto"
+	spaceDto "github.com/labbs/nexo/application/space/dto"
 	"github.com/labbs/nexo/domain"
 )
 
 // ListSpacePermissions returns all permissions for a space.
 // The requester must be an admin of the space.
-func (app *PermissionApplication) ListSpacePermissions(input dto.ListSpacePermissionsInput) (*dto.ListSpacePermissionsOutput, error) {
-	space, err := app.SpacePers.GetSpaceById(input.SpaceId)
-	if err != nil || space == nil {
+func (app *PermissionApplication) ListSpacePermissions(input spaceDto.ListSpacePermissionsInput) (*spaceDto.ListSpacePermissionsOutput, error) {
+	spaceResult, err := app.SpaceApp.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: input.SpaceId})
+	if err != nil || spaceResult.Space == nil {
 		return nil, fmt.Errorf("not_found")
 	}
-	if !space.HasPermission(input.UserId, domain.PermissionRoleAdmin) {
+	if !spaceResult.Space.HasPermission(input.UserId, "admin") {
 		return nil, fmt.Errorf("forbidden")
 	}
 	permissions, err := app.PermissionPers.ListByResource(domain.PermissionTypeSpace, input.SpaceId)
@@ -23,26 +23,26 @@ func (app *PermissionApplication) ListSpacePermissions(input dto.ListSpacePermis
 	}
 
 	// Include the space owner if not already in the permissions list
-	if space.OwnerId != nil {
+	if spaceResult.Space.OwnerId != nil {
 		ownerFound := false
 		for _, p := range permissions {
-			if p.UserId != nil && *p.UserId == *space.OwnerId {
+			if p.UserId != nil && *p.UserId == *spaceResult.Space.OwnerId {
 				ownerFound = true
 				break
 			}
 		}
 		if !ownerFound {
+			spaceId := spaceResult.Space.Id
 			ownerPerm := domain.Permission{
-				Id:      "owner-" + space.Id,
+				Id:      "owner-" + spaceResult.Space.Id,
 				Type:    domain.PermissionTypeSpace,
-				SpaceId: &space.Id,
-				UserId:  space.OwnerId,
+				SpaceId: &spaceId,
+				UserId:  spaceResult.Space.OwnerId,
 				Role:    domain.PermissionRoleOwner,
-				User:    space.Owner,
 			}
 			permissions = append([]domain.Permission{ownerPerm}, permissions...)
 		}
 	}
 
-	return &dto.ListSpacePermissionsOutput{Permissions: permissions}, nil
+	return &spaceDto.ListSpacePermissionsOutput{Permissions: permissions}, nil
 }

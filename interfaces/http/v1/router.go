@@ -46,11 +46,12 @@ func SetupRouterV1(deps infrastructure.Deps) {
 	space.SetupSpaceRouter(spaceCtrl)
 
 	documentCtrl := document.Controller{
-		Config:      deps.Config,
-		Logger:      deps.Logger,
-		FiberOapi:   grp.Group("/document"),
-		SpaceApp:    deps.SpaceApp,
-		DocumentApp: deps.DocumentApp,
+		Config:        deps.Config,
+		Logger:        deps.Logger,
+		FiberOapi:     grp.Group("/document"),
+		SpaceApp:      deps.SpaceApp,
+		DocumentApp:   deps.DocumentApp,
+		PermissionApp: deps.PermissionApp,
 	}
 	document.SetupDocumentRouter(documentCtrl)
 
@@ -71,18 +72,20 @@ func SetupRouterV1(deps infrastructure.Deps) {
 	webhook.SetupWebhookRouter(webhookCtrl)
 
 	databaseCtrl := database.Controller{
-		Config:      deps.Config,
-		Logger:      deps.Logger,
-		FiberOapi:   grp.Group("/databases"),
-		DatabaseApp: deps.DatabaseApp,
+		Config:        deps.Config,
+		Logger:        deps.Logger,
+		FiberOapi:     grp.Group("/databases"),
+		DatabaseApp:   deps.DatabaseApp,
+		PermissionApp: deps.PermissionApp,
 	}
 	database.SetupDatabaseRouter(databaseCtrl)
 
 	drawingCtrl := drawing.Controller{
-		Config:     deps.Config,
-		Logger:     deps.Logger,
-		FiberOapi:  grp.Group("/drawings"),
-		DrawingApp: deps.DrawingApp,
+		Config:        deps.Config,
+		Logger:        deps.Logger,
+		FiberOapi:     grp.Group("/drawings"),
+		DrawingApp:    deps.DrawingApp,
+		PermissionApp: deps.PermissionApp,
 	}
 	drawing.SetupDrawingRouter(drawingCtrl)
 

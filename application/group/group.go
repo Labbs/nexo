@@ -2,6 +2,8 @@ package group
 
 import (
 	"github.com/labbs/nexo/application/group/dto"
+	"github.com/labbs/nexo/application/ports"
+	userDto "github.com/labbs/nexo/application/user/dto"
 	"github.com/labbs/nexo/domain"
 	"github.com/labbs/nexo/infrastructure/config"
 	"github.com/rs/zerolog"
@@ -11,15 +13,14 @@ type GroupApp struct {
 	Config    config.Config
 	Logger    zerolog.Logger
 	GroupPers domain.GroupPers
-	UserPers  domain.UserPers
+	UserApp   ports.UserPort
 }
 
-func NewGroupApp(config config.Config, logger zerolog.Logger, groupPers domain.GroupPers, userPers domain.UserPers) *GroupApp {
+func NewGroupApp(config config.Config, logger zerolog.Logger, groupPers domain.GroupPers) *GroupApp {
 	return &GroupApp{
 		Config:    config,
 		Logger:    logger,
 		GroupPers: groupPers,
-		UserPers:  userPers,
 	}
 }
 
@@ -104,7 +105,7 @@ func (app *GroupApp) AddMember(input dto.AddMemberInput) error {
 	logger := app.Logger.With().Str("component", "application.group.add_member").Logger()
 
 	// Verify user exists
-	_, err := app.UserPers.GetById(input.UserId)
+	_, err := app.UserApp.GetByUserId(userDto.GetByUserIdInput{UserId: input.UserId})
 	if err != nil {
 		logger.Error().Err(err).Str("user_id", input.UserId).Msg("user not found")
 		return err

@@ -177,16 +177,12 @@ func (ctrl *Controller) UpsertUserPermission(ctx *fiber.Ctx, req dtos.UpsertSpac
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	var role domain.PermissionRole
-	switch req.Role {
-	case string(domain.PermissionRoleOwner):
-		role = domain.PermissionRoleOwner
-	case string(domain.PermissionRoleAdmin):
-		role = domain.PermissionRoleAdmin
-	case string(domain.PermissionRoleEditor):
-		role = domain.PermissionRoleEditor
+	role := req.Role
+	switch role {
+	case "owner", "admin", "editor", "viewer":
+		// valid role
 	default:
-		role = domain.PermissionRoleViewer
+		role = "viewer"
 	}
 
 	if err := ctrl.SpaceApp.UpsertSpaceUserPermission(spaceDto.UpsertSpaceUserPermissionInput{

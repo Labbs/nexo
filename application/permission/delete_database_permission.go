@@ -3,33 +3,34 @@ package permission
 import (
 	"fmt"
 
-	dto "github.com/labbs/nexo/application/database/dto"
+	databaseDto "github.com/labbs/nexo/application/database/dto"
+	spaceDto "github.com/labbs/nexo/application/space/dto"
 	"github.com/labbs/nexo/domain"
 )
 
 // DeleteDatabasePermission removes a permission from a database.
 // Only the database creator or a space admin/owner can manage permissions.
 // Supports both user and group permissions (mutually exclusive).
-func (app *PermissionApplication) DeleteDatabasePermission(input dto.DeleteDatabasePermissionInput) error {
-	database, err := app.DatabasePers.GetById(input.DatabaseId)
+func (app *PermissionApplication) DeleteDatabasePermission(input databaseDto.DeleteDatabasePermissionInput) error {
+	dbResult, err := app.DatabaseApp.GetDatabaseById(databaseDto.GetDatabaseByIdInput{DatabaseId: input.DatabaseId})
 	if err != nil {
 		return fmt.Errorf("database not found: %w", err)
 	}
 
 	// Verify user has permission to manage permissions (creator or space admin)
-	space, err := app.SpacePers.GetSpaceById(database.SpaceId)
+	spaceResult, err := app.SpaceApp.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: dbResult.Database.SpaceId})
 	if err != nil {
 		return fmt.Errorf("space not found: %w", err)
 	}
 
-	spaceRole := space.GetUserRole(input.UserId)
+	spaceRole := spaceResult.Space.GetUserRole(input.UserId)
 	if spaceRole == nil {
 		return fmt.Errorf("access denied")
 	}
 
 	// Only creator or space admin/owner can manage permissions
-	isCreator := database.CreatedBy == input.UserId
-	isSpaceAdmin := *spaceRole == domain.PermissionRoleOwner || *spaceRole == domain.PermissionRoleAdmin
+	isCreator := dbResult.Database.CreatedBy == input.UserId
+	isSpaceAdmin := *spaceRole == "owner" || *spaceRole == "admin"
 	if !isCreator && !isSpaceAdmin {
 		return fmt.Errorf("only creator or space admins can manage permissions")
 	}

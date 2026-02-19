@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/labbs/nexo/application/database/dto"
+	spaceDto "github.com/labbs/nexo/application/space/dto"
 )
 
 func (app *DatabaseApplication) GetDatabase(input dto.GetDatabaseInput) (*dto.GetDatabaseOutput, error) {
@@ -14,12 +15,12 @@ func (app *DatabaseApplication) GetDatabase(input dto.GetDatabaseInput) (*dto.Ge
 	}
 
 	// Verify user has access to the space
-	space, err := app.SpacePers.GetSpaceById(database.SpaceId)
+	spaceResult, err := app.SpaceApp.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: database.SpaceId})
 	if err != nil {
 		return nil, fmt.Errorf("space not found: %w", err)
 	}
 
-	if space.GetUserRole(input.UserId) == nil {
+	if spaceResult.Space.GetUserRole(input.UserId) == nil {
 		return nil, fmt.Errorf("access denied")
 	}
 

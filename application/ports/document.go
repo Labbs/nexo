@@ -12,7 +12,8 @@ type DocumentPort interface {
 	UpdateDocument(input dto.UpdateDocumentInput) (*dto.UpdateDocumentOutput, error)
 	MoveDocument(input dto.MoveDocumentInput) (*dto.MoveDocumentOutput, error)
 	DeleteDocument(input dto.DeleteDocumentInput) error
-	GetDocumentByIdOrSlugWithUserPermissions(input)
+	GetDocumentByIdOrSlugWithUserPermissions(input dto.GetDocumentByIdOrSlugWithUserPermissionsInput) (*dto.GetDocumentByIdOrSlugWithUserPermissionsOutput, error)
+	HasDocumentsInSpace(input dto.HasDocumentsInSpaceInput) (*dto.HasDocumentsInSpaceOutput, error)
 
 	// Search
 	Search(input dto.SearchInput) (*dto.SearchOutput, error)

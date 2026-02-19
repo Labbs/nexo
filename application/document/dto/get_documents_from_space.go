@@ -1,5 +1,7 @@
 package dto
 
+import "github.com/labbs/nexo/domain"
+
 type GetDocumentsFromSpaceInput struct {
 	SpaceId  string
 	UserId   string
@@ -7,5 +9,5 @@ type GetDocumentsFromSpaceInput struct {
 }
 
 type GetDocumentsFromSpaceOutput struct {
-	Documents []Document
+	Documents []domain.Document
 }

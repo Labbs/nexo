@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/labbs/nexo/application/database/dto"
+	spaceDto "github.com/labbs/nexo/application/space/dto"
 	"github.com/labbs/nexo/domain"
 )
 
@@ -16,12 +17,12 @@ func (app *DatabaseApplication) DeleteView(input dto.DeleteViewInput) error {
 	}
 
 	// Verify user has access to the space
-	space, err := app.SpacePers.GetSpaceById(database.SpaceId)
+	spaceResult, err := app.SpaceApp.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: database.SpaceId})
 	if err != nil {
 		return fmt.Errorf("space not found: %w", err)
 	}
 
-	if space.GetUserRole(input.UserId) == nil {
+	if spaceResult.Space.GetUserRole(input.UserId) == nil {
 		return fmt.Errorf("access denied")
 	}
 

@@ -3,21 +3,25 @@ package permission
 import (
 	"fmt"
 
-	dto "github.com/labbs/nexo/application/document/dto"
+	documentDto "github.com/labbs/nexo/application/document/dto"
 	"github.com/labbs/nexo/domain"
 )
 
 // ListDocumentPermissions returns all permissions for a document.
 // The requester must have at least viewer access to the document.
-func (app *PermissionApplication) ListDocumentPermissions(input dto.ListDocumentPermissionsInput) (*dto.ListDocumentPermissionsOutput, error) {
+func (app *PermissionApplication) ListDocumentPermissions(input documentDto.ListDocumentPermissionsInput) (*documentDto.ListDocumentPermissionsOutput, error) {
 	// Get the document with space to check permissions
-	doc, err := app.DocumentPers.GetDocumentByIdOrSlugWithUserPermissions(input.SpaceId, &input.DocumentId, nil, input.RequesterId)
-	if err != nil || doc == nil {
+	docResult, err := app.DocumentApp.GetDocumentByIdOrSlugWithUserPermissions(documentDto.GetDocumentByIdOrSlugWithUserPermissionsInput{
+		SpaceId:    input.SpaceId,
+		DocumentId: &input.DocumentId,
+		UserId:     input.RequesterId,
+	})
+	if err != nil || docResult.Document == nil {
 		return nil, fmt.Errorf("not_found")
 	}
 
 	// User must have at least viewer access to the document to see permissions
-	if !doc.HasPermission(input.RequesterId, domain.PermissionRoleViewer) {
+	if !docResult.Document.HasPermission(input.RequesterId, "viewer") {
 		return nil, fmt.Errorf("forbidden")
 	}
 
@@ -26,5 +30,5 @@ func (app *PermissionApplication) ListDocumentPermissions(input dto.ListDocument
 		return nil, err
 	}
 
-	return &dto.ListDocumentPermissionsOutput{Permissions: permissions}, nil
+	return &documentDto.ListDocumentPermissionsOutput{Permissions: permissions}, nil
 }

@@ -6,7 +6,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	fiberoapi "github.com/labbs/fiber-oapi"
 	drawingDto "github.com/labbs/nexo/application/drawing/dto"
-	"github.com/labbs/nexo/domain"
 	"github.com/labbs/nexo/interfaces/http/v1/drawing/dtos"
 )
 
@@ -244,7 +243,7 @@ func (ctrl *Controller) ListDrawingPermissions(ctx *fiber.Ctx, req dtos.ListDraw
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	result, err := ctrl.DrawingApp.ListDrawingPermissions(drawingDto.ListDrawingPermissionsInput{
+	result, err := ctrl.PermissionApp.ListDrawingPermissions(drawingDto.ListDrawingPermissionsInput{
 		RequesterId: authCtx.UserID,
 		DrawingId:   req.DrawingId,
 	})
@@ -285,19 +284,15 @@ func (ctrl *Controller) UpsertDrawingUserPermission(ctx *fiber.Ctx, req dtos.Ups
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	var role domain.PermissionRole
-	switch req.Role {
-	case string(domain.PermissionRoleOwner):
-		role = domain.PermissionRoleOwner
-	case string(domain.PermissionRoleEditor):
-		role = domain.PermissionRoleEditor
-	case string(domain.PermissionRoleDenied):
-		role = domain.PermissionRoleDenied
+	role := req.Role
+	switch role {
+	case "owner", "editor", "denied", "viewer":
+		// valid role
 	default:
-		role = domain.PermissionRoleViewer
+		role = "viewer"
 	}
 
-	if err := ctrl.DrawingApp.UpsertDrawingUserPermission(drawingDto.UpsertDrawingUserPermissionInput{
+	if err := ctrl.PermissionApp.UpsertDrawingUserPermission(drawingDto.UpsertDrawingUserPermissionInput{
 		RequesterId:  authCtx.UserID,
 		DrawingId:    req.DrawingId,
 		TargetUserId: req.UserId,
@@ -327,7 +322,7 @@ func (ctrl *Controller) DeleteDrawingUserPermission(ctx *fiber.Ctx, req dtos.Del
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	if err := ctrl.DrawingApp.DeleteDrawingUserPermission(drawingDto.DeleteDrawingUserPermissionInput{
+	if err := ctrl.PermissionApp.DeleteDrawingUserPermission(drawingDto.DeleteDrawingUserPermissionInput{
 		RequesterId:  authCtx.UserID,
 		DrawingId:    req.DrawingId,
 		TargetUserId: req.UserId,

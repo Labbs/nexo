@@ -9,6 +9,7 @@ type DatabasePort interface {
 	CreateDatabase(input dto.CreateDatabaseInput) (*dto.CreateDatabaseOutput, error)
 	ListDatabases(input dto.ListDatabasesInput) (*dto.ListDatabasesOutput, error)
 	GetDatabase(input dto.GetDatabaseInput) (*dto.GetDatabaseOutput, error)
+	GetDatabaseById(input dto.GetDatabaseByIdInput) (*dto.GetDatabaseByIdOutput, error)
 	UpdateDatabase(input dto.UpdateDatabaseInput) error
 	DeleteDatabase(input dto.DeleteDatabaseInput) error
 	MoveDatabase(input dto.MoveDatabaseInput) (*dto.MoveDatabaseOutput, error)

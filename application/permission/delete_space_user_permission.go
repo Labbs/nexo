@@ -3,24 +3,24 @@ package permission
 import (
 	"fmt"
 
-	dto "github.com/labbs/nexo/application/space/dto"
+	spaceDto "github.com/labbs/nexo/application/space/dto"
 	"github.com/labbs/nexo/domain"
 )
 
 // DeleteSpaceUserPermission removes a user permission from a space.
 // The requester must be an admin of the space.
-func (app *PermissionApplication) DeleteSpaceUserPermission(input dto.DeleteSpaceUserPermissionInput) error {
-	space, err := app.SpacePers.GetSpaceById(input.SpaceId)
-	if err != nil || space == nil {
+func (app *PermissionApplication) DeleteSpaceUserPermission(input spaceDto.DeleteSpaceUserPermissionInput) error {
+	spaceResult, err := app.SpaceApp.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: input.SpaceId})
+	if err != nil || spaceResult.Space == nil {
 		return fmt.Errorf("not_found")
 	}
-	if !space.HasPermission(input.RequesterId, domain.PermissionRoleAdmin) {
+	if !spaceResult.Space.HasPermission(input.RequesterId, "admin") {
 		return fmt.Errorf("forbidden")
 	}
 
 	// Prevent removing the owner from personal/private spaces
-	if (space.Type == domain.SpaceTypePersonal || space.Type == domain.SpaceTypePrivate) &&
-		space.OwnerId != nil && *space.OwnerId == input.TargetUserId {
+	if (spaceResult.Space.Type == "personal" || spaceResult.Space.Type == "private") &&
+		spaceResult.Space.OwnerId != nil && *spaceResult.Space.OwnerId == input.TargetUserId {
 		return fmt.Errorf("cannot_remove_owner")
 	}
 

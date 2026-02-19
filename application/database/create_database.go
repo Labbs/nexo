@@ -7,17 +7,19 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/labbs/nexo/application/database/dto"
+	permissionDto "github.com/labbs/nexo/application/permission/dto"
+	spaceDto "github.com/labbs/nexo/application/space/dto"
 	"github.com/labbs/nexo/domain"
 )
 
 func (app *DatabaseApplication) CreateDatabase(input dto.CreateDatabaseInput) (*dto.CreateDatabaseOutput, error) {
 	// Verify user has access to the space
-	space, err := app.SpacePers.GetSpaceById(input.SpaceId)
+	spaceResult, err := app.SpaceApp.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: input.SpaceId})
 	if err != nil {
 		return nil, fmt.Errorf("space not found: %w", err)
 	}
 
-	if space.GetUserRole(input.UserId) == nil {
+	if spaceResult.Space.GetUserRole(input.UserId) == nil {
 		return nil, fmt.Errorf("access denied")
 	}
 
@@ -85,7 +87,12 @@ func (app *DatabaseApplication) CreateDatabase(input dto.CreateDatabaseInput) (*
 
 	// Auto-create editor permission for the creator
 	// This ensures they retain access even if their space role is downgraded
-	if err := app.PermissionPers.UpsertUser(domain.PermissionTypeDatabase, database.Id, input.UserId, domain.PermissionRoleEditor); err != nil {
+	if err := app.PermissionApp.AssignOwnerPermission(permissionDto.AssignOwnerPermissionInput{
+		ResourceType: "database",
+		ResourceId:   database.Id,
+		UserId:       input.UserId,
+		Role:         "editor",
+	}); err != nil {
 		// Log but don't fail - the database is already created
 		app.Logger.Warn().Err(err).Str("database_id", database.Id).Str("user_id", input.UserId).Msg("failed to create creator permission")
 	}

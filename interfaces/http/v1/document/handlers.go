@@ -468,7 +468,7 @@ func (ctrl *Controller) ListDocumentPermissions(ctx *fiber.Ctx, req dtos.ListDoc
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	result, err := ctrl.DocumentApp.ListDocumentPermissions(docDto.ListDocumentPermissionsInput{
+	result, err := ctrl.PermissionApp.ListDocumentPermissions(docDto.ListDocumentPermissionsInput{
 		RequesterId: authCtx.UserID,
 		SpaceId:     req.SpaceId,
 		DocumentId:  req.DocumentId,
@@ -510,19 +510,15 @@ func (ctrl *Controller) UpsertDocumentUserPermission(ctx *fiber.Ctx, req dtos.Up
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	var role domain.PermissionRole
-	switch req.Role {
-	case string(domain.PermissionRoleOwner):
-		role = domain.PermissionRoleOwner
-	case string(domain.PermissionRoleEditor):
-		role = domain.PermissionRoleEditor
-	case string(domain.PermissionRoleDenied):
-		role = domain.PermissionRoleDenied
+	role := req.Role
+	switch role {
+	case "owner", "editor", "denied", "viewer":
+		// valid role
 	default:
-		role = domain.PermissionRoleViewer
+		role = "viewer"
 	}
 
-	if err := ctrl.DocumentApp.UpsertDocumentUserPermission(docDto.UpsertDocumentUserPermissionInput{
+	if err := ctrl.PermissionApp.UpsertDocumentUserPermission(docDto.UpsertDocumentUserPermissionInput{
 		RequesterId:  authCtx.UserID,
 		SpaceId:      req.SpaceId,
 		DocumentId:   req.DocumentId,
@@ -553,7 +549,7 @@ func (ctrl *Controller) DeleteDocumentUserPermission(ctx *fiber.Ctx, req dtos.De
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	if err := ctrl.DocumentApp.DeleteDocumentUserPermission(docDto.DeleteDocumentUserPermissionInput{
+	if err := ctrl.PermissionApp.DeleteDocumentUserPermission(docDto.DeleteDocumentUserPermissionInput{
 		RequesterId:  authCtx.UserID,
 		SpaceId:      req.SpaceId,
 		DocumentId:   req.DocumentId,

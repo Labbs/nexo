@@ -3,25 +3,26 @@ package permission
 import (
 	"fmt"
 
-	dto "github.com/labbs/nexo/application/database/dto"
+	databaseDto "github.com/labbs/nexo/application/database/dto"
+	spaceDto "github.com/labbs/nexo/application/space/dto"
 	"github.com/labbs/nexo/domain"
 )
 
 // ListDatabasePermissions returns all permissions for a database.
 // The requester must have access to the parent space.
-func (app *PermissionApplication) ListDatabasePermissions(input dto.ListDatabasePermissionsInput) (*dto.ListDatabasePermissionsOutput, error) {
-	database, err := app.DatabasePers.GetById(input.DatabaseId)
+func (app *PermissionApplication) ListDatabasePermissions(input databaseDto.ListDatabasePermissionsInput) (*databaseDto.ListDatabasePermissionsOutput, error) {
+	dbResult, err := app.DatabaseApp.GetDatabaseById(databaseDto.GetDatabaseByIdInput{DatabaseId: input.DatabaseId})
 	if err != nil {
 		return nil, fmt.Errorf("database not found: %w", err)
 	}
 
 	// Verify user has access to the space
-	space, err := app.SpacePers.GetSpaceById(database.SpaceId)
+	spaceResult, err := app.SpaceApp.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: dbResult.Database.SpaceId})
 	if err != nil {
 		return nil, fmt.Errorf("space not found: %w", err)
 	}
 
-	if space.GetUserRole(input.UserId) == nil {
+	if spaceResult.Space.GetUserRole(input.UserId) == nil {
 		return nil, fmt.Errorf("access denied")
 	}
 
@@ -30,12 +31,12 @@ func (app *PermissionApplication) ListDatabasePermissions(input dto.ListDatabase
 		return nil, fmt.Errorf("failed to list permissions: %w", err)
 	}
 
-	output := &dto.ListDatabasePermissionsOutput{
-		Permissions: make([]dto.DatabasePermissionItem, len(perms)),
+	output := &databaseDto.ListDatabasePermissionsOutput{
+		Permissions: make([]databaseDto.DatabasePermissionItem, len(perms)),
 	}
 
 	for i, perm := range perms {
-		item := dto.DatabasePermissionItem{
+		item := databaseDto.DatabasePermissionItem{
 			Id:   perm.Id,
 			Role: string(perm.Role),
 		}
