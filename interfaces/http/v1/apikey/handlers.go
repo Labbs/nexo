@@ -19,7 +19,7 @@ func (ctrl *Controller) ListApiKeys(ctx *fiber.Ctx, _ dtos.EmptyRequest) (*dtos.
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	result, err := ctrl.ApiKeyApp.ListApiKeys(apikeyDto.ListApiKeysInput{
+	result, err := ctrl.ApiKeyApplication.ListApiKeys(apikeyDto.ListApiKeysInput{
 		UserId: authCtx.UserID,
 	})
 	if err != nil {
@@ -61,7 +61,7 @@ func (ctrl *Controller) CreateApiKey(ctx *fiber.Ctx, req dtos.CreateApiKeyReques
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusBadRequest, Details: "At least one scope is required", Type: "BAD_REQUEST"}
 	}
 
-	result, err := ctrl.ApiKeyApp.CreateApiKey(apikeyDto.CreateApiKeyInput{
+	result, err := ctrl.ApiKeyApplication.CreateApiKey(apikeyDto.CreateApiKeyInput{
 		UserId:    authCtx.UserID,
 		Name:      req.Name,
 		Scopes:    req.Scopes,
@@ -93,7 +93,7 @@ func (ctrl *Controller) UpdateApiKey(ctx *fiber.Ctx, req dtos.UpdateApiKeyReques
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	err = ctrl.ApiKeyApp.UpdateApiKey(apikeyDto.UpdateApiKeyInput{
+	err = ctrl.ApiKeyApplication.UpdateApiKey(apikeyDto.UpdateApiKeyInput{
 		UserId:   authCtx.UserID,
 		ApiKeyId: req.ApiKeyId,
 		Name:     req.Name,
@@ -123,7 +123,7 @@ func (ctrl *Controller) DeleteApiKey(ctx *fiber.Ctx, req dtos.DeleteApiKeyReques
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	err = ctrl.ApiKeyApp.DeleteApiKey(apikeyDto.DeleteApiKeyInput{
+	err = ctrl.ApiKeyApplication.DeleteApiKey(apikeyDto.DeleteApiKeyInput{
 		UserId:   authCtx.UserID,
 		ApiKeyId: req.ApiKeyId,
 	})

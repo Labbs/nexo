@@ -12,13 +12,13 @@ import (
 // The requester must be an owner or admin of the parent space.
 func (app *PermissionApplication) UpsertDrawingUserPermission(input drawingDto.UpsertDrawingUserPermissionInput) error {
 	// Get the drawing
-	drawingResult, err := app.DrawingApp.GetDrawingById(drawingDto.GetDrawingByIdInput{DrawingId: input.DrawingId})
+	drawingResult, err := app.DrawingApplication.GetDrawingById(drawingDto.GetDrawingByIdInput{DrawingId: input.DrawingId})
 	if err != nil {
 		return fmt.Errorf("not_found")
 	}
 
 	// Verify user has access to the space
-	spaceResult, err := app.SpaceApp.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: drawingResult.Drawing.SpaceId})
+	spaceResult, err := app.SpaceApplication.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: drawingResult.Drawing.SpaceId})
 	if err != nil {
 		return fmt.Errorf("space not found: %w", err)
 	}

@@ -16,7 +16,7 @@ func (a *DocumentApplication) CreateDocument(input dto.CreateDocumentInput) (*dt
 	logger := a.Logger.With().Str("component", "application.document.create_document").Logger()
 
 	// Get the space via port (returns SpaceDetail DTO)
-	spaceResult, err := a.SpaceApp.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: input.SpaceId})
+	spaceResult, err := a.SpaceApplication.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: input.SpaceId})
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to get space for document creation")
 		return nil, fmt.Errorf("failed to get space for document creation: %w", err)
@@ -58,7 +58,7 @@ func (a *DocumentApplication) CreateDocument(input dto.CreateDocumentInput) (*dt
 	}
 
 	// Auto-create owner permission for the creator
-	if err := a.PermissionApp.AssignOwnerPermission(permissionDto.AssignOwnerPermissionInput{
+	if err := a.PermissionApplication.AssignOwnerPermission(permissionDto.AssignOwnerPermissionInput{
 		ResourceType: "document",
 		ResourceId:   document.Id,
 		UserId:       input.UserId,

@@ -9,11 +9,11 @@ import (
 	"github.com/labbs/nexo/domain"
 )
 
-func (a *FavoriteApp) AddFavorite(input dto.AddFavoriteInput) (*dto.AddFavoriteOutput, error) {
+func (a *FavoriteApplication) AddFavorite(input dto.AddFavoriteInput) (*dto.AddFavoriteOutput, error) {
 	logger := a.Logger.With().Str("component", "application.favorite.add_favorite").Logger()
 
 	// Verify user has access to the document
-	docResult, err := a.DocumentApp.GetDocumentByIdOrSlugWithUserPermissions(docDto.GetDocumentByIdOrSlugWithUserPermissionsInput{
+	docResult, err := a.DocumentApplication.GetDocumentByIdOrSlugWithUserPermissions(docDto.GetDocumentByIdOrSlugWithUserPermissionsInput{
 		SpaceId:    input.SpaceId,
 		DocumentId: &input.DocumentId,
 		UserId:     input.UserId,

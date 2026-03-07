@@ -8,13 +8,13 @@ import (
 )
 
 type PermissionApplication struct {
-	Config         config.Config
-	Logger         zerolog.Logger
-	PermissionPers domain.PermissionPers
-	SpaceApp       ports.SpacePort
-	DrawingApp     ports.DrawingPort
-	DocumentApp    ports.DocumentPort
-	DatabaseApp    ports.DatabasePort
+	Config              config.Config
+	Logger              zerolog.Logger
+	PermissionPers      domain.PermissionPers
+	SpaceApplication    ports.SpacePort
+	DrawingApplication  ports.DrawingPort
+	DocumentApplication ports.DocumentPort
+	DatabaseApplication ports.DatabasePort
 }
 
 func NewPermissionApplication(

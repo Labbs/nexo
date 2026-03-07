@@ -15,7 +15,7 @@ func (c *AuthApplication) Register(input dto.RegisterInput) error {
 	logger := c.Logger.With().Str("component", "application.auth.register").Logger()
 
 	// check if the email is already in use
-	_, err := c.UserApp.GetByEmail(u.GetByEmailInput{Email: input.Email})
+	_, err := c.UserApplication.GetByEmail(u.GetByEmailInput{Email: input.Email})
 	if err == nil {
 		return fmt.Errorf("email is already in use")
 	}
@@ -33,7 +33,7 @@ func (c *AuthApplication) Register(input dto.RegisterInput) error {
 		Active:   true,
 	}
 
-	createdUser, err := c.UserApp.Create(u.CreateUserInput{User: user})
+	createdUser, err := c.UserApplication.Create(u.CreateUserInput{User: user})
 	if err != nil {
 		logger.Error().Err(err).Str("email", input.Email).Msg("failed to create user")
 		return fmt.Errorf("failed to create user: %w", err)
@@ -41,7 +41,7 @@ func (c *AuthApplication) Register(input dto.RegisterInput) error {
 
 	// Create a private space for the user
 	fmt.Println("Creating private space for user", createdUser.User.Id)
-	space, err := c.SpaceApp.CreatePrivateSpaceForUser(s.CreatePrivateSpaceForUserInput{UserId: createdUser.User.Id})
+	space, err := c.SpaceApplication.CreatePrivateSpaceForUser(s.CreatePrivateSpaceForUserInput{UserId: createdUser.User.Id})
 	if err != nil {
 		logger.Error().Err(err).Str("user_id", createdUser.User.Id).Msg("failed to create private space for user")
 		return fmt.Errorf("failed to create private space for user: %w", err)
@@ -68,7 +68,7 @@ func (c *AuthApplication) Register(input dto.RegisterInput) error {
 		},
 	}
 
-	_, err = c.DocumentApp.CreateDocument(d.CreateDocumentInput{
+	_, err = c.DocumentApplication.CreateDocument(d.CreateDocumentInput{
 		Name:    "Welcome to Your Private Space",
 		UserId:  createdUser.User.Id,
 		SpaceId: space.Space.Id,

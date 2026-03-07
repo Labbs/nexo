@@ -29,7 +29,7 @@ func (ctrl *Controller) CreateSpace(ctx *fiber.Ctx, req dtos.CreateSpaceRequest)
 		spaceType = domain.SpaceTypePrivate
 	}
 
-	result, err := ctrl.SpaceApp.CreateSpace(spaceDto.CreateSpaceInput{
+	result, err := ctrl.SpaceApplication.CreateSpace(spaceDto.CreateSpaceInput{
 		Name:      req.Name,
 		Icon:      req.Icon,
 		IconColor: req.IconColor,
@@ -62,7 +62,7 @@ func (ctrl *Controller) UpdateSpace(ctx *fiber.Ctx, req dtos.UpdateSpaceRequest)
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	result, err := ctrl.SpaceApp.UpdateSpace(spaceDto.UpdateSpaceInput{
+	result, err := ctrl.SpaceApplication.UpdateSpace(spaceDto.UpdateSpaceInput{
 		UserId:    authCtx.UserID,
 		SpaceId:   req.SpaceId,
 		Name:      req.Name,
@@ -103,7 +103,7 @@ func (ctrl *Controller) DeleteSpace(ctx *fiber.Ctx, req dtos.DeleteSpaceRequest)
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	if err := ctrl.SpaceApp.DeleteSpace(spaceDto.DeleteSpaceInput{
+	if err := ctrl.SpaceApplication.DeleteSpace(spaceDto.DeleteSpaceInput{
 		UserId:  authCtx.UserID,
 		SpaceId: req.SpaceId,
 	}); err != nil {
@@ -133,7 +133,7 @@ func (ctrl *Controller) ListPermissions(ctx *fiber.Ctx, req dtos.ListSpacePermis
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	result, err := ctrl.SpaceApp.ListSpacePermissions(spaceDto.ListSpacePermissionsInput{
+	result, err := ctrl.PermissionApplication.ListSpacePermissions(spaceDto.ListSpacePermissionsInput{
 		UserId:  authCtx.UserID,
 		SpaceId: req.SpaceId,
 	})
@@ -185,7 +185,7 @@ func (ctrl *Controller) UpsertUserPermission(ctx *fiber.Ctx, req dtos.UpsertSpac
 		role = "viewer"
 	}
 
-	if err := ctrl.SpaceApp.UpsertSpaceUserPermission(spaceDto.UpsertSpaceUserPermissionInput{
+	if err := ctrl.PermissionApplication.UpsertSpaceUserPermission(spaceDto.UpsertSpaceUserPermissionInput{
 		RequesterId:  authCtx.UserID,
 		SpaceId:      req.SpaceId,
 		TargetUserId: req.UserId,
@@ -215,7 +215,7 @@ func (ctrl *Controller) DeleteUserPermission(ctx *fiber.Ctx, req dtos.DeleteSpac
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	if err := ctrl.SpaceApp.DeleteSpaceUserPermission(spaceDto.DeleteSpaceUserPermissionInput{
+	if err := ctrl.PermissionApplication.DeleteSpaceUserPermission(spaceDto.DeleteSpaceUserPermissionInput{
 		RequesterId:  authCtx.UserID,
 		SpaceId:      req.SpaceId,
 		TargetUserId: req.UserId,

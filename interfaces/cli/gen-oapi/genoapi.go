@@ -48,7 +48,7 @@ func runCommand(cfg config.Config) error {
 	deps.Logger = logger.NewLogger(cfg.Logger.Level, cfg.Logger.Pretty, cfg.Version)
 	logger := deps.Logger.With().Str("component", "interfaces.cli.genoapi.runcommand").Logger()
 
-	deps.Http, err = http.Configure(deps.Config, deps.Logger, deps.SessionApp, true)
+	deps.Http, err = http.Configure(deps.Config, deps.Logger, deps.SessionApplication, true)
 	if err != nil {
 		logger.Fatal().Err(err).Str("event", "http.runserver.http.configure").Msg("Failed to configure HTTP server")
 		return err

@@ -14,7 +14,7 @@ import (
 
 func (app *DatabaseApplication) CreateDatabase(input dto.CreateDatabaseInput) (*dto.CreateDatabaseOutput, error) {
 	// Verify user has access to the space
-	spaceResult, err := app.SpaceApp.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: input.SpaceId})
+	spaceResult, err := app.SpaceApplication.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: input.SpaceId})
 	if err != nil {
 		return nil, fmt.Errorf("space not found: %w", err)
 	}
@@ -87,7 +87,7 @@ func (app *DatabaseApplication) CreateDatabase(input dto.CreateDatabaseInput) (*
 
 	// Auto-create editor permission for the creator
 	// This ensures they retain access even if their space role is downgraded
-	if err := app.PermissionApp.AssignOwnerPermission(permissionDto.AssignOwnerPermissionInput{
+	if err := app.PermissionApplication.AssignOwnerPermission(permissionDto.AssignOwnerPermissionInput{
 		ResourceType: "database",
 		ResourceId:   database.Id,
 		UserId:       input.UserId,

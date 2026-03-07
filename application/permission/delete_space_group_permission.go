@@ -10,7 +10,7 @@ import (
 // DeleteSpaceGroupPermission removes a group permission from a space.
 // The requester must be an admin or owner of the space.
 func (app *PermissionApplication) DeleteSpaceGroupPermission(input spaceDto.DeleteSpaceGroupPermissionInput) error {
-	space, err := app.SpaceApp.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: input.SpaceId})
+	space, err := app.SpaceApplication.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: input.SpaceId})
 	if err != nil {
 		return fmt.Errorf("space not found: %w", err)
 	}

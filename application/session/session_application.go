@@ -8,17 +8,19 @@ import (
 )
 
 type SessionApplication struct {
-	Config      config.Config
-	Logger      zerolog.Logger
-	SessionPers domain.SessionPers
-	UserApp     ports.UserPort
+	Config          config.Config
+	Logger          zerolog.Logger
+	SessionPers     domain.SessionPers
+	UserApplication ports.UserPort
 }
 
-func NewSessionApplication(config config.Config, logger zerolog.Logger, sessionPers domain.SessionPers, userApp ports.UserPort) *SessionApplication {
+func NewSessionApplication(config config.Config, logger zerolog.Logger, sessionPers domain.SessionPers) *SessionApplication {
 	return &SessionApplication{
 		Config:      config,
 		Logger:      logger,
 		SessionPers: sessionPers,
-		UserApp:     userApp,
 	}
 }
+
+// SessionApp is a type alias for backward compatibility
+type SessionApp = SessionApplication

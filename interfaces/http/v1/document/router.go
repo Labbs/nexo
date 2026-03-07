@@ -10,12 +10,12 @@ import (
 )
 
 type Controller struct {
-	Config        config.Config
-	Logger        zerolog.Logger
-	FiberOapi     *fiberoapi.OApiGroup
-	SpaceApp      *space.SpaceApp
-	DocumentApp   *document.DocumentApplication
-	PermissionApp *permission.PermissionApplication
+	Config                config.Config
+	Logger                zerolog.Logger
+	FiberOapi             *fiberoapi.OApiGroup
+	SpaceApplication      *space.SpaceApp
+	DocumentApplication   *document.DocumentApplication
+	PermissionApplication *permission.PermissionApplication
 }
 
 func SetupDocumentRouter(controller Controller) {

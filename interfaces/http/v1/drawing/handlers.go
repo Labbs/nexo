@@ -27,7 +27,7 @@ func (ctrl *Controller) CreateDrawing(ctx *fiber.Ctx, req dtos.CreateDrawingRequ
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusBadRequest, Details: "Space ID is required", Type: "BAD_REQUEST"}
 	}
 
-	result, err := ctrl.DrawingApp.CreateDrawing(drawingDto.CreateDrawingInput{
+	result, err := ctrl.DrawingApplication.CreateDrawing(drawingDto.CreateDrawingInput{
 		UserId:     authCtx.UserID,
 		SpaceId:    req.SpaceId,
 		DocumentId: req.DocumentId,
@@ -67,7 +67,7 @@ func (ctrl *Controller) ListDrawings(ctx *fiber.Ctx, req dtos.ListDrawingsReques
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusBadRequest, Details: "Space ID is required", Type: "BAD_REQUEST"}
 	}
 
-	result, err := ctrl.DrawingApp.ListDrawings(drawingDto.ListDrawingsInput{
+	result, err := ctrl.DrawingApplication.ListDrawings(drawingDto.ListDrawingsInput{
 		UserId:  authCtx.UserID,
 		SpaceId: req.SpaceId,
 	})
@@ -106,7 +106,7 @@ func (ctrl *Controller) GetDrawing(ctx *fiber.Ctx, req dtos.GetDrawingRequest) (
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	result, err := ctrl.DrawingApp.GetDrawing(drawingDto.GetDrawingInput{
+	result, err := ctrl.DrawingApplication.GetDrawing(drawingDto.GetDrawingInput{
 		UserId:    authCtx.UserID,
 		DrawingId: req.DrawingId,
 	})
@@ -147,7 +147,7 @@ func (ctrl *Controller) UpdateDrawing(ctx *fiber.Ctx, req dtos.UpdateDrawingRequ
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	err = ctrl.DrawingApp.UpdateDrawing(drawingDto.UpdateDrawingInput{
+	err = ctrl.DrawingApplication.UpdateDrawing(drawingDto.UpdateDrawingInput{
 		UserId:    authCtx.UserID,
 		DrawingId: req.DrawingId,
 		Name:      req.Name,
@@ -181,7 +181,7 @@ func (ctrl *Controller) DeleteDrawing(ctx *fiber.Ctx, req dtos.DeleteDrawingRequ
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	err = ctrl.DrawingApp.DeleteDrawing(drawingDto.DeleteDrawingInput{
+	err = ctrl.DrawingApplication.DeleteDrawing(drawingDto.DeleteDrawingInput{
 		UserId:    authCtx.UserID,
 		DrawingId: req.DrawingId,
 	})
@@ -209,7 +209,7 @@ func (ctrl *Controller) MoveDrawing(ctx *fiber.Ctx, req dtos.MoveDrawingRequest)
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	result, err := ctrl.DrawingApp.MoveDrawing(drawingDto.MoveDrawingInput{
+	result, err := ctrl.DrawingApplication.MoveDrawing(drawingDto.MoveDrawingInput{
 		UserId:     authCtx.UserID,
 		DrawingId:  req.DrawingId,
 		DocumentId: req.DocumentId,
@@ -243,7 +243,7 @@ func (ctrl *Controller) ListDrawingPermissions(ctx *fiber.Ctx, req dtos.ListDraw
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	result, err := ctrl.PermissionApp.ListDrawingPermissions(drawingDto.ListDrawingPermissionsInput{
+	result, err := ctrl.PermissionApplication.ListDrawingPermissions(drawingDto.ListDrawingPermissionsInput{
 		RequesterId: authCtx.UserID,
 		DrawingId:   req.DrawingId,
 	})
@@ -292,7 +292,7 @@ func (ctrl *Controller) UpsertDrawingUserPermission(ctx *fiber.Ctx, req dtos.Ups
 		role = "viewer"
 	}
 
-	if err := ctrl.PermissionApp.UpsertDrawingUserPermission(drawingDto.UpsertDrawingUserPermissionInput{
+	if err := ctrl.PermissionApplication.UpsertDrawingUserPermission(drawingDto.UpsertDrawingUserPermissionInput{
 		RequesterId:  authCtx.UserID,
 		DrawingId:    req.DrawingId,
 		TargetUserId: req.UserId,
@@ -322,7 +322,7 @@ func (ctrl *Controller) DeleteDrawingUserPermission(ctx *fiber.Ctx, req dtos.Del
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	if err := ctrl.PermissionApp.DeleteDrawingUserPermission(drawingDto.DeleteDrawingUserPermissionInput{
+	if err := ctrl.PermissionApplication.DeleteDrawingUserPermission(drawingDto.DeleteDrawingUserPermissionInput{
 		RequesterId:  authCtx.UserID,
 		DrawingId:    req.DrawingId,
 		TargetUserId: req.UserId,

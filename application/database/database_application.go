@@ -8,12 +8,12 @@ import (
 )
 
 type DatabaseApplication struct {
-	Config          config.Config
-	Logger          zerolog.Logger
-	DatabasePers    domain.DatabasePers
-	DatabaseRowPers domain.DatabaseRowPers
-	SpaceApp        ports.SpacePort
-	PermissionApp   ports.PermissionPort
+	Config                config.Config
+	Logger                zerolog.Logger
+	DatabasePers          domain.DatabasePers
+	DatabaseRowPers       domain.DatabaseRowPers
+	SpaceApplication      ports.SpacePort
+	PermissionApplication ports.PermissionPort
 }
 
 func NewDatabaseApplication(config config.Config, logger zerolog.Logger, databasePers domain.DatabasePers, databaseRowPers domain.DatabaseRowPers) *DatabaseApplication {

@@ -8,8 +8,8 @@ import (
 )
 
 type Controller struct {
-	Config     config.Config
-	Logger     zerolog.Logger
-	FiberOapi  *fiberoapi.OApiGroup
-	WebhookApp *webhook.WebhookApp
+	Config             config.Config
+	Logger             zerolog.Logger
+	FiberOapi          *fiberoapi.OApiGroup
+	WebhookApplication *webhook.WebhookApp
 }

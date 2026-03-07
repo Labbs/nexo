@@ -9,9 +9,9 @@ import (
 )
 
 type Controller struct {
-	Config        config.Config
-	Logger        zerolog.Logger
-	FiberOapi     *fiberoapi.OApiGroup
-	DrawingApp    *drawing.DrawingApplication
-	PermissionApp *permission.PermissionApplication
+	Config                config.Config
+	Logger                zerolog.Logger
+	FiberOapi             *fiberoapi.OApiGroup
+	DrawingApplication    *drawing.DrawingApplication
+	PermissionApplication *permission.PermissionApplication
 }

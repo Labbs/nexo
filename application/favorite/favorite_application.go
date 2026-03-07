@@ -7,15 +7,15 @@ import (
 	"github.com/rs/zerolog"
 )
 
-type FavoriteApp struct {
-	Config       config.Config
-	Logger       zerolog.Logger
-	FavoritePers domain.FavoritePers
-	DocumentApp  ports.DocumentPort
+type FavoriteApplication struct {
+	Config              config.Config
+	Logger              zerolog.Logger
+	FavoritePers        domain.FavoritePers
+	DocumentApplication ports.DocumentPort
 }
 
-func NewFavoriteApp(config config.Config, logger zerolog.Logger, favoritePers domain.FavoritePers) *FavoriteApp {
-	return &FavoriteApp{
+func NewFavoriteApplication(config config.Config, logger zerolog.Logger, favoritePers domain.FavoritePers) *FavoriteApplication {
+	return &FavoriteApplication{
 		Config:       config,
 		Logger:       logger,
 		FavoritePers: favoritePers,

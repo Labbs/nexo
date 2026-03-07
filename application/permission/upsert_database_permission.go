@@ -12,13 +12,13 @@ import (
 // Only the database creator or a space admin/owner can manage permissions.
 // Supports both user and group permissions (mutually exclusive).
 func (app *PermissionApplication) UpsertDatabasePermission(input databaseDto.UpsertDatabasePermissionInput) error {
-	dbResult, err := app.DatabaseApp.GetDatabaseById(databaseDto.GetDatabaseByIdInput{DatabaseId: input.DatabaseId})
+	dbResult, err := app.DatabaseApplication.GetDatabaseById(databaseDto.GetDatabaseByIdInput{DatabaseId: input.DatabaseId})
 	if err != nil {
 		return fmt.Errorf("database not found: %w", err)
 	}
 
 	// Verify user has permission to manage permissions (creator or space admin)
-	spaceResult, err := app.SpaceApp.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: dbResult.Database.SpaceId})
+	spaceResult, err := app.SpaceApplication.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: dbResult.Database.SpaceId})
 	if err != nil {
 		return fmt.Errorf("space not found: %w", err)
 	}

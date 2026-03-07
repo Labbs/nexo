@@ -20,7 +20,7 @@ func (ctrl *Controller) checkAdmin(ctx *fiber.Ctx) (*fiberoapi.AuthContext, *fib
 	}
 
 	// Get user to check role
-	user, err := ctrl.UserApp.GetByUserId(struct{ UserId string }{UserId: authCtx.UserID})
+	user, err := ctrl.UserApplication.GetByUserId(struct{ UserId string }{UserId: authCtx.UserID})
 	if err != nil {
 		return nil, &fiberoapi.ErrorResponse{
 			Code:    fiber.StatusInternalServerError,
@@ -57,7 +57,7 @@ func (ctrl *Controller) ListUsers(ctx *fiber.Ctx, req dtos.ListUsersRequest) (*d
 		limit = 50
 	}
 
-	users, total, err := ctrl.UserApp.GetAllUsers(limit, offset)
+	users, total, err := ctrl.UserApplication.GetAllUsers(limit, offset)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to get users")
 		return nil, &fiberoapi.ErrorResponse{
@@ -106,7 +106,7 @@ func (ctrl *Controller) UpdateUserRole(ctx *fiber.Ctx, req dtos.UpdateUserRoleRe
 	}
 
 	role := domain.Role(req.Role)
-	err := ctrl.UserApp.UpdateRole(req.UserId, role)
+	err := ctrl.UserApplication.UpdateRole(req.UserId, role)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to update user role")
 		return nil, &fiberoapi.ErrorResponse{
@@ -139,7 +139,7 @@ func (ctrl *Controller) UpdateUserActive(ctx *fiber.Ctx, req dtos.UpdateUserActi
 		}
 	}
 
-	err := ctrl.UserApp.UpdateActive(req.UserId, req.Active)
+	err := ctrl.UserApplication.UpdateActive(req.UserId, req.Active)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to update user active status")
 		return nil, &fiberoapi.ErrorResponse{
@@ -172,7 +172,7 @@ func (ctrl *Controller) DeleteUser(ctx *fiber.Ctx, req dtos.DeleteUserRequest) (
 		}
 	}
 
-	err := ctrl.UserApp.DeleteUser(req.UserId)
+	err := ctrl.UserApplication.DeleteUser(req.UserId)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to delete user")
 		return nil, &fiberoapi.ErrorResponse{
@@ -221,7 +221,7 @@ func (ctrl *Controller) ListAllSpaces(ctx *fiber.Ctx, req dtos.ListAllSpacesRequ
 		limit = 50
 	}
 
-	spaces, total, err := ctrl.SpaceApp.GetAllSpaces(limit, offset)
+	spaces, total, err := ctrl.SpaceApplication.GetAllSpaces(limit, offset)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to get spaces")
 		return nil, &fiberoapi.ErrorResponse{
@@ -273,7 +273,7 @@ func (ctrl *Controller) ListAllApiKeys(ctx *fiber.Ctx, req dtos.ListAllApiKeysRe
 		limit = 50
 	}
 
-	apiKeys, total, err := ctrl.ApiKeyApp.GetAllApiKeys(limit, offset)
+	apiKeys, total, err := ctrl.ApiKeyApplication.GetAllApiKeys(limit, offset)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to get api keys")
 		return nil, &fiberoapi.ErrorResponse{
@@ -330,7 +330,7 @@ func (ctrl *Controller) RevokeApiKey(ctx *fiber.Ctx, req dtos.RevokeApiKeyReques
 		return nil, errResp
 	}
 
-	err := ctrl.ApiKeyApp.AdminDeleteApiKey(req.ApiKeyId)
+	err := ctrl.ApiKeyApplication.AdminDeleteApiKey(req.ApiKeyId)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to revoke api key")
 		return nil, &fiberoapi.ErrorResponse{
@@ -362,7 +362,7 @@ func (ctrl *Controller) ListGroups(ctx *fiber.Ctx, req dtos.ListGroupsRequest) (
 		limit = 50
 	}
 
-	result, err := ctrl.GroupApp.GetAllGroups(groupDto.GetAllGroupsInput{
+	result, err := ctrl.GroupApplication.GetAllGroups(groupDto.GetAllGroupsInput{
 		Limit:  limit,
 		Offset: offset,
 	})
@@ -418,7 +418,7 @@ func (ctrl *Controller) CreateGroup(ctx *fiber.Ctx, req dtos.CreateGroupRequest)
 		return nil, errResp
 	}
 
-	result, err := ctrl.GroupApp.CreateGroup(groupDto.CreateGroupInput{
+	result, err := ctrl.GroupApplication.CreateGroup(groupDto.CreateGroupInput{
 		Name:        req.Name,
 		Description: req.Description,
 		OwnerId:     authCtx.UserID,
@@ -447,7 +447,7 @@ func (ctrl *Controller) UpdateGroup(ctx *fiber.Ctx, req dtos.UpdateGroupRequest)
 		return nil, errResp
 	}
 
-	err := ctrl.GroupApp.UpdateGroup(groupDto.UpdateGroupInput{
+	err := ctrl.GroupApplication.UpdateGroup(groupDto.UpdateGroupInput{
 		GroupId:     req.GroupId,
 		Name:        req.Name,
 		Description: req.Description,
@@ -475,7 +475,7 @@ func (ctrl *Controller) DeleteGroup(ctx *fiber.Ctx, req dtos.DeleteGroupRequest)
 		return nil, errResp
 	}
 
-	err := ctrl.GroupApp.DeleteGroup(groupDto.DeleteGroupInput{
+	err := ctrl.GroupApplication.DeleteGroup(groupDto.DeleteGroupInput{
 		GroupId: req.GroupId,
 	})
 	if err != nil {
@@ -500,7 +500,7 @@ func (ctrl *Controller) GetGroupMembers(ctx *fiber.Ctx, req dtos.GetGroupMembers
 		return nil, errResp
 	}
 
-	result, err := ctrl.GroupApp.GetMembers(groupDto.GetMembersInput{
+	result, err := ctrl.GroupApplication.GetMembers(groupDto.GetMembersInput{
 		GroupId: req.GroupId,
 	})
 	if err != nil {
@@ -535,7 +535,7 @@ func (ctrl *Controller) AddGroupMember(ctx *fiber.Ctx, req dtos.AddGroupMemberRe
 		return nil, errResp
 	}
 
-	err := ctrl.GroupApp.AddMember(groupDto.AddMemberInput{
+	err := ctrl.GroupApplication.AddMember(groupDto.AddMemberInput{
 		GroupId: req.GroupId,
 		UserId:  req.UserId,
 	})
@@ -561,7 +561,7 @@ func (ctrl *Controller) RemoveGroupMember(ctx *fiber.Ctx, req dtos.RemoveGroupMe
 		return nil, errResp
 	}
 
-	err := ctrl.GroupApp.RemoveMember(groupDto.RemoveMemberInput{
+	err := ctrl.GroupApplication.RemoveMember(groupDto.RemoveMemberInput{
 		GroupId: req.GroupId,
 		UserId:  req.UserId,
 	})
@@ -590,7 +590,7 @@ func (ctrl *Controller) AdminCreateSpace(ctx *fiber.Ctx, req dtos.AdminCreateSpa
 	}
 
 	spaceType := domain.SpaceType(req.Type)
-	space, err := ctrl.SpaceApp.AdminCreateSpace(req.Name, req.Icon, req.IconColor, spaceType, req.OwnerId)
+	space, err := ctrl.SpaceApplication.AdminCreateSpace(req.Name, req.Icon, req.IconColor, spaceType, req.OwnerId)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to create space")
 		return nil, &fiberoapi.ErrorResponse{
@@ -615,7 +615,7 @@ func (ctrl *Controller) AdminUpdateSpace(ctx *fiber.Ctx, req dtos.AdminUpdateSpa
 	}
 
 	spaceType := domain.SpaceType(req.Type)
-	err := ctrl.SpaceApp.AdminUpdateSpace(req.SpaceId, req.Name, req.Icon, req.IconColor, spaceType, req.OwnerId)
+	err := ctrl.SpaceApplication.AdminUpdateSpace(req.SpaceId, req.Name, req.Icon, req.IconColor, spaceType, req.OwnerId)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to update space")
 		return nil, &fiberoapi.ErrorResponse{
@@ -638,7 +638,7 @@ func (ctrl *Controller) AdminDeleteSpace(ctx *fiber.Ctx, req dtos.AdminDeleteSpa
 		return nil, errResp
 	}
 
-	err := ctrl.SpaceApp.AdminDeleteSpace(req.SpaceId)
+	err := ctrl.SpaceApplication.AdminDeleteSpace(req.SpaceId)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to delete space")
 		return nil, &fiberoapi.ErrorResponse{
@@ -661,7 +661,7 @@ func (ctrl *Controller) AdminListSpacePermissions(ctx *fiber.Ctx, req dtos.Admin
 		return nil, errResp
 	}
 
-	permissions, err := ctrl.SpaceApp.AdminListSpacePermissions(req.SpaceId)
+	permissions, err := ctrl.PermissionPers.ListByResource(domain.PermissionTypeSpace, req.SpaceId)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to list space permissions")
 		return nil, &fiberoapi.ErrorResponse{
@@ -702,7 +702,7 @@ func (ctrl *Controller) AdminAddSpaceUserPermission(ctx *fiber.Ctx, req dtos.Adm
 	}
 
 	role := domain.PermissionRole(req.Role)
-	err := ctrl.SpaceApp.AdminAddSpaceUserPermission(req.SpaceId, req.UserId, role)
+	err := ctrl.PermissionPers.UpsertUser(domain.PermissionTypeSpace, req.SpaceId, req.UserId, role)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to add user permission")
 		return nil, &fiberoapi.ErrorResponse{
@@ -725,7 +725,7 @@ func (ctrl *Controller) AdminRemoveSpaceUserPermission(ctx *fiber.Ctx, req dtos.
 		return nil, errResp
 	}
 
-	err := ctrl.SpaceApp.AdminRemoveSpaceUserPermission(req.SpaceId, req.UserId)
+	err := ctrl.PermissionPers.DeleteUser(domain.PermissionTypeSpace, req.SpaceId, req.UserId)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to remove user permission")
 		return nil, &fiberoapi.ErrorResponse{
@@ -749,7 +749,7 @@ func (ctrl *Controller) AdminAddSpaceGroupPermission(ctx *fiber.Ctx, req dtos.Ad
 	}
 
 	role := domain.PermissionRole(req.Role)
-	err := ctrl.SpaceApp.AdminAddSpaceGroupPermission(req.SpaceId, req.GroupId, role)
+	err := ctrl.PermissionPers.UpsertGroup(domain.PermissionTypeSpace, req.SpaceId, req.GroupId, role)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to add group permission")
 		return nil, &fiberoapi.ErrorResponse{
@@ -772,7 +772,7 @@ func (ctrl *Controller) AdminRemoveSpaceGroupPermission(ctx *fiber.Ctx, req dtos
 		return nil, errResp
 	}
 
-	err := ctrl.SpaceApp.AdminRemoveSpaceGroupPermission(req.SpaceId, req.GroupId)
+	err := ctrl.PermissionPers.DeleteGroup(domain.PermissionTypeSpace, req.SpaceId, req.GroupId)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to remove group permission")
 		return nil, &fiberoapi.ErrorResponse{

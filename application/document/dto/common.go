@@ -7,13 +7,27 @@ import (
 	"gorm.io/datatypes"
 )
 
+// DocumentSpace contains space info embedded in a document response
+type DocumentSpace struct {
+	Id        string
+	Name      string
+	Slug      string
+	Icon      string
+	IconColor string
+	Type      string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
 // Document represents a document in the application layer
 type Document struct {
 	Id       string
 	Name     string
 	Slug     string
 	ParentId *string
+	Parent   *Document
 	SpaceId  string
+	Space    DocumentSpace
 	Public   bool
 	Content  []Block
 	Config   DocumentConfig

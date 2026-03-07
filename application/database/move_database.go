@@ -15,7 +15,7 @@ func (app *DatabaseApplication) MoveDatabase(input dto.MoveDatabaseInput) (*dto.
 	}
 
 	// Verify user has access to the space
-	spaceResult, err := app.SpaceApp.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: database.SpaceId})
+	spaceResult, err := app.SpaceApplication.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: database.SpaceId})
 	if err != nil {
 		return nil, fmt.Errorf("space not found: %w", err)
 	}

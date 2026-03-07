@@ -21,3 +21,6 @@ func NewWebhookApplication(config config.Config, logger zerolog.Logger, webhookP
 		WebhookDeliveryPers: webhookDeliveryPers,
 	}
 }
+
+// WebhookApp is a type alias for backward compatibility
+type WebhookApp = WebhookApplication

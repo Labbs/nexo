@@ -8,13 +8,13 @@ import (
 )
 
 type DocumentApplication struct {
-	Config              config.Config
-	Logger              zerolog.Logger
-	DocumentPers        domain.DocumentPers
-	CommentPers         domain.CommentPers
-	DocumentVersionPers domain.DocumentVersionPers
-	SpaceApp            ports.SpacePort
-	PermissionApp       ports.PermissionPort
+	Config                config.Config
+	Logger                zerolog.Logger
+	DocumentPers          domain.DocumentPers
+	CommentPers           domain.CommentPers
+	DocumentVersionPers   domain.DocumentVersionPers
+	SpaceApplication      ports.SpacePort
+	PermissionApplication ports.PermissionPort
 }
 
 func NewDocumentApplication(config config.Config, logger zerolog.Logger, documentPers domain.DocumentPers, commentPers domain.CommentPers, documentVersionPers domain.DocumentVersionPers) *DocumentApplication {

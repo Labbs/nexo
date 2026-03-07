@@ -11,7 +11,7 @@ import (
 // The requester must be able to manage permissions (owner of document OR admin of space).
 func (app *PermissionApplication) UpsertDocumentUserPermission(input documentDto.UpsertDocumentUserPermissionInput) error {
 	// Get the document with space to check permissions
-	docResult, err := app.DocumentApp.GetDocumentByIdOrSlugWithUserPermissions(documentDto.GetDocumentByIdOrSlugWithUserPermissionsInput{
+	docResult, err := app.DocumentApplication.GetDocumentByIdOrSlugWithUserPermissions(documentDto.GetDocumentByIdOrSlugWithUserPermissionsInput{
 		SpaceId:    input.SpaceId,
 		DocumentId: &input.DocumentId,
 		UserId:     input.RequesterId,

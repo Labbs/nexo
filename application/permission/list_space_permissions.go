@@ -10,7 +10,7 @@ import (
 // ListSpacePermissions returns all permissions for a space.
 // The requester must be an admin of the space.
 func (app *PermissionApplication) ListSpacePermissions(input spaceDto.ListSpacePermissionsInput) (*spaceDto.ListSpacePermissionsOutput, error) {
-	spaceResult, err := app.SpaceApp.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: input.SpaceId})
+	spaceResult, err := app.SpaceApplication.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: input.SpaceId})
 	if err != nil || spaceResult.Space == nil {
 		return nil, fmt.Errorf("not_found")
 	}

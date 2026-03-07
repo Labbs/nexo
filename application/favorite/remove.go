@@ -6,7 +6,7 @@ import (
 	"github.com/labbs/nexo/application/favorite/dto"
 )
 
-func (a *FavoriteApp) RemoveFavorite(input dto.RemoveFavoriteInput) (*dto.RemoveFavoriteOutput, error) {
+func (a *FavoriteApplication) RemoveFavorite(input dto.RemoveFavoriteInput) (*dto.RemoveFavoriteOutput, error) {
 	logger := a.Logger.With().Str("component", "application.favorite.remove_favorite").Logger()
 
 	// Verify the favorite belongs to the user

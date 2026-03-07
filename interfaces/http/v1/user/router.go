@@ -10,12 +10,12 @@ import (
 )
 
 type Controller struct {
-	Config      config.Config
-	Logger      zerolog.Logger
-	FiberOapi   *fiberoapi.OApiGroup
-	UserApp     *user.UserApp
-	FavoriteApp *favorite.FavoriteApp
-	SpaceApp    *space.SpaceApp
+	Config              config.Config
+	Logger              zerolog.Logger
+	FiberOapi           *fiberoapi.OApiGroup
+	UserApplication     *user.UserApplication
+	FavoriteApplication *favorite.FavoriteApplication
+	SpaceApplication    *space.SpaceApplication
 }
 
 func SetupUserRouter(controller Controller) {

@@ -10,7 +10,7 @@ import (
 // UpsertSpaceGroupPermission adds or updates a group permission for a space.
 // The requester must be an admin or owner of the space.
 func (app *PermissionApplication) UpsertSpaceGroupPermission(input spaceDto.UpsertSpaceGroupPermissionInput) error {
-	space, err := app.SpaceApp.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: input.SpaceId})
+	space, err := app.SpaceApplication.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: input.SpaceId})
 	if err != nil {
 		return fmt.Errorf("space not found: %w", err)
 	}

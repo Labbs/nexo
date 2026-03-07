@@ -7,12 +7,12 @@ import (
 )
 
 type AuthApplication struct {
-	Config      config.Config
-	Logger      zerolog.Logger
-	UserApp     ports.UserPort
-	SessionApp  ports.SessionPort
-	SpaceApp    ports.SpacePort
-	DocumentApp ports.DocumentPort
+	Config              config.Config
+	Logger              zerolog.Logger
+	UserApplication     ports.UserPort
+	SessionApplication  ports.SessionPort
+	SpaceApplication    ports.SpacePort
+	DocumentApplication ports.DocumentPort
 }
 
 func NewAuthApplication(config config.Config, logger zerolog.Logger) *AuthApplication {

@@ -11,7 +11,7 @@ func (ctrl Controller) Login(ctx *fiber.Ctx, req dtos.LoginRequest) (*dtos.Login
 	requestId := ctx.Locals("requestid").(string)
 	logger := ctrl.Logger.With().Str("request_id", requestId).Str("component", "http.api.v1.auth.login").Logger()
 
-	resp, err := ctrl.AuthApp.Authenticate(authDto.AuthenticateInput{
+	resp, err := ctrl.AuthApplication.Authenticate(authDto.AuthenticateInput{
 		Email:    req.Email,
 		Password: req.Password,
 		Context:  ctx,
@@ -41,7 +41,7 @@ func (ctrl Controller) Logout(ctx *fiber.Ctx, input struct{}) (*dtos.LogoutRespo
 		}
 	}
 
-	err = ctrl.AuthApp.Logout(authDto.LogoutInput{SessionId: authCtx.Claims["session_id"].(string)})
+	err = ctrl.AuthApplication.Logout(authDto.LogoutInput{SessionId: authCtx.Claims["session_id"].(string)})
 	if err != nil {
 		logger.Error().Err(err).Str("session_id", authCtx.Claims["session_id"].(string)).Msg("failed to logout user")
 		return nil, &fiberoapi.ErrorResponse{
@@ -60,7 +60,7 @@ func (ctrl Controller) Register(ctx *fiber.Ctx, req dtos.RegisterRequest) (*dtos
 	requestId := ctx.Locals("requestid").(string)
 	logger := ctrl.Logger.With().Str("request_id", requestId).Str("component", "http.api.v1.auth.register").Logger()
 
-	err := ctrl.AuthApp.Register(authDto.RegisterInput{
+	err := ctrl.AuthApplication.Register(authDto.RegisterInput{
 		Username: req.Username,
 		Email:    req.Email,
 		Password: req.Password,

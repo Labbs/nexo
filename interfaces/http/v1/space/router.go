@@ -2,16 +2,18 @@ package space
 
 import (
 	fiberoapi "github.com/labbs/fiber-oapi"
+	"github.com/labbs/nexo/application/permission"
 	"github.com/labbs/nexo/application/space"
 	"github.com/labbs/nexo/infrastructure/config"
 	"github.com/rs/zerolog"
 )
 
 type Controller struct {
-	Config    config.Config
-	Logger    zerolog.Logger
-	FiberOapi *fiberoapi.OApiGroup
-	SpaceApp  *space.SpaceApp
+	Config                config.Config
+	Logger                zerolog.Logger
+	FiberOapi             *fiberoapi.OApiGroup
+	SpaceApplication      *space.SpaceApp
+	PermissionApplication *permission.PermissionApplication
 }
 
 func SetupSpaceRouter(controller Controller) {

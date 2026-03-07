@@ -31,7 +31,7 @@ func (c *SpaceApplication) CreatePrivateSpaceForUser(input dto.CreatePrivateSpac
 	}
 
 	// Auto-create owner permission for the creator
-	if err := c.PermissionApp.AssignOwnerPermission(permissionDto.AssignOwnerPermissionInput{
+	if err := c.PermissionApplication.AssignOwnerPermission(permissionDto.AssignOwnerPermissionInput{
 		ResourceType: "space",
 		ResourceId:   space.Id,
 		UserId:       input.UserId,
@@ -64,7 +64,7 @@ func (c *SpaceApplication) CreateSpace(input dto.CreateSpaceInput) (*dto.CreateS
 
 	// Auto-create owner permission for the creator
 	if input.OwnerId != nil {
-		if err := c.PermissionApp.AssignOwnerPermission(permissionDto.AssignOwnerPermissionInput{
+		if err := c.PermissionApplication.AssignOwnerPermission(permissionDto.AssignOwnerPermissionInput{
 			ResourceType: "space",
 			ResourceId:   space.Id,
 			UserId:       *input.OwnerId,

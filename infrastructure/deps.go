@@ -14,6 +14,7 @@ import (
 	"github.com/labbs/nexo/application/space"
 	"github.com/labbs/nexo/application/user"
 	"github.com/labbs/nexo/application/webhook"
+	"github.com/labbs/nexo/domain"
 	"github.com/labbs/nexo/infrastructure/config"
 	"github.com/labbs/nexo/infrastructure/cronscheduler"
 	"github.com/labbs/nexo/infrastructure/database"
@@ -28,17 +29,18 @@ type Deps struct {
 	CronScheduler cronscheduler.Config
 	Database      database.Config
 
-	UserApp       *user.UserApplication
-	SessionApp    *session.SessionApplication
-	AuthApp       *auth.AuthApplication
-	SpaceApp      *space.SpaceApplication
-	DocumentApp   *document.DocumentApplication
-	ApiKeyApp     *apikey.ApiKeyApplication
-	WebhookApp    *webhook.WebhookApplication
-	DatabaseApp   *databaseApp.DatabaseApplication
-	DrawingApp    *drawing.DrawingApplication
-	ActionApp     *action.ActionApplication
-	GroupApp      *group.GroupApp
-	FavoriteApp   *favorite.FavoriteApp
-	PermissionApp *permission.PermissionApplication
+	UserApplication       *user.UserApplication
+	SessionApplication    *session.SessionApplication
+	AuthApplication       *auth.AuthApplication
+	SpaceApplication      *space.SpaceApplication
+	DocumentApplication   *document.DocumentApplication
+	ApiKeyApplication     *apikey.ApiKeyApplication
+	WebhookApplication    *webhook.WebhookApplication
+	DatabaseApplication   *databaseApp.DatabaseApplication
+	DrawingApplication    *drawing.DrawingApplication
+	ActionApplication     *action.ActionApplication
+	GroupApplication      *group.GroupApplication
+	FavoriteApplication   *favorite.FavoriteApplication
+	PermissionApplication *permission.PermissionApplication
+	PermissionPers        domain.PermissionPers
 }

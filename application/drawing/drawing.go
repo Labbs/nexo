@@ -16,11 +16,11 @@ import (
 )
 
 type DrawingApplication struct {
-	Config        config.Config
-	Logger        zerolog.Logger
-	DrawingPers   domain.DrawingPers
-	SpaceApp      ports.SpacePort
-	PermissionApp ports.PermissionPort
+	Config                config.Config
+	Logger                zerolog.Logger
+	DrawingPers           domain.DrawingPers
+	SpaceApplication      ports.SpacePort
+	PermissionApplication ports.PermissionPort
 }
 
 func NewDrawingApplication(config config.Config, logger zerolog.Logger, drawingPers domain.DrawingPers) *DrawingApplication {
@@ -33,7 +33,7 @@ func NewDrawingApplication(config config.Config, logger zerolog.Logger, drawingP
 
 func (app *DrawingApplication) CreateDrawing(input dto.CreateDrawingInput) (*dto.CreateDrawingOutput, error) {
 	// Verify user has access to the space
-	spaceResult, err := app.SpaceApp.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: input.SpaceId})
+	spaceResult, err := app.SpaceApplication.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: input.SpaceId})
 	if err != nil {
 		return nil, fmt.Errorf("space not found: %w", err)
 	}
@@ -99,7 +99,7 @@ func (app *DrawingApplication) CreateDrawing(input dto.CreateDrawingInput) (*dto
 
 	// Auto-create owner permission for the creator
 	// This ensures they retain access and can manage permissions even if their space role is downgraded
-	if err := app.PermissionApp.AssignOwnerPermission(permissionDto.AssignOwnerPermissionInput{
+	if err := app.PermissionApplication.AssignOwnerPermission(permissionDto.AssignOwnerPermissionInput{
 		ResourceType: "drawing",
 		ResourceId:   drawing.Id,
 		UserId:       input.UserId,
@@ -118,7 +118,7 @@ func (app *DrawingApplication) CreateDrawing(input dto.CreateDrawingInput) (*dto
 
 func (app *DrawingApplication) ListDrawings(input dto.ListDrawingsInput) (*dto.ListDrawingsOutput, error) {
 	// Verify user has access to the space
-	spaceResult, err := app.SpaceApp.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: input.SpaceId})
+	spaceResult, err := app.SpaceApplication.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: input.SpaceId})
 	if err != nil {
 		return nil, fmt.Errorf("space not found: %w", err)
 	}
@@ -159,7 +159,7 @@ func (app *DrawingApplication) GetDrawing(input dto.GetDrawingInput) (*dto.GetDr
 	}
 
 	// Verify user has access to the space
-	spaceResult, err := app.SpaceApp.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: drawing.SpaceId})
+	spaceResult, err := app.SpaceApplication.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: drawing.SpaceId})
 	if err != nil {
 		return nil, fmt.Errorf("space not found: %w", err)
 	}
@@ -210,7 +210,7 @@ func (app *DrawingApplication) UpdateDrawing(input dto.UpdateDrawingInput) error
 	}
 
 	// Verify user has access to the space
-	spaceResult, err := app.SpaceApp.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: drawing.SpaceId})
+	spaceResult, err := app.SpaceApplication.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: drawing.SpaceId})
 	if err != nil {
 		return fmt.Errorf("space not found: %w", err)
 	}
@@ -277,7 +277,7 @@ func (app *DrawingApplication) MoveDrawing(input dto.MoveDrawingInput) (*dto.Mov
 	}
 
 	// Verify user has access to the space
-	spaceResult, err := app.SpaceApp.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: drawing.SpaceId})
+	spaceResult, err := app.SpaceApplication.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: drawing.SpaceId})
 	if err != nil {
 		return nil, fmt.Errorf("space not found: %w", err)
 	}
@@ -306,7 +306,7 @@ func (app *DrawingApplication) DeleteDrawing(input dto.DeleteDrawingInput) error
 	}
 
 	// Verify user has access to the space
-	spaceResult, err := app.SpaceApp.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: drawing.SpaceId})
+	spaceResult, err := app.SpaceApplication.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: drawing.SpaceId})
 	if err != nil {
 		return fmt.Errorf("space not found: %w", err)
 	}

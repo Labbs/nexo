@@ -11,7 +11,7 @@ import (
 // The requester must have at least viewer access to the document.
 func (app *PermissionApplication) ListDocumentPermissions(input documentDto.ListDocumentPermissionsInput) (*documentDto.ListDocumentPermissionsOutput, error) {
 	// Get the document with space to check permissions
-	docResult, err := app.DocumentApp.GetDocumentByIdOrSlugWithUserPermissions(documentDto.GetDocumentByIdOrSlugWithUserPermissionsInput{
+	docResult, err := app.DocumentApplication.GetDocumentByIdOrSlugWithUserPermissions(documentDto.GetDocumentByIdOrSlugWithUserPermissionsInput{
 		SpaceId:    input.SpaceId,
 		DocumentId: &input.DocumentId,
 		UserId:     input.RequesterId,

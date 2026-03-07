@@ -8,19 +8,20 @@ import (
 )
 
 type SpaceApplication struct {
-	Config         config.Config
-	Logger         zerolog.Logger
-	SpacePres      domain.SpacePers
-	PermissionPers domain.PermissionPers // kept for admin operations only
-	DocumentApp    ports.DocumentPort
-	PermissionApp  ports.PermissionPort
+	Config                config.Config
+	Logger                zerolog.Logger
+	SpacePres             domain.SpacePers
+	DocumentApplication   ports.DocumentPort
+	PermissionApplication ports.PermissionPort
 }
 
-func NewSpaceApplication(config config.Config, logger zerolog.Logger, spacePers domain.SpacePers, permissionPers domain.PermissionPers) *SpaceApplication {
+func NewSpaceApplication(config config.Config, logger zerolog.Logger, spacePers domain.SpacePers) *SpaceApplication {
 	return &SpaceApplication{
-		Config:         config,
-		Logger:         logger,
-		SpacePres:      spacePers,
-		PermissionPers: permissionPers,
+		Config:    config,
+		Logger:    logger,
+		SpacePres: spacePers,
 	}
 }
+
+// SpaceApp is a type alias for backward compatibility
+type SpaceApp = SpaceApplication

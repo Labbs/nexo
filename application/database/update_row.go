@@ -25,7 +25,7 @@ func (app *DatabaseApplication) UpdateRow(input dto.UpdateRowInput) error {
 	}
 
 	// Verify user has access to the space
-	spaceResult, err := app.SpaceApp.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: database.SpaceId})
+	spaceResult, err := app.SpaceApplication.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: database.SpaceId})
 	if err != nil {
 		return fmt.Errorf("space not found: %w", err)
 	}

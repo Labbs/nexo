@@ -8,10 +8,10 @@ import (
 )
 
 type UserApplication struct {
-	Config   config.Config
-	Logger   zerolog.Logger
-	UserPres domain.UserPers
-	GroupApp ports.GroupPort
+	Config           config.Config
+	Logger           zerolog.Logger
+	UserPres         domain.UserPers
+	GroupApplication ports.GroupPort
 }
 
 func NewUserApplication(
@@ -24,3 +24,6 @@ func NewUserApplication(
 		UserPres: userPers,
 	}
 }
+
+// UserApp is a type alias for backward compatibility
+type UserApp = UserApplication

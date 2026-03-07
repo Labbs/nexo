@@ -9,7 +9,7 @@ import (
 
 func (app *DatabaseApplication) ListDatabases(input dto.ListDatabasesInput) (*dto.ListDatabasesOutput, error) {
 	// Verify user has access to the space
-	spaceResult, err := app.SpaceApp.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: input.SpaceId})
+	spaceResult, err := app.SpaceApplication.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: input.SpaceId})
 	if err != nil {
 		return nil, fmt.Errorf("space not found: %w", err)
 	}

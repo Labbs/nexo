@@ -22,7 +22,7 @@ func (c *SpaceApplication) DeleteSpace(input dto.DeleteSpaceInput) error {
 	}
 
 	// Guard: forbid delete if there are active documents in space (MVP: check root docs)
-	docResult, derr := c.DocumentApp.HasDocumentsInSpace(docDto.HasDocumentsInSpaceInput{
+	docResult, derr := c.DocumentApplication.HasDocumentsInSpace(docDto.HasDocumentsInSpaceInput{
 		SpaceId: input.SpaceId,
 		UserId:  input.UserId,
 	})

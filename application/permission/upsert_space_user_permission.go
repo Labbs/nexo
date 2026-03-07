@@ -10,7 +10,7 @@ import (
 // UpsertSpaceUserPermission adds or updates a user permission for a space.
 // The requester must be an admin of the space.
 func (app *PermissionApplication) UpsertSpaceUserPermission(input spaceDto.UpsertSpaceUserPermissionInput) error {
-	spaceResult, err := app.SpaceApp.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: input.SpaceId})
+	spaceResult, err := app.SpaceApplication.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: input.SpaceId})
 	if err != nil || spaceResult.Space == nil {
 		return fmt.Errorf("not_found")
 	}

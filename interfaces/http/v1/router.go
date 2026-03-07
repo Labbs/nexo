@@ -20,91 +20,93 @@ func SetupRouterV1(deps infrastructure.Deps) {
 	grp := deps.Http.FiberOapi.Group("/api/v1")
 
 	authCtrl := auth.Controller{
-		Config:    deps.Config,
-		Logger:    deps.Logger,
-		FiberOapi: grp.Group("/auth"),
-		AuthApp:   deps.AuthApp,
+		Config:          deps.Config,
+		Logger:          deps.Logger,
+		FiberOapi:       grp.Group("/auth"),
+		AuthApplication: deps.AuthApplication,
 	}
 	auth.SetupAuthRouter(authCtrl)
 
 	userCtrl := user.Controller{
-		Config:      deps.Config,
-		Logger:      deps.Logger,
-		FiberOapi:   grp.Group("/user"),
-		UserApp:     deps.UserApp,
-		SpaceApp:    deps.SpaceApp,
-		FavoriteApp: deps.FavoriteApp,
+		Config:              deps.Config,
+		Logger:              deps.Logger,
+		FiberOapi:           grp.Group("/user"),
+		UserApplication:     deps.UserApplication,
+		SpaceApplication:    deps.SpaceApplication,
+		FavoriteApplication: deps.FavoriteApplication,
 	}
 	user.SetupUserRouter(userCtrl)
 
 	spaceCtrl := space.Controller{
-		Config:    deps.Config,
-		Logger:    deps.Logger,
-		FiberOapi: grp.Group("/space"),
-		SpaceApp:  deps.SpaceApp,
+		Config:                deps.Config,
+		Logger:                deps.Logger,
+		FiberOapi:             grp.Group("/space"),
+		SpaceApplication:      deps.SpaceApplication,
+		PermissionApplication: deps.PermissionApplication,
 	}
 	space.SetupSpaceRouter(spaceCtrl)
 
 	documentCtrl := document.Controller{
-		Config:        deps.Config,
-		Logger:        deps.Logger,
-		FiberOapi:     grp.Group("/document"),
-		SpaceApp:      deps.SpaceApp,
-		DocumentApp:   deps.DocumentApp,
-		PermissionApp: deps.PermissionApp,
+		Config:                deps.Config,
+		Logger:                deps.Logger,
+		FiberOapi:             grp.Group("/document"),
+		SpaceApplication:      deps.SpaceApplication,
+		DocumentApplication:   deps.DocumentApplication,
+		PermissionApplication: deps.PermissionApplication,
 	}
 	document.SetupDocumentRouter(documentCtrl)
 
 	apiKeyCtrl := apikey.Controller{
-		Config:    deps.Config,
-		Logger:    deps.Logger,
-		FiberOapi: grp.Group("/apikeys"),
-		ApiKeyApp: deps.ApiKeyApp,
+		Config:            deps.Config,
+		Logger:            deps.Logger,
+		FiberOapi:         grp.Group("/apikeys"),
+		ApiKeyApplication: deps.ApiKeyApplication,
 	}
 	apikey.SetupApiKeyRouter(apiKeyCtrl)
 
 	webhookCtrl := webhook.Controller{
-		Config:     deps.Config,
-		Logger:     deps.Logger,
-		FiberOapi:  grp.Group("/webhooks"),
-		WebhookApp: deps.WebhookApp,
+		Config:             deps.Config,
+		Logger:             deps.Logger,
+		FiberOapi:          grp.Group("/webhooks"),
+		WebhookApplication: deps.WebhookApplication,
 	}
 	webhook.SetupWebhookRouter(webhookCtrl)
 
 	databaseCtrl := database.Controller{
-		Config:        deps.Config,
-		Logger:        deps.Logger,
-		FiberOapi:     grp.Group("/databases"),
-		DatabaseApp:   deps.DatabaseApp,
-		PermissionApp: deps.PermissionApp,
+		Config:                deps.Config,
+		Logger:                deps.Logger,
+		FiberOapi:             grp.Group("/databases"),
+		DatabaseApplication:   deps.DatabaseApplication,
+		PermissionApplication: deps.PermissionApplication,
 	}
 	database.SetupDatabaseRouter(databaseCtrl)
 
 	drawingCtrl := drawing.Controller{
-		Config:        deps.Config,
-		Logger:        deps.Logger,
-		FiberOapi:     grp.Group("/drawings"),
-		DrawingApp:    deps.DrawingApp,
-		PermissionApp: deps.PermissionApp,
+		Config:                deps.Config,
+		Logger:                deps.Logger,
+		FiberOapi:             grp.Group("/drawings"),
+		DrawingApplication:    deps.DrawingApplication,
+		PermissionApplication: deps.PermissionApplication,
 	}
 	drawing.SetupDrawingRouter(drawingCtrl)
 
 	actionCtrl := action.Controller{
-		Config:    deps.Config,
-		Logger:    deps.Logger,
-		FiberOapi: grp.Group("/actions"),
-		ActionApp: deps.ActionApp,
+		Config:            deps.Config,
+		Logger:            deps.Logger,
+		FiberOapi:         grp.Group("/actions"),
+		ActionApplication: deps.ActionApplication,
 	}
 	action.SetupActionRouter(actionCtrl)
 
 	adminCtrl := admin.Controller{
-		Config:    deps.Config,
-		Logger:    deps.Logger,
-		FiberOapi: grp.Group("/admin"),
-		UserApp:   deps.UserApp,
-		SpaceApp:  deps.SpaceApp,
-		ApiKeyApp: deps.ApiKeyApp,
-		GroupApp:  deps.GroupApp,
+		Config:            deps.Config,
+		Logger:            deps.Logger,
+		FiberOapi:         grp.Group("/admin"),
+		UserApplication:   deps.UserApplication,
+		SpaceApplication:  deps.SpaceApplication,
+		ApiKeyApplication: deps.ApiKeyApplication,
+		GroupApplication:  deps.GroupApplication,
+		PermissionPers:    deps.PermissionPers,
 	}
 	admin.SetupAdminRouter(adminCtrl)
 

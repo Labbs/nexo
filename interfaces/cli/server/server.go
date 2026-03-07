@@ -105,43 +105,45 @@ func runServer(cfg config.Config) error {
 	actionPers := persistence.NewActionPers(deps.Database.Db)
 	actionRunPers := persistence.NewActionRunPers(deps.Database.Db)
 
-	deps.UserApp = user.NewUserApplication(deps.Config, deps.Logger, userPers)
-	deps.SessionApp = session.NewSessionApplication(deps.Config, deps.Logger, sessionPers, deps.UserApp)
-	deps.SpaceApp = space.NewSpaceApplication(deps.Config, deps.Logger, spacePers, permissionPers)
-	deps.DocumentApp = document.NewDocumentApplication(deps.Config, deps.Logger, documentPers, commentPers, documentVersionPers)
-	deps.AuthApp = auth.NewAuthApplication(deps.Config, deps.Logger)
-	deps.ApiKeyApp = apikey.NewApiKeyApplication(deps.Config, deps.Logger, apiKeyPers)
-	deps.WebhookApp = webhook.NewWebhookApplication(deps.Config, deps.Logger, webhookPers, webhookDeliveryPers)
-	deps.DatabaseApp = databaseApp.NewDatabaseApplication(deps.Config, deps.Logger, databasePers, databaseRowPers)
-	deps.DrawingApp = drawing.NewDrawingApplication(deps.Config, deps.Logger, drawingPers)
-	deps.ActionApp = action.NewActionApplication(deps.Config, deps.Logger, actionPers, actionRunPers)
-	deps.GroupApp = group.NewGroupApp(deps.Config, deps.Logger, groupPers)
-	deps.FavoriteApp = favorite.NewFavoriteApp(deps.Config, deps.Logger, favoritePers)
-	deps.PermissionApp = permission.NewPermissionApplication(deps.Config, deps.Logger, permissionPers)
+	deps.UserApplication = user.NewUserApplication(deps.Config, deps.Logger, userPers)
+	deps.SessionApplication = session.NewSessionApplication(deps.Config, deps.Logger, sessionPers)
+	deps.SpaceApplication = space.NewSpaceApplication(deps.Config, deps.Logger, spacePers)
+	deps.DocumentApplication = document.NewDocumentApplication(deps.Config, deps.Logger, documentPers, commentPers, documentVersionPers)
+	deps.AuthApplication = auth.NewAuthApplication(deps.Config, deps.Logger)
+	deps.ApiKeyApplication = apikey.NewApiKeyApplication(deps.Config, deps.Logger, apiKeyPers)
+	deps.WebhookApplication = webhook.NewWebhookApplication(deps.Config, deps.Logger, webhookPers, webhookDeliveryPers)
+	deps.DatabaseApplication = databaseApp.NewDatabaseApplication(deps.Config, deps.Logger, databasePers, databaseRowPers)
+	deps.DrawingApplication = drawing.NewDrawingApplication(deps.Config, deps.Logger, drawingPers)
+	deps.ActionApplication = action.NewActionApplication(deps.Config, deps.Logger, actionPers, actionRunPers)
+	deps.GroupApplication = group.NewGroupApplication(deps.Config, deps.Logger, groupPers)
+	deps.FavoriteApplication = favorite.NewFavoriteApplication(deps.Config, deps.Logger, favoritePers)
+	deps.PermissionApplication = permission.NewPermissionApplication(deps.Config, deps.Logger, permissionPers)
+	deps.PermissionPers = permissionPers
 
 	// Inject port dependencies (after construction to avoid circular dependencies)
-	deps.AuthApp.UserApp = deps.UserApp
-	deps.AuthApp.SessionApp = deps.SessionApp
-	deps.AuthApp.SpaceApp = deps.SpaceApp
-	deps.AuthApp.DocumentApp = deps.DocumentApp
-	deps.UserApp.GroupApp = deps.GroupApp
-	deps.FavoriteApp.DocumentApp = deps.DocumentApp
-	deps.SpaceApp.DocumentApp = deps.DocumentApp
-	deps.SpaceApp.PermissionApp = deps.PermissionApp
-	deps.DocumentApp.SpaceApp = deps.SpaceApp
-	deps.DocumentApp.PermissionApp = deps.PermissionApp
-	deps.DrawingApp.SpaceApp = deps.SpaceApp
-	deps.DrawingApp.PermissionApp = deps.PermissionApp
-	deps.DatabaseApp.SpaceApp = deps.SpaceApp
-	deps.DatabaseApp.PermissionApp = deps.PermissionApp
-	deps.GroupApp.UserApp = deps.UserApp
-	deps.PermissionApp.SpaceApp = deps.SpaceApp
-	deps.PermissionApp.DrawingApp = deps.DrawingApp
-	deps.PermissionApp.DocumentApp = deps.DocumentApp
-	deps.PermissionApp.DatabaseApp = deps.DatabaseApp
+	deps.AuthApplication.UserApplication = deps.UserApplication
+	deps.AuthApplication.SessionApplication = deps.SessionApplication
+	deps.AuthApplication.SpaceApplication = deps.SpaceApplication
+	deps.AuthApplication.DocumentApplication = deps.DocumentApplication
+	deps.UserApplication.GroupApplication = deps.GroupApplication
+	deps.FavoriteApplication.DocumentApplication = deps.DocumentApplication
+	deps.SpaceApplication.DocumentApplication = deps.DocumentApplication
+	deps.SpaceApplication.PermissionApplication = deps.PermissionApplication
+	deps.DocumentApplication.SpaceApplication = deps.SpaceApplication
+	deps.DocumentApplication.PermissionApplication = deps.PermissionApplication
+	deps.DrawingApplication.SpaceApplication = deps.SpaceApplication
+	deps.DrawingApplication.PermissionApplication = deps.PermissionApplication
+	deps.DatabaseApplication.SpaceApplication = deps.SpaceApplication
+	deps.DatabaseApplication.PermissionApplication = deps.PermissionApplication
+	deps.GroupApplication.UserApplication = deps.UserApplication
+	deps.PermissionApplication.SpaceApplication = deps.SpaceApplication
+	deps.PermissionApplication.DrawingApplication = deps.DrawingApplication
+	deps.PermissionApplication.DocumentApplication = deps.DocumentApplication
+	deps.PermissionApplication.DatabaseApplication = deps.DatabaseApplication
+	deps.SessionApplication.UserApplication = deps.UserApplication
 
 	// Initialize HTTP server (fiber + fiberoapi)
-	deps.Http, err = http.Configure(deps.Config, deps.Logger, deps.SessionApp, true)
+	deps.Http, err = http.Configure(deps.Config, deps.Logger, deps.SessionApplication, true)
 	if err != nil {
 		logger.Fatal().Err(err).Str("event", "http.runserver.http.configure").Msg("Failed to configure HTTP server")
 		return err
@@ -151,7 +153,7 @@ func runServer(cfg config.Config) error {
 	configJobs := jobs.Config{
 		Logger:        deps.Logger,
 		CronScheduler: deps.CronScheduler,
-		SessionApp:    *deps.SessionApp,
+		SessionApp:    *deps.SessionApplication,
 	}
 
 	err = configJobs.SetupJobs()
