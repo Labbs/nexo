@@ -11,7 +11,7 @@ func ExportOapiFlags(cfg *Config) []cli.Flag {
 		&cli.StringFlag{
 			Name:        "export-oapi.filename",
 			Usage:       "The output file name for the OpenAPI export",
-			Aliases:     []string{"export.oapi.filename"},
+			Aliases:     []string{"export.oapi.filename", "f"},
 			Value:       "openapi.yaml",
 			Destination: &cfg.ExportOapi.FileName,
 			Sources: cli.NewValueSourceChain(
