@@ -20,8 +20,6 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      with:
-        submodules: true
 
     - uses: actions/setup-go@v5
       with:
@@ -29,22 +27,19 @@ jobs:
         cache: true
         cache-dependency-path: go.sum
 
-    - uses: actions/setup-node@v4
-      with:
-        node-version: '22'
-        cache: 'npm'
-        cache-dependency-path: ui/package-lock.json
-
     # get date for versioning
     - name: Get date
       id: date
       run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
 
-    - name: Build ui
+    - name: Download latest UI release
       run: |
-        cd ui
-        npm install
-        node_modules/.bin/vite build --outDir ../pkg/app/static/files
+        gh release download --repo Labbs/nexo-ui --pattern 'nexo-ui-dist.tar.gz' --output nexo-ui-dist.tar.gz
+        mkdir -p pkg/app/static/files
+        tar -xzf nexo-ui-dist.tar.gz -C pkg/app/static/files
+        rm nexo-ui-dist.tar.gz
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build app
       run: CGO_ENABLED=1 GOOS=linux go build -a -ldflags '-linkmode external -extldflags "-static" -X "main.version=nightly-${{ steps.date.outputs.date }}"' -o bin/app cmd/cmd.go
