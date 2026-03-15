@@ -7,7 +7,7 @@ import (
 	"github.com/labbs/nexo/domain"
 )
 
-func (a *DocumentApp) ReorderDocuments(input dto.ReorderDocumentsInput) error {
+func (a *DocumentApplication) ReorderDocuments(input dto.ReorderDocumentsInput) error {
 	logger := a.Logger.With().Str("component", "application.document.reorder_documents").Logger()
 
 	if len(input.Items) == 0 {

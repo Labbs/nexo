@@ -3,11 +3,12 @@ package space
 import (
 	"fmt"
 
+	docDto "github.com/labbs/nexo/application/document/dto"
 	"github.com/labbs/nexo/application/space/dto"
 	"github.com/labbs/nexo/domain"
 )
 
-func (c *SpaceApp) DeleteSpace(input dto.DeleteSpaceInput) error {
+func (c *SpaceApplication) DeleteSpace(input dto.DeleteSpaceInput) error {
 	logger := c.Logger.With().Str("component", "application.space.delete_space").Logger()
 
 	space, err := c.SpacePres.GetSpaceById(input.SpaceId)
@@ -21,8 +22,11 @@ func (c *SpaceApp) DeleteSpace(input dto.DeleteSpaceInput) error {
 	}
 
 	// Guard: forbid delete if there are active documents in space (MVP: check root docs)
-	docs, derr := c.DocumentPers.GetRootDocumentsFromSpaceWithUserPermissions(input.SpaceId, input.UserId)
-	if derr == nil && len(docs) > 0 {
+	docResult, derr := c.DocumentApplication.HasDocumentsInSpace(docDto.HasDocumentsInSpaceInput{
+		SpaceId: input.SpaceId,
+		UserId:  input.UserId,
+	})
+	if derr == nil && docResult.HasDocuments {
 		return fmt.Errorf("conflict_children")
 	}
 

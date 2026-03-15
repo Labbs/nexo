@@ -4,7 +4,7 @@ import (
 	"github.com/labbs/nexo/application/user/dto"
 )
 
-func (c *UserApp) GetByEmail(input dto.GetByEmailInput) (*dto.GetByEmailOutput, error) {
+func (c *UserApplication) GetByEmail(input dto.GetByEmailInput) (*dto.GetByEmailOutput, error) {
 	logger := c.Logger.With().Str("component", "application.user.get_by_email").Logger()
 
 	user, err := c.UserPres.GetByEmail(input.Email)
@@ -15,7 +15,7 @@ func (c *UserApp) GetByEmail(input dto.GetByEmailInput) (*dto.GetByEmailOutput, 
 	return &dto.GetByEmailOutput{User: &user}, nil
 }
 
-func (c *UserApp) GetByUserId(input dto.GetByUserIdInput) (*dto.GetByUserIdOutput, error) {
+func (c *UserApplication) GetByUserId(input dto.GetByUserIdInput) (*dto.GetByUserIdOutput, error) {
 	logger := c.Logger.With().Str("component", "application.user.get_by_user_id").Logger()
 
 	user, err := c.UserPres.GetById(input.UserId)

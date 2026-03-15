@@ -6,7 +6,7 @@ import (
 	"github.com/labbs/nexo/application/space/dto"
 )
 
-func (c *SpaceApp) GetSpacesForUser(input dto.GetSpacesForUserInput) (*dto.GetSpacesForUserOutput, error) {
+func (c *SpaceApplication) GetSpacesForUser(input dto.GetSpacesForUserInput) (*dto.GetSpacesForUserOutput, error) {
 	logger := c.Logger.With().Str("component", "application.space.getSpacesForUser").Logger()
 
 	spaces, err := c.SpacePres.GetSpacesForUser(input.UserId)

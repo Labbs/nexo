@@ -19,7 +19,7 @@ func (ctrl *Controller) ListWebhooks(ctx *fiber.Ctx, _ dtos.EmptyRequest) (*dtos
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	result, err := ctrl.WebhookApp.ListWebhooks(webhookDto.ListWebhooksInput{
+	result, err := ctrl.WebhookApplication.ListWebhooks(webhookDto.ListWebhooksInput{
 		UserId: authCtx.UserID,
 	})
 	if err != nil {
@@ -70,7 +70,7 @@ func (ctrl *Controller) CreateWebhook(ctx *fiber.Ctx, req dtos.CreateWebhookRequ
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusBadRequest, Details: "At least one event is required", Type: "BAD_REQUEST"}
 	}
 
-	result, err := ctrl.WebhookApp.CreateWebhook(webhookDto.CreateWebhookInput{
+	result, err := ctrl.WebhookApplication.CreateWebhook(webhookDto.CreateWebhookInput{
 		UserId:  authCtx.UserID,
 		SpaceId: req.SpaceId,
 		Name:    req.Name,
@@ -102,7 +102,7 @@ func (ctrl *Controller) GetWebhook(ctx *fiber.Ctx, req dtos.GetWebhookRequest) (
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	result, err := ctrl.WebhookApp.GetWebhook(webhookDto.GetWebhookInput{
+	result, err := ctrl.WebhookApplication.GetWebhook(webhookDto.GetWebhookInput{
 		UserId:    authCtx.UserID,
 		WebhookId: req.WebhookId,
 	})
@@ -145,7 +145,7 @@ func (ctrl *Controller) UpdateWebhook(ctx *fiber.Ctx, req dtos.UpdateWebhookRequ
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	err = ctrl.WebhookApp.UpdateWebhook(webhookDto.UpdateWebhookInput{
+	err = ctrl.WebhookApplication.UpdateWebhook(webhookDto.UpdateWebhookInput{
 		UserId:    authCtx.UserID,
 		WebhookId: req.WebhookId,
 		Name:      req.Name,
@@ -177,7 +177,7 @@ func (ctrl *Controller) DeleteWebhook(ctx *fiber.Ctx, req dtos.DeleteWebhookRequ
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	err = ctrl.WebhookApp.DeleteWebhook(webhookDto.DeleteWebhookInput{
+	err = ctrl.WebhookApplication.DeleteWebhook(webhookDto.DeleteWebhookInput{
 		UserId:    authCtx.UserID,
 		WebhookId: req.WebhookId,
 	})
@@ -210,7 +210,7 @@ func (ctrl *Controller) GetDeliveries(ctx *fiber.Ctx, req dtos.GetDeliveriesRequ
 		limit = 20
 	}
 
-	result, err := ctrl.WebhookApp.GetDeliveries(webhookDto.GetDeliveriesInput{
+	result, err := ctrl.WebhookApplication.GetDeliveries(webhookDto.GetDeliveriesInput{
 		UserId:    authCtx.UserID,
 		WebhookId: req.WebhookId,
 		Limit:     limit,

@@ -38,7 +38,7 @@ func (ctrl *Controller) CreateDatabase(ctx *fiber.Ctx, req dtos.CreateDatabaseRe
 		}
 	}
 
-	result, err := ctrl.DatabaseApp.CreateDatabase(databaseDto.CreateDatabaseInput{
+	result, err := ctrl.DatabaseApplication.CreateDatabase(databaseDto.CreateDatabaseInput{
 		UserId:      authCtx.UserID,
 		SpaceId:     req.SpaceId,
 		DocumentId:  req.DocumentId,
@@ -92,7 +92,7 @@ func (ctrl *Controller) ListDatabases(ctx *fiber.Ctx, req dtos.ListDatabasesRequ
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusBadRequest, Details: "Space ID is required", Type: "BAD_REQUEST"}
 	}
 
-	result, err := ctrl.DatabaseApp.ListDatabases(databaseDto.ListDatabasesInput{
+	result, err := ctrl.DatabaseApplication.ListDatabases(databaseDto.ListDatabasesInput{
 		UserId:  authCtx.UserID,
 		SpaceId: req.SpaceId,
 	})
@@ -133,7 +133,7 @@ func (ctrl *Controller) GetDatabase(ctx *fiber.Ctx, req dtos.GetDatabaseRequest)
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	result, err := ctrl.DatabaseApp.GetDatabase(databaseDto.GetDatabaseInput{
+	result, err := ctrl.DatabaseApplication.GetDatabase(databaseDto.GetDatabaseInput{
 		UserId:     authCtx.UserID,
 		DatabaseId: req.DatabaseId,
 	})
@@ -219,7 +219,7 @@ func (ctrl *Controller) UpdateDatabase(ctx *fiber.Ctx, req dtos.UpdateDatabaseRe
 		schema = &s
 	}
 
-	err = ctrl.DatabaseApp.UpdateDatabase(databaseDto.UpdateDatabaseInput{
+	err = ctrl.DatabaseApplication.UpdateDatabase(databaseDto.UpdateDatabaseInput{
 		UserId:      authCtx.UserID,
 		DatabaseId:  req.DatabaseId,
 		Name:        req.Name,
@@ -252,7 +252,7 @@ func (ctrl *Controller) DeleteDatabase(ctx *fiber.Ctx, req dtos.DeleteDatabaseRe
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	err = ctrl.DatabaseApp.DeleteDatabase(databaseDto.DeleteDatabaseInput{
+	err = ctrl.DatabaseApplication.DeleteDatabase(databaseDto.DeleteDatabaseInput{
 		UserId:     authCtx.UserID,
 		DatabaseId: req.DatabaseId,
 	})
@@ -326,7 +326,7 @@ func (ctrl *Controller) CreateView(ctx *fiber.Ctx, req dtos.CreateViewRequest) (
 		}
 	}
 
-	result, err := ctrl.DatabaseApp.CreateView(databaseDto.CreateViewInput{
+	result, err := ctrl.DatabaseApplication.CreateView(databaseDto.CreateViewInput{
 		UserId:     authCtx.UserID,
 		DatabaseId: req.DatabaseId,
 		Name:       req.Name,
@@ -386,7 +386,7 @@ func (ctrl *Controller) UpdateView(ctx *fiber.Ctx, req dtos.UpdateViewRequest) (
 		}
 	}
 
-	err = ctrl.DatabaseApp.UpdateView(databaseDto.UpdateViewInput{
+	err = ctrl.DatabaseApplication.UpdateView(databaseDto.UpdateViewInput{
 		UserId:        authCtx.UserID,
 		DatabaseId:    req.DatabaseId,
 		ViewId:        req.ViewId,
@@ -422,7 +422,7 @@ func (ctrl *Controller) DeleteView(ctx *fiber.Ctx, req dtos.DeleteViewRequest) (
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	err = ctrl.DatabaseApp.DeleteView(databaseDto.DeleteViewInput{
+	err = ctrl.DatabaseApplication.DeleteView(databaseDto.DeleteViewInput{
 		UserId:     authCtx.UserID,
 		DatabaseId: req.DatabaseId,
 		ViewId:     req.ViewId,
@@ -456,7 +456,7 @@ func (ctrl *Controller) CreateRow(ctx *fiber.Ctx, req dtos.CreateRowRequest) (*d
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	result, err := ctrl.DatabaseApp.CreateRow(databaseDto.CreateRowInput{
+	result, err := ctrl.DatabaseApplication.CreateRow(databaseDto.CreateRowInput{
 		UserId:        authCtx.UserID,
 		DatabaseId:    req.DatabaseId,
 		Properties:    req.Properties,
@@ -491,7 +491,7 @@ func (ctrl *Controller) ListRows(ctx *fiber.Ctx, req dtos.ListRowsRequest) (*dto
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	result, err := ctrl.DatabaseApp.ListRows(databaseDto.ListRowsInput{
+	result, err := ctrl.DatabaseApplication.ListRows(databaseDto.ListRowsInput{
 		UserId:     authCtx.UserID,
 		DatabaseId: req.DatabaseId,
 		ViewId:     req.ViewId,
@@ -554,7 +554,7 @@ func (ctrl *Controller) GetRow(ctx *fiber.Ctx, req dtos.GetRowRequest) (*dtos.Ge
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	result, err := ctrl.DatabaseApp.GetRow(databaseDto.GetRowInput{
+	result, err := ctrl.DatabaseApplication.GetRow(databaseDto.GetRowInput{
 		UserId:     authCtx.UserID,
 		DatabaseId: req.DatabaseId,
 		RowId:      req.RowId,
@@ -608,7 +608,7 @@ func (ctrl *Controller) UpdateRow(ctx *fiber.Ctx, req dtos.UpdateRowRequest) (*d
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	err = ctrl.DatabaseApp.UpdateRow(databaseDto.UpdateRowInput{
+	err = ctrl.DatabaseApplication.UpdateRow(databaseDto.UpdateRowInput{
 		UserId:        authCtx.UserID,
 		DatabaseId:    req.DatabaseId,
 		RowId:         req.RowId,
@@ -640,7 +640,7 @@ func (ctrl *Controller) DeleteRow(ctx *fiber.Ctx, req dtos.DeleteRowRequest) (*d
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	err = ctrl.DatabaseApp.DeleteRow(databaseDto.DeleteRowInput{
+	err = ctrl.DatabaseApplication.DeleteRow(databaseDto.DeleteRowInput{
 		UserId:     authCtx.UserID,
 		DatabaseId: req.DatabaseId,
 		RowId:      req.RowId,
@@ -669,7 +669,7 @@ func (ctrl *Controller) MoveDatabase(ctx *fiber.Ctx, req dtos.MoveDatabaseReques
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	result, err := ctrl.DatabaseApp.MoveDatabase(databaseDto.MoveDatabaseInput{
+	result, err := ctrl.DatabaseApplication.MoveDatabase(databaseDto.MoveDatabaseInput{
 		UserId:     authCtx.UserID,
 		DatabaseId: req.DatabaseId,
 		DocumentId: req.DocumentId,
@@ -705,7 +705,7 @@ func (ctrl *Controller) BulkDeleteRows(ctx *fiber.Ctx, req dtos.BulkDeleteRowsRe
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusBadRequest, Details: "Row IDs are required", Type: "BAD_REQUEST"}
 	}
 
-	err = ctrl.DatabaseApp.BulkDeleteRows(databaseDto.BulkDeleteRowsInput{
+	err = ctrl.DatabaseApplication.BulkDeleteRows(databaseDto.BulkDeleteRowsInput{
 		UserId:     authCtx.UserID,
 		DatabaseId: req.DatabaseId,
 		RowIds:     req.RowIds,
@@ -738,7 +738,7 @@ func (ctrl *Controller) SearchDatabases(ctx *fiber.Ctx, req dtos.SearchDatabases
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusBadRequest, Details: "Query must be at least 2 characters", Type: "BAD_REQUEST"}
 	}
 
-	result, err := ctrl.DatabaseApp.Search(databaseDto.SearchDatabasesInput{
+	result, err := ctrl.DatabaseApplication.Search(databaseDto.SearchDatabasesInput{
 		UserId:  authCtx.UserID,
 		Query:   req.Query,
 		SpaceId: req.SpaceId,

@@ -4,21 +4,27 @@ import (
 	"fmt"
 
 	"github.com/gofiber/fiber/v2/utils"
+	docDto "github.com/labbs/nexo/application/document/dto"
 	"github.com/labbs/nexo/application/favorite/dto"
 	"github.com/labbs/nexo/domain"
 )
 
-func (a *FavoriteApp) AddFavorite(input dto.AddFavoriteInput) (*dto.AddFavoriteOutput, error) {
+func (a *FavoriteApplication) AddFavorite(input dto.AddFavoriteInput) (*dto.AddFavoriteOutput, error) {
 	logger := a.Logger.With().Str("component", "application.favorite.add_favorite").Logger()
 
 	// Verify user has access to the document
-	doc, err := a.DocumentPers.GetDocumentByIdOrSlugWithUserPermissions(input.SpaceId, &input.DocumentId, nil, input.UserId)
+	docResult, err := a.DocumentApplication.GetDocumentByIdOrSlugWithUserPermissions(docDto.GetDocumentByIdOrSlugWithUserPermissionsInput{
+		SpaceId:    input.SpaceId,
+		DocumentId: &input.DocumentId,
+		UserId:     input.UserId,
+	})
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to get document")
 		return nil, fmt.Errorf("failed to get document: %w", err)
 	}
 
-	if !doc.HasPermission(input.UserId, domain.PermissionRoleViewer) {
+	doc := docResult.Document
+	if !doc.HasPermission(input.UserId, "viewer") {
 		logger.Error().Msg("user does not have permission to view document")
 		return nil, fmt.Errorf("user does not have permission to view document")
 	}

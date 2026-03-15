@@ -6,7 +6,7 @@ import (
 	"github.com/labbs/nexo/application/favorite/dto"
 )
 
-func (a *FavoriteApp) GetMyFavorites(input dto.GetMyFavoritesInput) (*dto.GetMyFavoritesOutput, error) {
+func (a *FavoriteApplication) GetMyFavorites(input dto.GetMyFavoritesInput) (*dto.GetMyFavoritesOutput, error) {
 	logger := a.Logger.With().Str("component", "application.favorite.get_my_favorites").Logger()
 
 	favorites, err := a.FavoritePers.GetMyFavoritesWithMainDocumentInformations(input.UserId)

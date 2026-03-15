@@ -2,6 +2,7 @@ package user
 
 import (
 	fiberoapi "github.com/labbs/fiber-oapi"
+	"github.com/labbs/nexo/application/favorite"
 	"github.com/labbs/nexo/application/space"
 	"github.com/labbs/nexo/application/user"
 	"github.com/labbs/nexo/infrastructure/config"
@@ -9,11 +10,12 @@ import (
 )
 
 type Controller struct {
-	Config    config.Config
-	Logger    zerolog.Logger
-	FiberOapi *fiberoapi.OApiGroup
-	UserApp   *user.UserApp
-	SpaceApp  *space.SpaceApp
+	Config              config.Config
+	Logger              zerolog.Logger
+	FiberOapi           *fiberoapi.OApiGroup
+	UserApplication     *user.UserApplication
+	FavoriteApplication *favorite.FavoriteApplication
+	SpaceApplication    *space.SpaceApplication
 }
 
 func SetupUserRouter(controller Controller) {

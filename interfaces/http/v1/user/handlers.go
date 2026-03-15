@@ -3,10 +3,12 @@ package user
 import (
 	"github.com/gofiber/fiber/v2"
 	fiberoapi "github.com/labbs/fiber-oapi"
+	fdto "github.com/labbs/nexo/application/favorite/dto"
 	spaceDto "github.com/labbs/nexo/application/space/dto"
 	userDto "github.com/labbs/nexo/application/user/dto"
 	"github.com/labbs/nexo/domain"
 	"github.com/labbs/nexo/infrastructure/helpers/mapper"
+	ddtos "github.com/labbs/nexo/interfaces/http/v1/document/dtos"
 	spaceDtos "github.com/labbs/nexo/interfaces/http/v1/space/dtos"
 	"github.com/labbs/nexo/interfaces/http/v1/user/dtos"
 )
@@ -26,7 +28,7 @@ func (ctrl *Controller) GetProfile(ctx *fiber.Ctx, input struct{}) (*dtos.Profil
 		}
 	}
 
-	result, err := ctrl.UserApp.GetByUserId(userDto.GetByUserIdInput{UserId: authCtx.UserID})
+	result, err := ctrl.UserApplication.GetByUserId(userDto.GetByUserIdInput{UserId: authCtx.UserID})
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to get user by id")
 		return nil, &fiberoapi.ErrorResponse{
@@ -73,7 +75,7 @@ func (ctrl *Controller) GetMySpaces(ctx *fiber.Ctx, input struct{}) (*dtos.GetMy
 		}
 	}
 
-	result, err := ctrl.SpaceApp.GetSpacesForUser(spaceDto.GetSpacesForUserInput{UserId: authCtx.UserID})
+	result, err := ctrl.SpaceApplication.GetSpacesForUser(spaceDto.GetSpacesForUserInput{UserId: authCtx.UserID})
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to get spaces for user")
 		return nil, &fiberoapi.ErrorResponse{
@@ -134,7 +136,9 @@ func (ctrl *Controller) GetMyFavorites(ctx *fiber.Ctx, input struct{}) (*dtos.Ge
 		}
 	}
 
-	result, err := ctrl.UserApp.GetMyFavorites(userDto.GetMyFavoritesInput{UserId: authCtx.UserID})
+	result, err := ctrl.FavoriteApplication.GetMyFavorites(fdto.GetMyFavoritesInput{
+		UserId: authCtx.UserID,
+	})
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to get my favorites")
 		return nil, &fiberoapi.ErrorResponse{
@@ -155,14 +159,13 @@ func (ctrl *Controller) GetMyFavorites(ctx *fiber.Ctx, input struct{}) (*dtos.Ge
 
 		// Manually map the document
 		if favorite.Document.Id != "" {
-			err := mapper.MapStructByFieldNames(&favorite.Document, &favoriteDto.Document)
-			if err != nil {
-				logger.Error().Err(err).Msg("failed to map favorite document to DTO")
-				return nil, &fiberoapi.ErrorResponse{
-					Code:    fiber.StatusInternalServerError,
-					Details: "Failed to process favorites",
-					Type:    "INTERNAL_SERVER_ERROR",
-				}
+			favoriteDto.Document = ddtos.Document{
+				Id:   favorite.Document.Id,
+				Name: favorite.Document.Name,
+				Slug: favorite.Document.Slug,
+				Config: ddtos.DocumentConfig{
+					Icon: favorite.Document.Icon,
+				},
 			}
 		}
 
@@ -191,10 +194,10 @@ func (ctrl *Controller) AddFavorite(ctx *fiber.Ctx, req dtos.AddFavoriteRequest)
 		}
 	}
 
-	err = ctrl.UserApp.CreateFavorite(userDto.CreateFavoriteInput{
+	_, err = ctrl.FavoriteApplication.AddFavorite(fdto.AddFavoriteInput{
+		UserId:     authCtx.UserID,
 		DocumentId: req.DocumentId,
 		SpaceId:    req.SpaceId,
-		UserId:     authCtx.UserID,
 	})
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to add favorite")
@@ -225,23 +228,9 @@ func (ctrl *Controller) RemoveFavorite(ctx *fiber.Ctx, req dtos.RemoveFavoriteRe
 		}
 	}
 
-	result, err := ctrl.UserApp.GetFavoriteByIdAndUserId(userDto.GetFavoriteByIdAndUserIdInput{
+	_, err = ctrl.FavoriteApplication.RemoveFavorite(fdto.RemoveFavoriteInput{
 		FavoriteId: req.FavoriteId,
 		UserId:     authCtx.UserID,
-	})
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to get favorite by id and user id")
-		return nil, &fiberoapi.ErrorResponse{
-			Code:    fiber.StatusInternalServerError,
-			Details: "Failed to retrieve favorite",
-			Type:    "INTERNAL_SERVER_ERROR",
-		}
-	}
-
-	err = ctrl.UserApp.DeleteFavorite(userDto.DeleteFavoriteInput{
-		DocumentId: result.Favorite.DocumentId,
-		UserId:     authCtx.UserID,
-		SpaceId:    result.Favorite.SpaceId,
 	})
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to remove favorite")
@@ -267,10 +256,10 @@ func (ctrl *Controller) UpdateFavoritePosition(ctx *fiber.Ctx, req dtos.UpdateFa
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	result, err := ctrl.UserApp.UpdateFavoritePosition(userDto.UpdateFavoritePositionInput{
-		UserId:      authCtx.UserID,
-		FavoriteId:  req.FavoriteId,
-		NewPosition: req.Position,
+	result, err := ctrl.FavoriteApplication.UpdateFavoritePosition(fdto.UpdateFavoritePositionInput{
+		UserId:     authCtx.UserID,
+		FavoriteId: req.FavoriteId,
+		Position:   req.Position,
 	})
 	if err != nil {
 		if err.Error() == "not_found" {
@@ -300,7 +289,7 @@ func (ctrl *Controller) UpdateProfile(ctx *fiber.Ctx, req dtos.UpdateProfileRequ
 		prefs = &jsonb
 	}
 
-	result, err := ctrl.UserApp.UpdateProfile(userDto.UpdateProfileInput{
+	result, err := ctrl.UserApplication.UpdateProfile(userDto.UpdateProfileInput{
 		UserId:      authCtx.UserID,
 		Username:    req.Username,
 		AvatarUrl:   req.AvatarUrl,
@@ -330,7 +319,7 @@ func (ctrl *Controller) ChangePassword(ctx *fiber.Ctx, req dtos.ChangePasswordRe
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	err = ctrl.UserApp.ChangePassword(userDto.ChangePasswordInput{
+	err = ctrl.UserApplication.ChangePassword(userDto.ChangePasswordInput{
 		UserId:          authCtx.UserID,
 		CurrentPassword: req.CurrentPassword,
 		NewPassword:     req.NewPassword,
@@ -356,7 +345,7 @@ func (ctrl *Controller) UpdateSpaceOrder(ctx *fiber.Ctx, req dtos.UpdateSpaceOrd
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	result, err := ctrl.UserApp.UpdateSpaceOrder(userDto.UpdateSpaceOrderInput{
+	result, err := ctrl.UserApplication.UpdateSpaceOrder(userDto.UpdateSpaceOrderInput{
 		UserId:   authCtx.UserID,
 		SpaceIds: req.SpaceIds,
 	})
@@ -393,7 +382,7 @@ func (ctrl *Controller) ListUsers(ctx *fiber.Ctx, req dtos.ListUsersRequest) (*d
 	}
 
 	// Get users from persistence layer
-	users, totalCount, err := ctrl.UserApp.UserPres.GetAll(limit, req.Offset)
+	users, totalCount, err := ctrl.UserApplication.UserPres.GetAll(limit, req.Offset)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to get users")
 		return nil, &fiberoapi.ErrorResponse{

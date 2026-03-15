@@ -8,10 +8,10 @@ import (
 )
 
 type Controller struct {
-	Config    config.Config
-	Logger    zerolog.Logger
-	FiberOapi *fiberoapi.OApiGroup
-	AuthApp   *auth.AuthApp
+	Config          config.Config
+	Logger          zerolog.Logger
+	FiberOapi       *fiberoapi.OApiGroup
+	AuthApplication *auth.AuthApplication
 }
 
 func SetupAuthRouter(controller Controller) {

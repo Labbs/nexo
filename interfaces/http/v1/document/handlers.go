@@ -33,7 +33,7 @@ func (ctrl *Controller) GetDocumentsFromSpace(ctx *fiber.Ctx, req dtos.GetDocume
 		parentId = &req.ParentId
 	}
 
-	result, err := ctrl.DocumentApp.GetDocumentsFromSpaceWithUserPermissions(docDto.GetDocumentsFromSpaceInput{
+	result, err := ctrl.DocumentApplication.GetDocumentsFromSpaceWithUserPermissions(docDto.GetDocumentsFromSpaceInput{
 		SpaceId:  req.SpaceId,
 		UserId:   authCtx.UserID,
 		ParentId: parentId,
@@ -117,7 +117,7 @@ func (ctrl *Controller) GetDocument(ctx *fiber.Ctx, req dtos.GetDocumentRequest)
 		slug = &req.Identifier
 	}
 
-	result, err := ctrl.DocumentApp.GetDocumentWithSpace(docDto.GetDocumentWithSpaceInput{
+	result, err := ctrl.DocumentApplication.GetDocumentWithSpace(docDto.GetDocumentWithSpaceInput{
 		UserId:     authCtx.UserID,
 		SpaceId:    req.SpaceId,
 		DocumentId: id,
@@ -146,11 +146,10 @@ func (ctrl *Controller) GetDocument(ctx *fiber.Ctx, req dtos.GetDocumentRequest)
 		}
 	}
 
-	// Manual conversion of Content from datatypes.JSON to []Block
+	// Convert Content from application DTO blocks to HTTP response blocks
 	if len(result.Document.Content) > 0 {
-		appBlocks := docDto.JSONToBlocks(result.Document.Content)
-		resp.Content = make([]dtos.Block, len(appBlocks))
-		for i, b := range appBlocks {
+		resp.Content = make([]dtos.Block, len(result.Document.Content))
+		for i, b := range result.Document.Content {
 			resp.Content[i] = dtos.Block{
 				ID:       b.ID,
 				Type:     b.Type,
@@ -211,7 +210,7 @@ func (ctrl *Controller) CreateDocument(ctx *fiber.Ctx, req dtos.CreateDocumentRe
 		}
 	}
 
-	result, err := ctrl.DocumentApp.CreateDocument(docDto.CreateDocumentInput{
+	result, err := ctrl.DocumentApplication.CreateDocument(docDto.CreateDocumentInput{
 		Name:     "New Document",
 		UserId:   authCtx.UserID,
 		SpaceId:  req.SpaceId,
@@ -313,7 +312,7 @@ func (ctrl *Controller) UpdateDocument(ctx *fiber.Ctx, req dtos.UpdateDocumentRe
 		appContent = &blocks
 	}
 
-	result, err := ctrl.DocumentApp.UpdateDocument(docDto.UpdateDocumentInput{
+	result, err := ctrl.DocumentApplication.UpdateDocument(docDto.UpdateDocumentInput{
 		UserId:     authCtx.UserID,
 		SpaceId:    req.SpaceId,
 		DocumentId: req.Id,
@@ -369,7 +368,7 @@ func (ctrl *Controller) DeleteDocument(ctx *fiber.Ctx, req dtos.DeleteDocumentRe
 		slug = &req.Identifier
 	}
 
-	if err := ctrl.DocumentApp.DeleteDocument(docDto.DeleteDocumentInput{
+	if err := ctrl.DocumentApplication.DeleteDocument(docDto.DeleteDocumentInput{
 		UserId:     authCtx.UserID,
 		SpaceId:    req.SpaceId,
 		DocumentId: id,
@@ -403,7 +402,7 @@ func (ctrl *Controller) MoveDocument(ctx *fiber.Ctx, req dtos.MoveDocumentReques
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	result, err := ctrl.DocumentApp.MoveDocument(docDto.MoveDocumentInput{
+	result, err := ctrl.DocumentApplication.MoveDocument(docDto.MoveDocumentInput{
 		UserId:      authCtx.UserID,
 		SpaceId:     req.SpaceId,
 		DocumentId:  req.Id,
@@ -468,7 +467,7 @@ func (ctrl *Controller) ListDocumentPermissions(ctx *fiber.Ctx, req dtos.ListDoc
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	result, err := ctrl.DocumentApp.ListDocumentPermissions(docDto.ListDocumentPermissionsInput{
+	result, err := ctrl.PermissionApplication.ListDocumentPermissions(docDto.ListDocumentPermissionsInput{
 		RequesterId: authCtx.UserID,
 		SpaceId:     req.SpaceId,
 		DocumentId:  req.DocumentId,
@@ -510,19 +509,15 @@ func (ctrl *Controller) UpsertDocumentUserPermission(ctx *fiber.Ctx, req dtos.Up
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	var role domain.PermissionRole
-	switch req.Role {
-	case string(domain.PermissionRoleOwner):
-		role = domain.PermissionRoleOwner
-	case string(domain.PermissionRoleEditor):
-		role = domain.PermissionRoleEditor
-	case string(domain.PermissionRoleDenied):
-		role = domain.PermissionRoleDenied
+	role := req.Role
+	switch role {
+	case "owner", "editor", "denied", "viewer":
+		// valid role
 	default:
-		role = domain.PermissionRoleViewer
+		role = "viewer"
 	}
 
-	if err := ctrl.DocumentApp.UpsertDocumentUserPermission(docDto.UpsertDocumentUserPermissionInput{
+	if err := ctrl.PermissionApplication.UpsertDocumentUserPermission(docDto.UpsertDocumentUserPermissionInput{
 		RequesterId:  authCtx.UserID,
 		SpaceId:      req.SpaceId,
 		DocumentId:   req.DocumentId,
@@ -553,7 +548,7 @@ func (ctrl *Controller) DeleteDocumentUserPermission(ctx *fiber.Ctx, req dtos.De
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	if err := ctrl.DocumentApp.DeleteDocumentUserPermission(docDto.DeleteDocumentUserPermissionInput{
+	if err := ctrl.PermissionApplication.DeleteDocumentUserPermission(docDto.DeleteDocumentUserPermissionInput{
 		RequesterId:  authCtx.UserID,
 		SpaceId:      req.SpaceId,
 		DocumentId:   req.DocumentId,
@@ -585,7 +580,7 @@ func (ctrl *Controller) GetTrash(ctx *fiber.Ctx, req dtos.GetTrashRequest) (*dto
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	result, err := ctrl.DocumentApp.GetTrash(docDto.GetTrashInput{
+	result, err := ctrl.DocumentApplication.GetTrash(docDto.GetTrashInput{
 		UserId:  authCtx.UserID,
 		SpaceId: req.SpaceId,
 	})
@@ -617,7 +612,7 @@ func (ctrl *Controller) RestoreDocument(ctx *fiber.Ctx, req dtos.RestoreDocument
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	err = ctrl.DocumentApp.RestoreDocument(docDto.RestoreDocumentInput{
+	err = ctrl.DocumentApplication.RestoreDocument(docDto.RestoreDocumentInput{
 		UserId:     authCtx.UserID,
 		SpaceId:    req.SpaceId,
 		DocumentId: req.DocumentId,
@@ -649,7 +644,7 @@ func (ctrl *Controller) SetPublic(ctx *fiber.Ctx, req dtos.SetPublicRequest) (*d
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	err = ctrl.DocumentApp.SetPublic(docDto.SetPublicInput{
+	err = ctrl.DocumentApplication.SetPublic(docDto.SetPublicInput{
 		UserId:     authCtx.UserID,
 		SpaceId:    req.SpaceId,
 		DocumentId: req.DocumentId,
@@ -684,7 +679,7 @@ func (ctrl *Controller) GetPublicDocument(ctx *fiber.Ctx, req dtos.GetPublicDocu
 		slug = &req.Identifier
 	}
 
-	result, err := ctrl.DocumentApp.GetPublicDocument(docDto.GetPublicDocumentInput{
+	result, err := ctrl.DocumentApplication.GetPublicDocument(docDto.GetPublicDocumentInput{
 		SpaceId:    req.SpaceId,
 		DocumentId: id,
 		Slug:       slug,
@@ -716,7 +711,7 @@ func (ctrl *Controller) GetComments(ctx *fiber.Ctx, req dtos.GetCommentsRequest)
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	result, err := ctrl.DocumentApp.GetComments(docDto.GetCommentsInput{
+	result, err := ctrl.DocumentApplication.GetComments(docDto.GetCommentsInput{
 		UserId:     authCtx.UserID,
 		DocumentId: req.DocumentId,
 	})
@@ -756,7 +751,7 @@ func (ctrl *Controller) CreateComment(ctx *fiber.Ctx, req dtos.CreateCommentRequ
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	result, err := ctrl.DocumentApp.CreateComment(docDto.CreateCommentInput{
+	result, err := ctrl.DocumentApplication.CreateComment(docDto.CreateCommentInput{
 		UserId:     authCtx.UserID,
 		DocumentId: req.DocumentId,
 		ParentId:   req.ParentId,
@@ -784,7 +779,7 @@ func (ctrl *Controller) UpdateComment(ctx *fiber.Ctx, req dtos.UpdateCommentRequ
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	err = ctrl.DocumentApp.UpdateComment(docDto.UpdateCommentInput{
+	err = ctrl.DocumentApplication.UpdateComment(docDto.UpdateCommentInput{
 		UserId:    authCtx.UserID,
 		CommentId: req.CommentId,
 		Content:   req.Content,
@@ -813,7 +808,7 @@ func (ctrl *Controller) DeleteComment(ctx *fiber.Ctx, req dtos.DeleteCommentRequ
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	err = ctrl.DocumentApp.DeleteComment(docDto.DeleteCommentInput{
+	err = ctrl.DocumentApplication.DeleteComment(docDto.DeleteCommentInput{
 		UserId:    authCtx.UserID,
 		CommentId: req.CommentId,
 	})
@@ -841,7 +836,7 @@ func (ctrl *Controller) ResolveComment(ctx *fiber.Ctx, req dtos.ResolveCommentRe
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	err = ctrl.DocumentApp.ResolveComment(docDto.ResolveCommentInput{
+	err = ctrl.DocumentApplication.ResolveComment(docDto.ResolveCommentInput{
 		UserId:    authCtx.UserID,
 		CommentId: req.CommentId,
 		Resolved:  req.Resolved,
@@ -881,7 +876,7 @@ func (ctrl *Controller) SearchDocuments(ctx *fiber.Ctx, req dtos.SearchRequest) 
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusBadRequest, Details: "Query must be at least 2 characters", Type: "BAD_REQUEST"}
 	}
 
-	result, err := ctrl.DocumentApp.Search(docDto.SearchInput{
+	result, err := ctrl.DocumentApplication.Search(docDto.SearchInput{
 		UserId:  authCtx.UserID,
 		Query:   req.Query,
 		SpaceId: req.SpaceId,
@@ -922,7 +917,7 @@ func (ctrl *Controller) ListVersions(ctx *fiber.Ctx, req dtos.ListVersionsReques
 
 	logger.Debug().Str("spaceId", req.SpaceId).Str("documentId", req.DocumentId).Str("userId", authCtx.UserID).Msg("ListVersions called")
 
-	result, err := ctrl.DocumentApp.ListVersions(docDto.ListVersionsInput{
+	result, err := ctrl.DocumentApplication.ListVersions(docDto.ListVersionsInput{
 		UserId:     authCtx.UserID,
 		SpaceId:    req.SpaceId,
 		DocumentId: req.DocumentId,
@@ -966,7 +961,7 @@ func (ctrl *Controller) GetVersion(ctx *fiber.Ctx, req dtos.GetVersionRequest) (
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	result, err := ctrl.DocumentApp.GetVersion(docDto.GetVersionInput{
+	result, err := ctrl.DocumentApplication.GetVersion(docDto.GetVersionInput{
 		UserId:    authCtx.UserID,
 		VersionId: req.VersionId,
 	})
@@ -1022,7 +1017,7 @@ func (ctrl *Controller) RestoreVersion(ctx *fiber.Ctx, req dtos.RestoreVersionRe
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	err = ctrl.DocumentApp.RestoreVersion(docDto.RestoreVersionInput{
+	err = ctrl.DocumentApplication.RestoreVersion(docDto.RestoreVersionInput{
 		UserId:    authCtx.UserID,
 		VersionId: req.VersionId,
 	})
@@ -1050,7 +1045,7 @@ func (ctrl *Controller) CreateVersion(ctx *fiber.Ctx, req dtos.CreateVersionRequ
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	result, err := ctrl.DocumentApp.CreateVersion(docDto.CreateVersionInput{
+	result, err := ctrl.DocumentApplication.CreateVersion(docDto.CreateVersionInput{
 		UserId:      authCtx.UserID,
 		DocumentId:  req.DocumentId,
 		Description: req.Description,
@@ -1089,7 +1084,7 @@ func (ctrl *Controller) ReorderDocuments(ctx *fiber.Ctx, req dtos.ReorderDocumen
 		}
 	}
 
-	err = ctrl.DocumentApp.ReorderDocuments(docDto.ReorderDocumentsInput{
+	err = ctrl.DocumentApplication.ReorderDocuments(docDto.ReorderDocumentsInput{
 		UserId:  authCtx.UserID,
 		SpaceId: req.SpaceId,
 		Items:   items,

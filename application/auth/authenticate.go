@@ -11,10 +11,10 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (c *AuthApp) Authenticate(input dto.AuthenticateInput) (*dto.AuthenticateOutput, error) {
+func (c *AuthApplication) Authenticate(input dto.AuthenticateInput) (*dto.AuthenticateOutput, error) {
 	logger := c.Logger.With().Str("component", "application.auth.authenticate").Logger()
 
-	resp, err := c.UserApp.GetByEmail(u.GetByEmailInput{Email: input.Email})
+	resp, err := c.UserApplication.GetByEmail(u.GetByEmailInput{Email: input.Email})
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user by email: %w", err)
 	}
@@ -30,7 +30,7 @@ func (c *AuthApp) Authenticate(input dto.AuthenticateInput) (*dto.AuthenticateOu
 		return nil, fmt.Errorf("invalid credentials")
 	}
 
-	sessionResult, err := c.SessionApp.Create(s.CreateSessionInput{
+	sessionResult, err := c.SessionApplication.Create(s.CreateSessionInput{
 		UserId:    resp.User.Id,
 		UserAgent: input.Context.Get("User-Agent"),
 		IpAddress: input.Context.IP(),

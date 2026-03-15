@@ -6,7 +6,7 @@ import (
 	"github.com/labbs/nexo/application/document/dto"
 )
 
-func (app *DocumentApp) Search(input dto.SearchInput) (*dto.SearchOutput, error) {
+func (app *DocumentApplication) Search(input dto.SearchInput) (*dto.SearchOutput, error) {
 	if len(input.Query) < 2 {
 		return nil, fmt.Errorf("query must be at least 2 characters")
 	}

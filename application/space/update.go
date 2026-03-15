@@ -9,7 +9,7 @@ import (
 	"github.com/labbs/nexo/infrastructure/helpers/shortuuid"
 )
 
-func (c *SpaceApp) UpdateSpace(input dto.UpdateSpaceInput) (*dto.UpdateSpaceOutput, error) {
+func (c *SpaceApplication) UpdateSpace(input dto.UpdateSpaceInput) (*dto.UpdateSpaceOutput, error) {
 	logger := c.Logger.With().Str("component", "application.space.update_space").Logger()
 
 	space, err := c.SpacePres.GetSpaceById(input.SpaceId)

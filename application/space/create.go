@@ -5,12 +5,13 @@ import (
 
 	"github.com/gofiber/fiber/v2/utils"
 	"github.com/gosimple/slug"
+	permissionDto "github.com/labbs/nexo/application/permission/dto"
 	"github.com/labbs/nexo/application/space/dto"
 	"github.com/labbs/nexo/domain"
 	"github.com/labbs/nexo/infrastructure/helpers/shortuuid"
 )
 
-func (c *SpaceApp) CreatePrivateSpaceForUser(input dto.CreatePrivateSpaceForUserInput) (*dto.CreatePrivateSpaceForUserOutput, error) {
+func (c *SpaceApplication) CreatePrivateSpaceForUser(input dto.CreatePrivateSpaceForUserInput) (*dto.CreatePrivateSpaceForUserOutput, error) {
 	logger := c.Logger.With().Str("component", "application.space.createPrivateSpaceForUser").Logger()
 
 	name := "Personal Space"
@@ -30,14 +31,19 @@ func (c *SpaceApp) CreatePrivateSpaceForUser(input dto.CreatePrivateSpaceForUser
 	}
 
 	// Auto-create owner permission for the creator
-	if err := c.PermissionPers.UpsertUser(domain.PermissionTypeSpace, space.Id, input.UserId, domain.PermissionRoleOwner); err != nil {
+	if err := c.PermissionApplication.AssignOwnerPermission(permissionDto.AssignOwnerPermissionInput{
+		ResourceType: "space",
+		ResourceId:   space.Id,
+		UserId:       input.UserId,
+		Role:         "owner",
+	}); err != nil {
 		logger.Warn().Err(err).Str("space_id", space.Id).Str("user_id", input.UserId).Msg("failed to create owner permission")
 	}
 
 	return &dto.CreatePrivateSpaceForUserOutput{Space: space}, nil
 }
 
-func (c *SpaceApp) CreateSpace(input dto.CreateSpaceInput) (*dto.CreateSpaceOutput, error) {
+func (c *SpaceApplication) CreateSpace(input dto.CreateSpaceInput) (*dto.CreateSpaceOutput, error) {
 	logger := c.Logger.With().Str("component", "application.space.createSpace").Logger()
 
 	space := &domain.Space{
@@ -58,7 +64,12 @@ func (c *SpaceApp) CreateSpace(input dto.CreateSpaceInput) (*dto.CreateSpaceOutp
 
 	// Auto-create owner permission for the creator
 	if input.OwnerId != nil {
-		if err := c.PermissionPers.UpsertUser(domain.PermissionTypeSpace, space.Id, *input.OwnerId, domain.PermissionRoleOwner); err != nil {
+		if err := c.PermissionApplication.AssignOwnerPermission(permissionDto.AssignOwnerPermissionInput{
+			ResourceType: "space",
+			ResourceId:   space.Id,
+			UserId:       *input.OwnerId,
+			Role:         "owner",
+		}); err != nil {
 			logger.Warn().Err(err).Str("space_id", space.Id).Str("user_id", *input.OwnerId).Msg("failed to create owner permission")
 		}
 	}

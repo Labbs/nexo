@@ -9,7 +9,7 @@ import (
 	"github.com/labbs/nexo/domain"
 )
 
-func (app *DocumentApp) CreateComment(input dto.CreateCommentInput) (*dto.CreateCommentOutput, error) {
+func (app *DocumentApplication) CreateComment(input dto.CreateCommentInput) (*dto.CreateCommentOutput, error) {
 	// Verify user has access to the document
 	_, err := app.DocumentPers.GetDocumentByIdOrSlugWithUserPermissions("", &input.DocumentId, nil, input.UserId)
 	if err != nil {
@@ -37,7 +37,7 @@ func (app *DocumentApp) CreateComment(input dto.CreateCommentInput) (*dto.Create
 	}, nil
 }
 
-func (app *DocumentApp) GetComments(input dto.GetCommentsInput) (*dto.GetCommentsOutput, error) {
+func (app *DocumentApplication) GetComments(input dto.GetCommentsInput) (*dto.GetCommentsOutput, error) {
 	// Verify user has access to the document
 	_, err := app.DocumentPers.GetDocumentByIdOrSlugWithUserPermissions("", &input.DocumentId, nil, input.UserId)
 	if err != nil {
@@ -70,7 +70,7 @@ func (app *DocumentApp) GetComments(input dto.GetCommentsInput) (*dto.GetComment
 	return output, nil
 }
 
-func (app *DocumentApp) UpdateComment(input dto.UpdateCommentInput) error {
+func (app *DocumentApplication) UpdateComment(input dto.UpdateCommentInput) error {
 	comment, err := app.CommentPers.GetById(input.CommentId)
 	if err != nil {
 		return fmt.Errorf("comment not found: %w", err)
@@ -91,7 +91,7 @@ func (app *DocumentApp) UpdateComment(input dto.UpdateCommentInput) error {
 	return nil
 }
 
-func (app *DocumentApp) DeleteComment(input dto.DeleteCommentInput) error {
+func (app *DocumentApplication) DeleteComment(input dto.DeleteCommentInput) error {
 	comment, err := app.CommentPers.GetById(input.CommentId)
 	if err != nil {
 		return fmt.Errorf("comment not found: %w", err)
@@ -109,7 +109,7 @@ func (app *DocumentApp) DeleteComment(input dto.DeleteCommentInput) error {
 	return nil
 }
 
-func (app *DocumentApp) ResolveComment(input dto.ResolveCommentInput) error {
+func (app *DocumentApplication) ResolveComment(input dto.ResolveCommentInput) error {
 	comment, err := app.CommentPers.GetById(input.CommentId)
 	if err != nil {
 		return fmt.Errorf("comment not found: %w", err)

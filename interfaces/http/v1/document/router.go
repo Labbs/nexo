@@ -3,17 +3,19 @@ package document
 import (
 	fiberoapi "github.com/labbs/fiber-oapi"
 	"github.com/labbs/nexo/application/document"
+	"github.com/labbs/nexo/application/permission"
 	"github.com/labbs/nexo/application/space"
 	"github.com/labbs/nexo/infrastructure/config"
 	"github.com/rs/zerolog"
 )
 
 type Controller struct {
-	Config      config.Config
-	Logger      zerolog.Logger
-	FiberOapi   *fiberoapi.OApiGroup
-	SpaceApp    *space.SpaceApp
-	DocumentApp *document.DocumentApp
+	Config                config.Config
+	Logger                zerolog.Logger
+	FiberOapi             *fiberoapi.OApiGroup
+	SpaceApplication      *space.SpaceApp
+	DocumentApplication   *document.DocumentApplication
+	PermissionApplication *permission.PermissionApplication
 }
 
 func SetupDocumentRouter(controller Controller) {

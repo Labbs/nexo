@@ -10,7 +10,9 @@ import (
 	databaseApp "github.com/labbs/nexo/application/database"
 	"github.com/labbs/nexo/application/document"
 	"github.com/labbs/nexo/application/drawing"
+	"github.com/labbs/nexo/application/favorite"
 	"github.com/labbs/nexo/application/group"
+	"github.com/labbs/nexo/application/permission"
 	"github.com/labbs/nexo/application/session"
 	"github.com/labbs/nexo/application/space"
 	"github.com/labbs/nexo/application/user"
@@ -103,20 +105,45 @@ func runServer(cfg config.Config) error {
 	actionPers := persistence.NewActionPers(deps.Database.Db)
 	actionRunPers := persistence.NewActionRunPers(deps.Database.Db)
 
-	deps.UserApp = user.NewUserApp(deps.Config, deps.Logger, userPers, groupPers, favoritePers)
-	deps.SessionApp = session.NewSessionApp(deps.Config, deps.Logger, sessionPers, deps.UserApp)
-	deps.SpaceApp = space.NewSpaceApp(deps.Config, deps.Logger, spacePers, documentPers, permissionPers)
-	deps.DocumentApp = document.NewDocumentApp(deps.Config, deps.Logger, documentPers, spacePers, permissionPers, commentPers, documentVersionPers)
-	deps.AuthApp = auth.NewAuthApp(deps.Config, deps.Logger, deps.UserApp, deps.SessionApp, deps.SpaceApp, deps.DocumentApp)
-	deps.ApiKeyApp = apikey.NewApiKeyApp(deps.Config, deps.Logger, apiKeyPers)
-	deps.WebhookApp = webhook.NewWebhookApp(deps.Config, deps.Logger, webhookPers, webhookDeliveryPers)
-	deps.DatabaseApp = databaseApp.NewDatabaseApp(deps.Config, deps.Logger, databasePers, databaseRowPers, spacePers, permissionPers)
-	deps.DrawingApp = drawing.NewDrawingApp(deps.Config, deps.Logger, drawingPers, permissionPers, spacePers)
-	deps.ActionApp = action.NewActionApp(deps.Config, deps.Logger, actionPers, actionRunPers)
-	deps.GroupApp = group.NewGroupApp(deps.Config, deps.Logger, groupPers, userPers)
+	deps.UserApplication = user.NewUserApplication(deps.Config, deps.Logger, userPers)
+	deps.SessionApplication = session.NewSessionApplication(deps.Config, deps.Logger, sessionPers)
+	deps.SpaceApplication = space.NewSpaceApplication(deps.Config, deps.Logger, spacePers)
+	deps.DocumentApplication = document.NewDocumentApplication(deps.Config, deps.Logger, documentPers, commentPers, documentVersionPers)
+	deps.AuthApplication = auth.NewAuthApplication(deps.Config, deps.Logger)
+	deps.ApiKeyApplication = apikey.NewApiKeyApplication(deps.Config, deps.Logger, apiKeyPers)
+	deps.WebhookApplication = webhook.NewWebhookApplication(deps.Config, deps.Logger, webhookPers, webhookDeliveryPers)
+	deps.DatabaseApplication = databaseApp.NewDatabaseApplication(deps.Config, deps.Logger, databasePers, databaseRowPers)
+	deps.DrawingApplication = drawing.NewDrawingApplication(deps.Config, deps.Logger, drawingPers)
+	deps.ActionApplication = action.NewActionApplication(deps.Config, deps.Logger, actionPers, actionRunPers)
+	deps.GroupApplication = group.NewGroupApplication(deps.Config, deps.Logger, groupPers)
+	deps.FavoriteApplication = favorite.NewFavoriteApplication(deps.Config, deps.Logger, favoritePers)
+	deps.PermissionApplication = permission.NewPermissionApplication(deps.Config, deps.Logger, permissionPers)
+	deps.PermissionPers = permissionPers
+
+	// Inject port dependencies (after construction to avoid circular dependencies)
+	deps.AuthApplication.UserApplication = deps.UserApplication
+	deps.AuthApplication.SessionApplication = deps.SessionApplication
+	deps.AuthApplication.SpaceApplication = deps.SpaceApplication
+	deps.AuthApplication.DocumentApplication = deps.DocumentApplication
+	deps.UserApplication.GroupApplication = deps.GroupApplication
+	deps.FavoriteApplication.DocumentApplication = deps.DocumentApplication
+	deps.SpaceApplication.DocumentApplication = deps.DocumentApplication
+	deps.SpaceApplication.PermissionApplication = deps.PermissionApplication
+	deps.DocumentApplication.SpaceApplication = deps.SpaceApplication
+	deps.DocumentApplication.PermissionApplication = deps.PermissionApplication
+	deps.DrawingApplication.SpaceApplication = deps.SpaceApplication
+	deps.DrawingApplication.PermissionApplication = deps.PermissionApplication
+	deps.DatabaseApplication.SpaceApplication = deps.SpaceApplication
+	deps.DatabaseApplication.PermissionApplication = deps.PermissionApplication
+	deps.GroupApplication.UserApplication = deps.UserApplication
+	deps.PermissionApplication.SpaceApplication = deps.SpaceApplication
+	deps.PermissionApplication.DrawingApplication = deps.DrawingApplication
+	deps.PermissionApplication.DocumentApplication = deps.DocumentApplication
+	deps.PermissionApplication.DatabaseApplication = deps.DatabaseApplication
+	deps.SessionApplication.UserApplication = deps.UserApplication
 
 	// Initialize HTTP server (fiber + fiberoapi)
-	deps.Http, err = http.Configure(deps.Config, deps.Logger, deps.SessionApp, true)
+	deps.Http, err = http.Configure(deps.Config, deps.Logger, deps.SessionApplication, true)
 	if err != nil {
 		logger.Fatal().Err(err).Str("event", "http.runserver.http.configure").Msg("Failed to configure HTTP server")
 		return err
@@ -126,7 +153,7 @@ func runServer(cfg config.Config) error {
 	configJobs := jobs.Config{
 		Logger:        deps.Logger,
 		CronScheduler: deps.CronScheduler,
-		SessionApp:    *deps.SessionApp,
+		SessionApp:    *deps.SessionApplication,
 	}
 
 	err = configJobs.SetupJobs()

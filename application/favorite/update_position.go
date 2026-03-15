@@ -6,7 +6,7 @@ import (
 	"github.com/labbs/nexo/application/favorite/dto"
 )
 
-func (a *FavoriteApp) UpdateFavoritePosition(input dto.UpdateFavoritePositionInput) (*dto.UpdateFavoritePositionOutput, error) {
+func (a *FavoriteApplication) UpdateFavoritePosition(input dto.UpdateFavoritePositionInput) (*dto.UpdateFavoritePositionOutput, error) {
 	logger := a.Logger.With().Str("component", "application.favorite.update_position").Logger()
 
 	// Verify the favorite belongs to the user

@@ -6,7 +6,7 @@ import (
 	"github.com/labbs/nexo/application/document/dto"
 )
 
-func (a *DocumentApp) MoveDocument(input dto.MoveDocumentInput) (*dto.MoveDocumentOutput, error) {
+func (a *DocumentApplication) MoveDocument(input dto.MoveDocumentInput) (*dto.MoveDocumentOutput, error) {
 	logger := a.Logger.With().Str("component", "application.document.move_document").Logger()
 
 	// Ensure the document belongs to the provided space and user has access

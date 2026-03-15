@@ -7,7 +7,7 @@ import (
 	"github.com/labbs/nexo/domain"
 )
 
-func (c *UserApp) UpdateSpaceOrder(input dto.UpdateSpaceOrderInput) (*dto.UpdateSpaceOrderOutput, error) {
+func (c *UserApplication) UpdateSpaceOrder(input dto.UpdateSpaceOrderInput) (*dto.UpdateSpaceOrderOutput, error) {
 	logger := c.Logger.With().Str("component", "application.user.update_space_order").Logger()
 
 	user, err := c.UserPres.GetById(input.UserId)

@@ -9,7 +9,7 @@ import (
 	"github.com/labbs/nexo/infrastructure/helpers/shortuuid"
 )
 
-func (a *DocumentApp) UpdateDocument(input dto.UpdateDocumentInput) (*dto.UpdateDocumentOutput, error) {
+func (a *DocumentApplication) UpdateDocument(input dto.UpdateDocumentInput) (*dto.UpdateDocumentOutput, error) {
 	logger := a.Logger.With().Str("component", "application.document.update_document").Logger()
 
 	document, err := a.DocumentPers.GetDocumentByIdOrSlugWithUserPermissions(input.SpaceId, &input.DocumentId, nil, input.UserId)

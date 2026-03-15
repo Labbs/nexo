@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func (c *UserApp) Create(input dto.CreateUserInput) (*dto.CreateUserOutput, error) {
+func (c *UserApplication) Create(input dto.CreateUserInput) (*dto.CreateUserOutput, error) {
 	logger := c.Logger.With().Str("component", "application.user.create").Logger()
 
 	// Generate UUID for user

@@ -19,7 +19,7 @@ func (ctrl *Controller) ListActions(ctx *fiber.Ctx, _ dtos.EmptyRequest) (*dtos.
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	result, err := ctrl.ActionApp.ListActions(actionDto.ListActionsInput{
+	result, err := ctrl.ActionApplication.ListActions(actionDto.ListActionsInput{
 		UserId: authCtx.UserID,
 	})
 	if err != nil {
@@ -81,7 +81,7 @@ func (ctrl *Controller) CreateAction(ctx *fiber.Ctx, req dtos.CreateActionReques
 		}
 	}
 
-	result, err := ctrl.ActionApp.CreateAction(actionDto.CreateActionInput{
+	result, err := ctrl.ActionApplication.CreateAction(actionDto.CreateActionInput{
 		UserId:        authCtx.UserID,
 		SpaceId:       req.SpaceId,
 		DatabaseId:    req.DatabaseId,
@@ -116,7 +116,7 @@ func (ctrl *Controller) GetAction(ctx *fiber.Ctx, req dtos.GetActionRequest) (*d
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	result, err := ctrl.ActionApp.GetAction(actionDto.GetActionInput{
+	result, err := ctrl.ActionApplication.GetAction(actionDto.GetActionInput{
 		UserId:   authCtx.UserID,
 		ActionId: req.ActionId,
 	})
@@ -182,7 +182,7 @@ func (ctrl *Controller) UpdateAction(ctx *fiber.Ctx, req dtos.UpdateActionReques
 		steps = &s
 	}
 
-	err = ctrl.ActionApp.UpdateAction(actionDto.UpdateActionInput{
+	err = ctrl.ActionApplication.UpdateAction(actionDto.UpdateActionInput{
 		UserId:        authCtx.UserID,
 		ActionId:      req.ActionId,
 		Name:          req.Name,
@@ -216,7 +216,7 @@ func (ctrl *Controller) DeleteAction(ctx *fiber.Ctx, req dtos.DeleteActionReques
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
 	}
 
-	err = ctrl.ActionApp.DeleteAction(actionDto.DeleteActionInput{
+	err = ctrl.ActionApplication.DeleteAction(actionDto.DeleteActionInput{
 		UserId:   authCtx.UserID,
 		ActionId: req.ActionId,
 	})
@@ -249,7 +249,7 @@ func (ctrl *Controller) GetRuns(ctx *fiber.Ctx, req dtos.GetRunsRequest) (*dtos.
 		limit = 20
 	}
 
-	result, err := ctrl.ActionApp.GetRuns(actionDto.GetRunsInput{
+	result, err := ctrl.ActionApplication.GetRuns(actionDto.GetRunsInput{
 		UserId:   authCtx.UserID,
 		ActionId: req.ActionId,
 		Limit:    limit,

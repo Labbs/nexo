@@ -8,10 +8,10 @@ import (
 )
 
 type Controller struct {
-	Config    config.Config
-	Logger    zerolog.Logger
-	FiberOapi *fiberoapi.OApiGroup
-	ApiKeyApp *apikey.ApiKeyApp
+	Config            config.Config
+	Logger            zerolog.Logger
+	FiberOapi         *fiberoapi.OApiGroup
+	ApiKeyApplication *apikey.ApiKeyApplication
 }
 
 func SetupApiKeyRouter(controller Controller) {

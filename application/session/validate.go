@@ -9,7 +9,7 @@ import (
 	"github.com/labbs/nexo/infrastructure/helpers/tokenutil"
 )
 
-func (c *SessionApp) ValidateToken(input dto.ValidateTokenInput) (*dto.ValidateTokenOutput, error) {
+func (c *SessionApplication) ValidateToken(input dto.ValidateTokenInput) (*dto.ValidateTokenOutput, error) {
 	logger := c.Logger.With().Str("component", "application.session.validate_token").Logger()
 
 	sessionId, err := tokenutil.GetSessionIdFromToken(input.Token, c.Config)
@@ -39,7 +39,7 @@ func (c *SessionApp) ValidateToken(input dto.ValidateTokenInput) (*dto.ValidateT
 	return &dto.ValidateTokenOutput{AuthContext: ctx}, nil
 }
 
-func (c *SessionApp) HasRole(input dto.HasRoleInput) bool {
+func (c *SessionApplication) HasRole(input dto.HasRoleInput) bool {
 	logger := c.Logger.With().Str("component", "application.session.has_role").Logger()
 
 	logger.Warn().Msg("not implemented")
@@ -47,7 +47,7 @@ func (c *SessionApp) HasRole(input dto.HasRoleInput) bool {
 	return false
 }
 
-func (c *SessionApp) HasScope(input dto.HasScopeInput) bool {
+func (c *SessionApplication) HasScope(input dto.HasScopeInput) bool {
 	logger := c.Logger.With().Str("component", "application.session.has_scope").Logger()
 
 	logger.Warn().Msg("not implemented")
@@ -55,7 +55,7 @@ func (c *SessionApp) HasScope(input dto.HasScopeInput) bool {
 	return false
 }
 
-func (c *SessionApp) CanAccessResource(input dto.CanAccessResourceInput) (bool, error) {
+func (c *SessionApplication) CanAccessResource(input dto.CanAccessResourceInput) (bool, error) {
 	logger := c.Logger.With().Str("component", "application.session.can_access_resource").Logger()
 
 	logger.Warn().Msg("not implemented")
@@ -63,7 +63,7 @@ func (c *SessionApp) CanAccessResource(input dto.CanAccessResourceInput) (bool, 
 	return false, fmt.Errorf("not implemented")
 }
 
-func (c *SessionApp) GetUserPermissions(input dto.GetUserPermissionsInput) (*dto.GetUserPermissionsOutput, error) {
+func (c *SessionApplication) GetUserPermissions(input dto.GetUserPermissionsInput) (*dto.GetUserPermissionsOutput, error) {
 	logger := c.Logger.With().Str("component", "application.session.get_user_permissions").Logger()
 
 	logger.Warn().Msg("not implemented")

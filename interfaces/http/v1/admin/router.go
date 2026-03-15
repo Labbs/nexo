@@ -6,18 +6,20 @@ import (
 	"github.com/labbs/nexo/application/group"
 	"github.com/labbs/nexo/application/space"
 	"github.com/labbs/nexo/application/user"
+	"github.com/labbs/nexo/domain"
 	"github.com/labbs/nexo/infrastructure/config"
 	"github.com/rs/zerolog"
 )
 
 type Controller struct {
-	Config    config.Config
-	Logger    zerolog.Logger
-	FiberOapi *fiberoapi.OApiGroup
-	UserApp   *user.UserApp
-	SpaceApp  *space.SpaceApp
-	ApiKeyApp *apikey.ApiKeyApp
-	GroupApp  *group.GroupApp
+	Config            config.Config
+	Logger            zerolog.Logger
+	FiberOapi         *fiberoapi.OApiGroup
+	UserApplication   *user.UserApplication
+	SpaceApplication  *space.SpaceApplication
+	ApiKeyApplication *apikey.ApiKeyApplication
+	GroupApplication  *group.GroupApplication
+	PermissionPers    domain.PermissionPers
 }
 
 func SetupAdminRouter(controller Controller) {
