@@ -1,10 +1,11 @@
 package document
 
 import (
-	"strings"
+	"errors"
 
 	"github.com/gofiber/fiber/v2"
 	fiberoapi "github.com/labbs/fiber-oapi"
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	docDto "github.com/labbs/nexo/application/document/dto"
 	"github.com/labbs/nexo/domain"
 	"github.com/labbs/nexo/infrastructure/helpers/mapper"
@@ -374,14 +375,12 @@ func (ctrl *Controller) DeleteDocument(ctx *fiber.Ctx, req dtos.DeleteDocumentRe
 		DocumentId: id,
 		Slug:       slug,
 	}); err != nil {
-		// Best-effort error typing
-		details := err.Error()
 		switch {
-		case strings.Contains(details, "insufficient permissions") || strings.Contains(details, "permission"):
+		case errors.Is(err, apperrors.ErrAccessDenied) || errors.Is(err, apperrors.ErrForbidden):
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
-		case strings.Contains(details, "child") || strings.Contains(details, "children"):
+		case errors.Is(err, apperrors.ErrConflictChildren):
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusConflict, Details: "Document has child pages", Type: "CONFLICT"}
-		case strings.Contains(details, "not found"):
+		case errors.Is(err, apperrors.ErrDocumentNotFound) || errors.Is(err, apperrors.ErrNotFound):
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Document not found", Type: "DOCUMENT_NOT_FOUND"}
 		default:
 			logger.Error().Err(err).Msg("failed to delete document")
@@ -409,13 +408,12 @@ func (ctrl *Controller) MoveDocument(ctx *fiber.Ctx, req dtos.MoveDocumentReques
 		NewParentId: req.ParentId,
 	})
 	if err != nil {
-		details := err.Error()
 		switch {
-		case strings.Contains(details, "insufficient permissions"):
+		case errors.Is(err, apperrors.ErrAccessDenied) || errors.Is(err, apperrors.ErrForbidden):
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
-		case strings.Contains(details, "invalid move"):
-			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusBadRequest, Details: details, Type: "BAD_REQUEST"}
-		case strings.Contains(details, "not found"):
+		case errors.Is(err, apperrors.ErrInvalidMove):
+			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusBadRequest, Details: err.Error(), Type: "BAD_REQUEST"}
+		case errors.Is(err, apperrors.ErrDocumentNotFound) || errors.Is(err, apperrors.ErrNotFound):
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Document or parent not found", Type: "NOT_FOUND"}
 		default:
 			logger.Error().Err(err).Msg("failed to move document")
@@ -473,10 +471,10 @@ func (ctrl *Controller) ListDocumentPermissions(ctx *fiber.Ctx, req dtos.ListDoc
 		DocumentId:  req.DocumentId,
 	})
 	if err != nil {
-		switch err.Error() {
-		case "forbidden":
+		switch {
+		case errors.Is(err, apperrors.ErrForbidden):
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
-		case "not_found":
+		case errors.Is(err, apperrors.ErrDocumentNotFound) || errors.Is(err, apperrors.ErrNotFound):
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Document not found", Type: "DOCUMENT_NOT_FOUND"}
 		default:
 			logger.Error().Err(err).Msg("failed to list document permissions")
@@ -524,10 +522,10 @@ func (ctrl *Controller) UpsertDocumentUserPermission(ctx *fiber.Ctx, req dtos.Up
 		TargetUserId: req.UserId,
 		Role:         role,
 	}); err != nil {
-		switch err.Error() {
-		case "forbidden":
+		switch {
+		case errors.Is(err, apperrors.ErrForbidden):
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
-		case "not_found":
+		case errors.Is(err, apperrors.ErrDocumentNotFound) || errors.Is(err, apperrors.ErrNotFound):
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Document not found", Type: "DOCUMENT_NOT_FOUND"}
 		default:
 			logger.Error().Err(err).Msg("failed to upsert document permission")
@@ -554,10 +552,10 @@ func (ctrl *Controller) DeleteDocumentUserPermission(ctx *fiber.Ctx, req dtos.De
 		DocumentId:   req.DocumentId,
 		TargetUserId: req.UserId,
 	}); err != nil {
-		switch err.Error() {
-		case "forbidden":
+		switch {
+		case errors.Is(err, apperrors.ErrForbidden):
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
-		case "not_found":
+		case errors.Is(err, apperrors.ErrDocumentNotFound) || errors.Is(err, apperrors.ErrNotFound):
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Document not found", Type: "DOCUMENT_NOT_FOUND"}
 		default:
 			logger.Error().Err(err).Msg("failed to delete document permission")
@@ -619,9 +617,9 @@ func (ctrl *Controller) RestoreDocument(ctx *fiber.Ctx, req dtos.RestoreDocument
 	})
 	if err != nil {
 		switch {
-		case err.Error() == "access denied: insufficient permissions to restore document":
+		case errors.Is(err, apperrors.ErrAccessDenied):
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
-		case err.Error() == "document is not deleted":
+		case errors.Is(err, apperrors.ErrDocumentNotDeleted):
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusBadRequest, Details: "Document is not in trash", Type: "BAD_REQUEST"}
 		default:
 			logger.Error().Err(err).Msg("failed to restore document")
@@ -651,7 +649,7 @@ func (ctrl *Controller) SetPublic(ctx *fiber.Ctx, req dtos.SetPublicRequest) (*d
 		Public:     req.Public,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
 		logger.Error().Err(err).Msg("failed to set document public status")
@@ -716,7 +714,7 @@ func (ctrl *Controller) GetComments(ctx *fiber.Ctx, req dtos.GetCommentsRequest)
 		DocumentId: req.DocumentId,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
 		logger.Error().Err(err).Msg("failed to get comments")
@@ -759,7 +757,7 @@ func (ctrl *Controller) CreateComment(ctx *fiber.Ctx, req dtos.CreateCommentRequ
 		BlockId:    req.BlockId,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
 		logger.Error().Err(err).Msg("failed to create comment")
@@ -785,10 +783,10 @@ func (ctrl *Controller) UpdateComment(ctx *fiber.Ctx, req dtos.UpdateCommentRequ
 		Content:   req.Content,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Only the comment author can update it", Type: "FORBIDDEN"}
 		}
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, apperrors.ErrNotFound) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Comment not found", Type: "NOT_FOUND"}
 		}
 		logger.Error().Err(err).Msg("failed to update comment")
@@ -813,10 +811,10 @@ func (ctrl *Controller) DeleteComment(ctx *fiber.Ctx, req dtos.DeleteCommentRequ
 		CommentId: req.CommentId,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Only the comment author can delete it", Type: "FORBIDDEN"}
 		}
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, apperrors.ErrNotFound) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Comment not found", Type: "NOT_FOUND"}
 		}
 		logger.Error().Err(err).Msg("failed to delete comment")
@@ -842,10 +840,10 @@ func (ctrl *Controller) ResolveComment(ctx *fiber.Ctx, req dtos.ResolveCommentRe
 		Resolved:  req.Resolved,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, apperrors.ErrNotFound) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Comment not found", Type: "NOT_FOUND"}
 		}
 		logger.Error().Err(err).Msg("failed to resolve comment")
@@ -926,7 +924,7 @@ func (ctrl *Controller) ListVersions(ctx *fiber.Ctx, req dtos.ListVersionsReques
 	})
 	if err != nil {
 		logger.Error().Err(err).Str("spaceId", req.SpaceId).Str("documentId", req.DocumentId).Msg("failed to list versions")
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusInternalServerError, Details: "Failed to list versions", Type: "INTERNAL_SERVER_ERROR"}
@@ -966,10 +964,10 @@ func (ctrl *Controller) GetVersion(ctx *fiber.Ctx, req dtos.GetVersionRequest) (
 		VersionId: req.VersionId,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, apperrors.ErrVersionNotFound) || errors.Is(err, apperrors.ErrNotFound) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Version not found", Type: "NOT_FOUND"}
 		}
 		logger.Error().Err(err).Msg("failed to get version")
@@ -1022,10 +1020,10 @@ func (ctrl *Controller) RestoreVersion(ctx *fiber.Ctx, req dtos.RestoreVersionRe
 		VersionId: req.VersionId,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, apperrors.ErrVersionNotFound) || errors.Is(err, apperrors.ErrNotFound) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Version not found", Type: "NOT_FOUND"}
 		}
 		logger.Error().Err(err).Msg("failed to restore version")
@@ -1051,7 +1049,7 @@ func (ctrl *Controller) CreateVersion(ctx *fiber.Ctx, req dtos.CreateVersionRequ
 		Description: req.Description,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
 		logger.Error().Err(err).Msg("failed to create version")
@@ -1090,7 +1088,7 @@ func (ctrl *Controller) ReorderDocuments(ctx *fiber.Ctx, req dtos.ReorderDocumen
 		Items:   items,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "insufficient permissions") {
+		if errors.Is(err, apperrors.ErrAccessDenied) || errors.Is(err, apperrors.ErrForbidden) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
 		logger.Error().Err(err).Msg("failed to reorder documents")

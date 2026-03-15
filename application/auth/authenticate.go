@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/application/auth/dto"
 	s "github.com/labbs/nexo/application/session/dto"
 	u "github.com/labbs/nexo/application/user/dto"
@@ -21,13 +22,13 @@ func (c *AuthApplication) Authenticate(input dto.AuthenticateInput) (*dto.Authen
 
 	if !resp.User.Active {
 		logger.Warn().Str("email", input.Email).Msg("attempt to authenticate inactive user")
-		return nil, fmt.Errorf("user is not active")
+		return nil, apperrors.ErrUserNotActive
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(resp.User.Password), []byte(input.Password))
 	if err != nil {
 		logger.Warn().Str("email", input.Email).Msg("invalid password attempt")
-		return nil, fmt.Errorf("invalid credentials")
+		return nil, apperrors.ErrInvalidCredentials
 	}
 
 	sessionResult, err := c.SessionApplication.Create(s.CreateSessionInput{

@@ -3,6 +3,7 @@ package webhook
 import (
 	"fmt"
 
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/application/webhook/dto"
 )
 
@@ -14,7 +15,7 @@ func (app *WebhookApplication) GetDeliveries(input dto.GetDeliveriesInput) (*dto
 	}
 
 	if webhook.UserId != input.UserId {
-		return nil, fmt.Errorf("access denied")
+		return nil, apperrors.ErrAccessDenied
 	}
 
 	limit := input.Limit

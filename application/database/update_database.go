@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/application/database/dto"
 	spaceDto "github.com/labbs/nexo/application/space/dto"
 	"github.com/labbs/nexo/domain"
@@ -23,7 +24,7 @@ func (app *DatabaseApplication) UpdateDatabase(input dto.UpdateDatabaseInput) er
 	}
 
 	if spaceResult.Space.GetUserRole(input.UserId) == nil {
-		return fmt.Errorf("access denied")
+		return apperrors.ErrAccessDenied
 	}
 
 	if input.Name != nil {

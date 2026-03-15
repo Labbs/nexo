@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/application/document/dto"
 	"github.com/labbs/nexo/domain"
 )
@@ -78,7 +79,7 @@ func (app *DocumentApplication) UpdateComment(input dto.UpdateCommentInput) erro
 
 	// Only the comment author can update it
 	if comment.UserId != input.UserId {
-		return fmt.Errorf("access denied: only the comment author can update it")
+		return apperrors.ErrAccessDenied
 	}
 
 	comment.Content = input.Content
@@ -99,7 +100,7 @@ func (app *DocumentApplication) DeleteComment(input dto.DeleteCommentInput) erro
 
 	// Only the comment author can delete it
 	if comment.UserId != input.UserId {
-		return fmt.Errorf("access denied: only the comment author can delete it")
+		return apperrors.ErrAccessDenied
 	}
 
 	if err := app.CommentPers.Delete(input.CommentId); err != nil {

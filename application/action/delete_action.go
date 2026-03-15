@@ -3,6 +3,7 @@ package action
 import (
 	"fmt"
 
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/application/action/dto"
 )
 
@@ -13,7 +14,7 @@ func (app *ActionApplication) DeleteAction(input dto.DeleteActionInput) error {
 	}
 
 	if action.UserId != input.UserId {
-		return fmt.Errorf("access denied")
+		return apperrors.ErrAccessDenied
 	}
 
 	if err := app.ActionPers.Delete(input.ActionId); err != nil {

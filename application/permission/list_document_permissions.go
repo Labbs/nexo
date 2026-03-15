@@ -1,8 +1,7 @@
 package permission
 
 import (
-	"fmt"
-
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	documentDto "github.com/labbs/nexo/application/document/dto"
 	"github.com/labbs/nexo/domain"
 )
@@ -17,12 +16,12 @@ func (app *PermissionApplication) ListDocumentPermissions(input documentDto.List
 		UserId:     input.RequesterId,
 	})
 	if err != nil || docResult.Document == nil {
-		return nil, fmt.Errorf("not_found")
+		return nil, apperrors.ErrNotFound
 	}
 
 	// User must have at least viewer access to the document to see permissions
 	if !docResult.Document.HasPermission(input.RequesterId, "viewer") {
-		return nil, fmt.Errorf("forbidden")
+		return nil, apperrors.ErrForbidden
 	}
 
 	permissions, err := app.PermissionPers.ListByResource(domain.PermissionTypeDocument, input.DocumentId)

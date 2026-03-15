@@ -1,9 +1,9 @@
 package dtos
 
 type UpdateProfileRequest struct {
-	Username    *string                `json:"username,omitempty"`
-	AvatarUrl   *string                `json:"avatar_url,omitempty"`
-	Preferences *map[string]any        `json:"preferences,omitempty"`
+	Username    *string         `json:"username,omitempty"`
+	AvatarUrl   *string         `json:"avatar_url,omitempty"`
+	Preferences *map[string]any `json:"preferences,omitempty"`
 }
 
 type UpdateProfileResponse struct {

@@ -47,7 +47,7 @@ func (k *ApiKey) HasScope(scope ApiKeyScope) bool {
 	if k.Permissions == nil {
 		return false
 	}
-	scopes, ok := k.Permissions["scopes"].([]interface{})
+	scopes, ok := k.Permissions["scopes"].([]any)
 	if !ok {
 		return false
 	}

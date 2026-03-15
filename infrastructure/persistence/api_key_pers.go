@@ -1,8 +1,10 @@
 package persistence
 
 import (
+	"errors"
 	"time"
 
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/domain"
 	"gorm.io/gorm"
 )
@@ -23,6 +25,9 @@ func (p *apiKeyPers) GetById(id string) (*domain.ApiKey, error) {
 	var apiKey domain.ApiKey
 	err := p.db.Where("id = ?", id).First(&apiKey).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperrors.ErrNotFound
+		}
 		return nil, err
 	}
 	return &apiKey, nil
@@ -35,6 +40,9 @@ func (p *apiKeyPers) GetByKeyHash(keyHash string) (*domain.ApiKey, error) {
 		Where("key_hash = ? AND deleted_at IS NULL", keyHash).
 		First(&apiKey).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperrors.ErrNotFound
+		}
 		return nil, err
 	}
 	return &apiKey, nil

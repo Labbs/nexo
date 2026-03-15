@@ -56,7 +56,7 @@ func (w *Webhook) HasEvent(event WebhookEvent) bool {
 	if w.Events == nil {
 		return false
 	}
-	events, ok := w.Events["events"].([]interface{})
+	events, ok := w.Events["events"].([]any)
 	if !ok {
 		return false
 	}

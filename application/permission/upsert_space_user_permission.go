@@ -3,6 +3,7 @@ package permission
 import (
 	"fmt"
 
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	spaceDto "github.com/labbs/nexo/application/space/dto"
 	"github.com/labbs/nexo/domain"
 )
@@ -12,10 +13,10 @@ import (
 func (app *PermissionApplication) UpsertSpaceUserPermission(input spaceDto.UpsertSpaceUserPermissionInput) error {
 	spaceResult, err := app.SpaceApplication.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: input.SpaceId})
 	if err != nil || spaceResult.Space == nil {
-		return fmt.Errorf("not_found")
+		return apperrors.ErrNotFound
 	}
 	if !spaceResult.Space.HasPermission(input.RequesterId, "admin") {
-		return fmt.Errorf("forbidden")
+		return apperrors.ErrForbidden
 	}
 
 	// Prevent changing the owner's role on personal/private spaces

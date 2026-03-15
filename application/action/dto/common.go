@@ -4,8 +4,8 @@ import "time"
 
 // Step configuration
 type ActionStep struct {
-	Type   string                 `json:"type"`
-	Config map[string]interface{} `json:"config"`
+	Type   string         `json:"type"`
+	Config map[string]any `json:"config"`
 }
 
 type ActionItem struct {

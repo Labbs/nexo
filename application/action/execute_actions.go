@@ -25,7 +25,7 @@ func (app *ActionApplication) ExecuteActions(input dto.ExecuteActionInput) {
 	}
 }
 
-func (app *ActionApplication) executeAction(action domain.Action, triggerData map[string]interface{}) {
+func (app *ActionApplication) executeAction(action domain.Action, triggerData map[string]any) {
 	logger := app.Logger.With().
 		Str("component", "action.execute").
 		Str("action_id", action.Id).
@@ -45,12 +45,12 @@ func (app *ActionApplication) executeAction(action domain.Action, triggerData ma
 	}
 
 	// Execute each step
-	stepsResult := make([]map[string]interface{}, len(steps))
+	stepsResult := make([]map[string]any, len(steps))
 	var execError error
 
 	for i, step := range steps {
 		result, err := app.executeStep(step, triggerData)
-		stepsResult[i] = map[string]interface{}{
+		stepsResult[i] = map[string]any{
 			"step":    i + 1,
 			"type":    step.Type,
 			"success": err == nil,
@@ -90,7 +90,7 @@ func (app *ActionApplication) executeAction(action domain.Action, triggerData ma
 	}
 }
 
-func (app *ActionApplication) executeStep(step dto.ActionStep, triggerData map[string]interface{}) (interface{}, error) {
+func (app *ActionApplication) executeStep(step dto.ActionStep, triggerData map[string]any) (any, error) {
 	// This is a simplified implementation - in production, you'd have actual step executors
 	switch domain.ActionStepType(step.Type) {
 	case domain.StepSendWebhook:

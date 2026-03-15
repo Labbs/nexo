@@ -7,18 +7,18 @@ import "time"
 type EmptyRequest struct{}
 
 type ActionStep struct {
-	Type   string                 `json:"type"`
-	Config map[string]interface{} `json:"config"`
+	Type   string         `json:"type"`
+	Config map[string]any `json:"config"`
 }
 
 type CreateActionRequest struct {
-	SpaceId       *string                `json:"space_id,omitempty"`
-	DatabaseId    *string                `json:"database_id,omitempty"`
-	Name          string                 `json:"name"`
-	Description   string                 `json:"description,omitempty"`
-	TriggerType   string                 `json:"trigger_type"`
-	TriggerConfig map[string]interface{} `json:"trigger_config,omitempty"`
-	Steps         []ActionStep           `json:"steps"`
+	SpaceId       *string        `json:"space_id,omitempty"`
+	DatabaseId    *string        `json:"database_id,omitempty"`
+	Name          string         `json:"name"`
+	Description   string         `json:"description,omitempty"`
+	TriggerType   string         `json:"trigger_type"`
+	TriggerConfig map[string]any `json:"trigger_config,omitempty"`
+	Steps         []ActionStep   `json:"steps"`
 }
 
 type GetActionRequest struct {
@@ -26,13 +26,13 @@ type GetActionRequest struct {
 }
 
 type UpdateActionRequest struct {
-	ActionId      string                 `path:"action_id"`
-	Name          *string                `json:"name,omitempty"`
-	Description   *string                `json:"description,omitempty"`
-	TriggerType   *string                `json:"trigger_type,omitempty"`
-	TriggerConfig map[string]interface{} `json:"trigger_config,omitempty"`
-	Steps         *[]ActionStep          `json:"steps,omitempty"`
-	Active        *bool                  `json:"active,omitempty"`
+	ActionId      string         `path:"action_id"`
+	Name          *string        `json:"name,omitempty"`
+	Description   *string        `json:"description,omitempty"`
+	TriggerType   *string        `json:"trigger_type,omitempty"`
+	TriggerConfig map[string]any `json:"trigger_config,omitempty"`
+	Steps         *[]ActionStep  `json:"steps,omitempty"`
+	Active        *bool          `json:"active,omitempty"`
 }
 
 type DeleteActionRequest struct {
@@ -81,23 +81,23 @@ type ListActionsResponse struct {
 }
 
 type GetActionResponse struct {
-	Id            string                 `json:"id"`
-	Name          string                 `json:"name"`
-	Description   string                 `json:"description"`
-	SpaceId       *string                `json:"space_id,omitempty"`
-	SpaceName     *string                `json:"space_name,omitempty"`
-	DatabaseId    *string                `json:"database_id,omitempty"`
-	TriggerType   string                 `json:"trigger_type"`
-	TriggerConfig map[string]interface{} `json:"trigger_config,omitempty"`
-	Steps         []ActionStep           `json:"steps"`
-	Active        bool                   `json:"active"`
-	LastRunAt     *time.Time             `json:"last_run_at,omitempty"`
-	LastError     string                 `json:"last_error,omitempty"`
-	RunCount      int                    `json:"run_count"`
-	SuccessCount  int                    `json:"success_count"`
-	FailureCount  int                    `json:"failure_count"`
-	CreatedAt     time.Time              `json:"created_at"`
-	UpdatedAt     time.Time              `json:"updated_at"`
+	Id            string         `json:"id"`
+	Name          string         `json:"name"`
+	Description   string         `json:"description"`
+	SpaceId       *string        `json:"space_id,omitempty"`
+	SpaceName     *string        `json:"space_name,omitempty"`
+	DatabaseId    *string        `json:"database_id,omitempty"`
+	TriggerType   string         `json:"trigger_type"`
+	TriggerConfig map[string]any `json:"trigger_config,omitempty"`
+	Steps         []ActionStep   `json:"steps"`
+	Active        bool           `json:"active"`
+	LastRunAt     *time.Time     `json:"last_run_at,omitempty"`
+	LastError     string         `json:"last_error,omitempty"`
+	RunCount      int            `json:"run_count"`
+	SuccessCount  int            `json:"success_count"`
+	FailureCount  int            `json:"failure_count"`
+	CreatedAt     time.Time      `json:"created_at"`
+	UpdatedAt     time.Time      `json:"updated_at"`
 }
 
 type RunItem struct {

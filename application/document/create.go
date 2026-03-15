@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v2/utils"
 	"github.com/gosimple/slug"
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/application/document/dto"
 	permissionDto "github.com/labbs/nexo/application/permission/dto"
 	spaceDto "github.com/labbs/nexo/application/space/dto"
@@ -32,12 +33,12 @@ func (a *DocumentApplication) CreateDocument(input dto.CreateDocumentInput) (*dt
 
 		if !parent.HasPermission(input.UserId, domain.PermissionRoleEditor) {
 			logger.Error().Msg("user does not have permission to create document under the specified parent")
-			return nil, fmt.Errorf("user does not have permission to create document under the specified parent")
+			return nil, apperrors.ErrAccessDenied
 		}
 	} else {
 		if !spaceDetail.HasPermission(input.UserId, "editor") {
 			logger.Error().Msg("user does not have permission to create document in the specified space")
-			return nil, fmt.Errorf("user does not have permission to create document in the specified space")
+			return nil, apperrors.ErrAccessDenied
 		}
 	}
 

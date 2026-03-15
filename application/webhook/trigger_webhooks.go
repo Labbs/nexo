@@ -27,7 +27,7 @@ func (app *WebhookApplication) TriggerWebhooks(input dto.TriggerWebhookInput) {
 	}
 }
 
-func (app *WebhookApplication) deliverWebhook(webhook domain.Webhook, event string, payload map[string]interface{}) {
+func (app *WebhookApplication) deliverWebhook(webhook domain.Webhook, event string, payload map[string]any) {
 	logger := app.Logger.With().
 		Str("component", "webhook.deliver").
 		Str("webhook_id", webhook.Id).
@@ -35,7 +35,7 @@ func (app *WebhookApplication) deliverWebhook(webhook domain.Webhook, event stri
 		Logger()
 
 	// Build the webhook payload
-	webhookPayload := map[string]interface{}{
+	webhookPayload := map[string]any{
 		"id":        uuid.New().String(),
 		"event":     event,
 		"timestamp": time.Now().UTC().Format(time.RFC3339),
@@ -100,7 +100,7 @@ func (app *WebhookApplication) deliverWebhook(webhook domain.Webhook, event stri
 	}
 }
 
-func (app *WebhookApplication) recordDelivery(webhookId, event string, payload map[string]interface{}, statusCode int, response string, success bool, duration int) {
+func (app *WebhookApplication) recordDelivery(webhookId, event string, payload map[string]any, statusCode int, response string, success bool, duration int) {
 	delivery := &domain.WebhookDelivery{
 		Id:         uuid.New().String(),
 		WebhookId:  webhookId,

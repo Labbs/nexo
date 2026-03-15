@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/application/database/dto"
 	spaceDto "github.com/labbs/nexo/application/space/dto"
 	"github.com/labbs/nexo/domain"
@@ -22,7 +23,7 @@ func (app *DatabaseApplication) ListRows(input dto.ListRowsInput) (*dto.ListRows
 	}
 
 	if spaceResult.Space.GetUserRole(input.UserId) == nil {
-		return nil, fmt.Errorf("access denied")
+		return nil, apperrors.ErrAccessDenied
 	}
 
 	limit := input.Limit
@@ -97,8 +98,8 @@ func (app *DatabaseApplication) ListRows(input dto.ListRowsInput) (*dto.ListRows
 	for i, row := range rows {
 		rowItem := dto.RowItem{
 			Id:            row.Id,
-			Properties:    map[string]interface{}(row.Properties),
-			Content:       map[string]interface{}(row.Content),
+			Properties:    map[string]any(row.Properties),
+			Content:       map[string]any(row.Content),
 			ShowInSidebar: row.ShowInSidebar,
 			CreatedBy:     row.CreatedBy,
 			UpdatedBy:     row.UpdatedBy,
@@ -126,7 +127,7 @@ func (app *DatabaseApplication) ListRows(input dto.ListRowsInput) (*dto.ListRows
 }
 
 // convertFilterConfigToDomain converts the DTO filter config to domain filter config
-func convertFilterConfigToDomain(filter map[string]interface{}) *domain.FilterConfig {
+func convertFilterConfigToDomain(filter map[string]any) *domain.FilterConfig {
 	if filter == nil {
 		return nil
 	}
@@ -134,9 +135,9 @@ func convertFilterConfigToDomain(filter map[string]interface{}) *domain.FilterCo
 	result := &domain.FilterConfig{}
 
 	// Handle "and" filters
-	if andRules, ok := filter["and"].([]interface{}); ok {
+	if andRules, ok := filter["and"].([]any); ok {
 		for _, r := range andRules {
-			if rule, ok := r.(map[string]interface{}); ok {
+			if rule, ok := r.(map[string]any); ok {
 				result.And = append(result.And, domain.FilterRule{
 					Property:  getString(rule, "property"),
 					Condition: getString(rule, "condition"),
@@ -147,9 +148,9 @@ func convertFilterConfigToDomain(filter map[string]interface{}) *domain.FilterCo
 	}
 
 	// Handle "or" filters
-	if orRules, ok := filter["or"].([]interface{}); ok {
+	if orRules, ok := filter["or"].([]any); ok {
 		for _, r := range orRules {
-			if rule, ok := r.(map[string]interface{}); ok {
+			if rule, ok := r.(map[string]any); ok {
 				result.Or = append(result.Or, domain.FilterRule{
 					Property:  getString(rule, "property"),
 					Condition: getString(rule, "condition"),
@@ -162,7 +163,7 @@ func convertFilterConfigToDomain(filter map[string]interface{}) *domain.FilterCo
 	return result
 }
 
-func getString(m map[string]interface{}, key string) string {
+func getString(m map[string]any, key string) string {
 	if v, ok := m[key].(string); ok {
 		return v
 	}

@@ -19,7 +19,7 @@ func (app *ApiKeyApplication) ListApiKeys(input dto.ListApiKeysInput) (*dto.List
 	for i, k := range apiKeys {
 		var scopes []string
 		if k.Permissions != nil {
-			if s, ok := k.Permissions["scopes"].([]interface{}); ok {
+			if s, ok := k.Permissions["scopes"].([]any); ok {
 				for _, scope := range s {
 					if str, ok := scope.(string); ok {
 						scopes = append(scopes, str)

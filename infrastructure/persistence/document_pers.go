@@ -1,8 +1,10 @@
 package persistence
 
 import (
+	"errors"
 	"fmt"
 
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/domain"
 	"gorm.io/gorm"
 )
@@ -26,6 +28,9 @@ func (p *documentPers) GetDocumentWithPermissions(documentId, userId string) (*d
 		Where("id = ?", documentId).
 		First(&doc).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperrors.ErrDocumentNotFound
+		}
 		return nil, err
 	}
 	return &doc, nil
@@ -56,12 +61,15 @@ func (p *documentPers) GetDocumentByIdOrSlugWithUserPermissions(spaceId string, 
 
 	err := query.First(&doc).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperrors.ErrDocumentNotFound
+		}
 		return nil, err
 	}
 
 	// Verify if the user has at least viewer permissions
 	if !doc.HasPermission(userId, domain.PermissionRoleViewer) {
-		return nil, fmt.Errorf("access denied: insufficient permissions")
+		return nil, apperrors.ErrAccessDenied
 	}
 
 	return &doc, nil
@@ -139,7 +147,7 @@ func (p *documentPers) Create(document *domain.Document, userId string) error {
 
 		// Check if the user can edit the parent document
 		if !parentDoc.HasPermission(userId, domain.PermissionRoleEditor) {
-			return fmt.Errorf("access denied: insufficient permissions to create document in parent")
+			return apperrors.ErrAccessDenied
 		}
 	} else {
 		// If it's a root document, check permissions on the space
@@ -155,7 +163,7 @@ func (p *documentPers) Create(document *domain.Document, userId string) error {
 
 		// Check if the user can edit in the space
 		if !space.HasPermission(userId, domain.PermissionRoleEditor) {
-			return fmt.Errorf("access denied: insufficient permissions to create document in space")
+			return apperrors.ErrAccessDenied
 		}
 	}
 
@@ -179,7 +187,7 @@ func (p *documentPers) Update(document *domain.Document, userId string) error {
 
 	// Check if the user can edit the document
 	if !existingDoc.HasPermission(userId, domain.PermissionRoleEditor) {
-		return fmt.Errorf("access denied: insufficient permissions to update document")
+		return apperrors.ErrAccessDenied
 	}
 
 	// Perform the update
@@ -195,7 +203,7 @@ func (p *documentPers) Delete(documentId, userId string) error {
 
 	// Check if the user can edit/delete the document
 	if !existingDoc.HasPermission(userId, domain.PermissionRoleEditor) {
-		return fmt.Errorf("access denied: insufficient permissions to delete document")
+		return apperrors.ErrAccessDenied
 	}
 
 	// Prevent delete if there are active children
@@ -223,12 +231,12 @@ func (p *documentPers) Move(documentId string, newParentId *string, userId strin
 	}
 
 	if !doc.HasPermission(userId, domain.PermissionRoleEditor) {
-		return nil, fmt.Errorf("access denied: insufficient permissions to move document")
+		return nil, apperrors.ErrAccessDenied
 	}
 
 	// Prevent self-parenting
 	if newParentId != nil && *newParentId == documentId {
-		return nil, fmt.Errorf("invalid move: cannot set document as its own parent")
+		return nil, apperrors.ErrInvalidMove
 	}
 
 	// If moving under a parent, check permissions on parent and same space
@@ -238,10 +246,10 @@ func (p *documentPers) Move(documentId string, newParentId *string, userId strin
 			return nil, fmt.Errorf("failed to get parent document: %w", err)
 		}
 		if !parent.HasPermission(userId, domain.PermissionRoleEditor) {
-			return nil, fmt.Errorf("access denied: insufficient permissions on target parent")
+			return nil, apperrors.ErrAccessDenied
 		}
 		if parent.SpaceId != doc.SpaceId {
-			return nil, fmt.Errorf("invalid move: parent must be in the same space")
+			return nil, apperrors.ErrInvalidMove
 		}
 		doc.ParentId = newParentId
 	} else {
@@ -306,12 +314,12 @@ func (p *documentPers) Restore(documentId, userId string) error {
 
 	// Check if user has editor permission on the space
 	if !doc.Space.HasPermission(userId, domain.PermissionRoleEditor) {
-		return fmt.Errorf("access denied: insufficient permissions to restore document")
+		return apperrors.ErrAccessDenied
 	}
 
 	// Check if document is actually deleted
 	if !doc.DeletedAt.Valid {
-		return fmt.Errorf("document is not deleted")
+		return apperrors.ErrDocumentNotDeleted
 	}
 
 	// If document had a parent, check if parent still exists
@@ -337,7 +345,7 @@ func (p *documentPers) SetPublic(documentId string, public bool, userId string) 
 
 	// Check if user has editor permission
 	if !doc.HasPermission(userId, domain.PermissionRoleEditor) {
-		return fmt.Errorf("access denied: insufficient permissions")
+		return apperrors.ErrAccessDenied
 	}
 
 	return p.db.Model(&domain.Document{}).Where("id = ?", documentId).Update("public", public).Error
@@ -361,6 +369,9 @@ func (p *documentPers) GetPublicDocument(spaceId string, id *string, slug *strin
 
 	err := query.First(&doc).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperrors.ErrDocumentNotFound
+		}
 		return nil, err
 	}
 
@@ -457,7 +468,7 @@ func (p *documentPers) Reorder(spaceId string, items []domain.ReorderItem, userI
 		return fmt.Errorf("failed to get space: %w", err)
 	}
 	if !space.HasPermission(userId, domain.PermissionRoleEditor) {
-		return fmt.Errorf("access denied: insufficient permissions to reorder documents")
+		return apperrors.ErrAccessDenied
 	}
 
 	// Update positions in a transaction

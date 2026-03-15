@@ -6,7 +6,7 @@ type UpdateViewInput struct {
 	ViewId        string
 	Name          *string
 	Type          *string
-	Filter        map[string]interface{}
+	Filter        map[string]any
 	Sort          []SortConfig
 	Columns       []string
 	HiddenColumns []string

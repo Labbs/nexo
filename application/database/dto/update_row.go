@@ -4,7 +4,7 @@ type UpdateRowInput struct {
 	UserId        string
 	DatabaseId    string
 	RowId         string
-	Properties    map[string]interface{}
-	Content       map[string]interface{}
+	Properties    map[string]any
+	Content       map[string]any
 	ShowInSidebar *bool
 }

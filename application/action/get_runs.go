@@ -3,6 +3,7 @@ package action
 import (
 	"fmt"
 
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/application/action/dto"
 )
 
@@ -14,7 +15,7 @@ func (app *ActionApplication) GetRuns(input dto.GetRunsInput) (*dto.GetRunsOutpu
 	}
 
 	if action.UserId != input.UserId {
-		return nil, fmt.Errorf("access denied")
+		return nil, apperrors.ErrAccessDenied
 	}
 
 	limit := input.Limit

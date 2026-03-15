@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gosimple/slug"
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/application/document/dto"
 	"github.com/labbs/nexo/domain"
 	"github.com/labbs/nexo/infrastructure/helpers/shortuuid"
@@ -20,7 +21,7 @@ func (a *DocumentApplication) UpdateDocument(input dto.UpdateDocumentInput) (*dt
 
 	if !document.HasPermission(input.UserId, domain.PermissionRoleEditor) {
 		logger.Error().Msg("user does not have permission to update document")
-		return nil, fmt.Errorf("user does not have permission to update document")
+		return nil, apperrors.ErrAccessDenied
 	}
 
 	// Update name only if provided

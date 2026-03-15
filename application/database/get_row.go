@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/application/database/dto"
 	spaceDto "github.com/labbs/nexo/application/space/dto"
 )
@@ -14,7 +15,7 @@ func (app *DatabaseApplication) GetRow(input dto.GetRowInput) (*dto.GetRowOutput
 	}
 
 	if row.DatabaseId != input.DatabaseId {
-		return nil, fmt.Errorf("row not found in this database")
+		return nil, apperrors.ErrRowNotFound
 	}
 
 	database, err := app.DatabasePers.GetById(input.DatabaseId)
@@ -29,14 +30,14 @@ func (app *DatabaseApplication) GetRow(input dto.GetRowInput) (*dto.GetRowOutput
 	}
 
 	if spaceResult.Space.GetUserRole(input.UserId) == nil {
-		return nil, fmt.Errorf("access denied")
+		return nil, apperrors.ErrAccessDenied
 	}
 
 	output := &dto.GetRowOutput{
 		Id:            row.Id,
 		DatabaseId:    row.DatabaseId,
-		Properties:    map[string]interface{}(row.Properties),
-		Content:       map[string]interface{}(row.Content),
+		Properties:    map[string]any(row.Properties),
+		Content:       map[string]any(row.Content),
 		ShowInSidebar: row.ShowInSidebar,
 		CreatedBy:     row.CreatedBy,
 		UpdatedBy:     row.UpdatedBy,

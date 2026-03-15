@@ -1,6 +1,9 @@
 package persistence
 
 import (
+	"errors"
+
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/domain"
 	"gorm.io/gorm"
 )
@@ -25,6 +28,9 @@ func (p *databasePers) GetById(id string) (*domain.Database, error) {
 		Where("id = ?", id).
 		First(&database).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperrors.ErrDatabaseNotFound
+		}
 		return nil, err
 	}
 	return &database, nil
@@ -171,6 +177,9 @@ func (p *databaseRowPers) GetById(id string) (*domain.DatabaseRow, error) {
 		Where("id = ?", id).
 		First(&row).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperrors.ErrRowNotFound
+		}
 		return nil, err
 	}
 	return &row, nil
@@ -311,9 +320,9 @@ func (p *databaseRowPers) applyFilterRule(query *gorm.DB, rule domain.FilterRule
 		}
 		return query.Where(propertyPath+" LIKE ? COLLATE NOCASE", "%"+strValue)
 	case "is_empty":
-		return query.Where(propertyPath+" IS NULL OR "+propertyPath+" = ''")
+		return query.Where(propertyPath + " IS NULL OR " + propertyPath + " = ''")
 	case "is_not_empty":
-		return query.Where(propertyPath+" IS NOT NULL AND "+propertyPath+" != ''")
+		return query.Where(propertyPath + " IS NOT NULL AND " + propertyPath + " != ''")
 	default:
 		return query
 	}

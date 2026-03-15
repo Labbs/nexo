@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/application/database/dto"
 	spaceDto "github.com/labbs/nexo/application/space/dto"
 )
@@ -15,7 +16,7 @@ func (app *DatabaseApplication) ListDatabases(input dto.ListDatabasesInput) (*dt
 	}
 
 	if spaceResult.Space.GetUserRole(input.UserId) == nil {
-		return nil, fmt.Errorf("access denied")
+		return nil, apperrors.ErrAccessDenied
 	}
 
 	databases, err := app.DatabasePers.GetBySpaceId(input.SpaceId)

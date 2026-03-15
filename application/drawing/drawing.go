@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/application/drawing/dto"
 	permissionDto "github.com/labbs/nexo/application/permission/dto"
 	"github.com/labbs/nexo/application/ports"
@@ -39,7 +40,7 @@ func (app *DrawingApplication) CreateDrawing(input dto.CreateDrawingInput) (*dto
 	}
 
 	if spaceResult.Space.GetUserRole(input.UserId) == nil {
-		return nil, fmt.Errorf("access denied")
+		return nil, apperrors.ErrAccessDenied
 	}
 
 	// Convert elements to JSONBArray
@@ -124,7 +125,7 @@ func (app *DrawingApplication) ListDrawings(input dto.ListDrawingsInput) (*dto.L
 	}
 
 	if spaceResult.Space.GetUserRole(input.UserId) == nil {
-		return nil, fmt.Errorf("access denied")
+		return nil, apperrors.ErrAccessDenied
 	}
 
 	drawings, err := app.DrawingPers.GetBySpaceId(input.SpaceId)
@@ -165,23 +166,23 @@ func (app *DrawingApplication) GetDrawing(input dto.GetDrawingInput) (*dto.GetDr
 	}
 
 	if spaceResult.Space.GetUserRole(input.UserId) == nil {
-		return nil, fmt.Errorf("access denied")
+		return nil, apperrors.ErrAccessDenied
 	}
 
 	// Convert JSONB to slices/maps
-	var elements []interface{}
+	var elements []any
 	if drawing.Elements != nil {
 		elementsJSON, _ := json.Marshal(drawing.Elements)
 		json.Unmarshal(elementsJSON, &elements)
 	}
 
-	var appState map[string]interface{}
+	var appState map[string]any
 	if drawing.AppState != nil {
 		appStateJSON, _ := json.Marshal(drawing.AppState)
 		json.Unmarshal(appStateJSON, &appState)
 	}
 
-	var files map[string]interface{}
+	var files map[string]any
 	if drawing.Files != nil {
 		filesJSON, _ := json.Marshal(drawing.Files)
 		json.Unmarshal(filesJSON, &files)
@@ -216,7 +217,7 @@ func (app *DrawingApplication) UpdateDrawing(input dto.UpdateDrawingInput) error
 	}
 
 	if spaceResult.Space.GetUserRole(input.UserId) == nil {
-		return fmt.Errorf("access denied")
+		return apperrors.ErrAccessDenied
 	}
 
 	if input.Name != nil {
@@ -283,7 +284,7 @@ func (app *DrawingApplication) MoveDrawing(input dto.MoveDrawingInput) (*dto.Mov
 	}
 
 	if spaceResult.Space.GetUserRole(input.UserId) == nil {
-		return nil, fmt.Errorf("access denied")
+		return nil, apperrors.ErrAccessDenied
 	}
 
 	drawing.DocumentId = input.DocumentId
@@ -312,7 +313,7 @@ func (app *DrawingApplication) DeleteDrawing(input dto.DeleteDrawingInput) error
 	}
 
 	if spaceResult.Space.GetUserRole(input.UserId) == nil {
-		return fmt.Errorf("access denied")
+		return apperrors.ErrAccessDenied
 	}
 
 	if err := app.DrawingPers.Delete(input.DrawingId); err != nil {

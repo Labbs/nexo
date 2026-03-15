@@ -11,7 +11,3 @@ type MoveDocumentResponse struct {
 	ParentId *string `json:"parent_id,omitempty"`
 	SpaceId  string  `json:"space_id"`
 }
-
-
-
-

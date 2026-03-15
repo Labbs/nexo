@@ -1,7 +1,10 @@
 package persistence
 
 import (
+	"errors"
+
 	"github.com/gofiber/fiber/v2/utils"
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/domain"
 	"gorm.io/gorm"
 )
@@ -53,6 +56,9 @@ func (p *permissionPers) GetByResourceAndUser(resourceType domain.PermissionType
 	err := p.db.Where("type = ? AND "+column+" = ? AND user_id = ? AND deleted_at IS NULL", resourceType, resourceId, userId).
 		First(&perm).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperrors.ErrNotFound
+		}
 		return nil, err
 	}
 	return &perm, nil
@@ -68,6 +74,9 @@ func (p *permissionPers) GetByResourceAndGroup(resourceType domain.PermissionTyp
 	err := p.db.Where("type = ? AND "+column+" = ? AND group_id = ? AND deleted_at IS NULL", resourceType, resourceId, groupId).
 		First(&perm).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperrors.ErrNotFound
+		}
 		return nil, err
 	}
 	return &perm, nil

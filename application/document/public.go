@@ -1,8 +1,7 @@
 package document
 
 import (
-	"fmt"
-
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/application/document/dto"
 )
 
@@ -24,7 +23,7 @@ func (c *DocumentApplication) GetPublicDocument(input dto.GetPublicDocumentInput
 	doc, err := c.DocumentPers.GetPublicDocument(input.SpaceId, input.DocumentId, input.Slug)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to get public document")
-		return nil, fmt.Errorf("document not found or not public")
+		return nil, apperrors.ErrDocumentNotFound
 	}
 
 	return &dto.GetPublicDocumentOutput{Document: doc}, nil

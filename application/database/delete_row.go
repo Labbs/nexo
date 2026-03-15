@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/application/database/dto"
 	spaceDto "github.com/labbs/nexo/application/space/dto"
 )
@@ -14,7 +15,7 @@ func (app *DatabaseApplication) DeleteRow(input dto.DeleteRowInput) error {
 	}
 
 	if row.DatabaseId != input.DatabaseId {
-		return fmt.Errorf("row not found in this database")
+		return apperrors.ErrRowNotFound
 	}
 
 	database, err := app.DatabasePers.GetById(input.DatabaseId)
@@ -29,7 +30,7 @@ func (app *DatabaseApplication) DeleteRow(input dto.DeleteRowInput) error {
 	}
 
 	if spaceResult.Space.GetUserRole(input.UserId) == nil {
-		return fmt.Errorf("access denied")
+		return apperrors.ErrAccessDenied
 	}
 
 	if err := app.DatabaseRowPers.Delete(input.RowId); err != nil {

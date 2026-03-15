@@ -17,8 +17,8 @@ type Favorite struct {
 
 // FavoriteDocument contains minimal document info for favorites list
 type FavoriteDocument struct {
-	Id     string
-	Name   string
-	Slug   string
-	Icon   string
+	Id   string
+	Name string
+	Slug string
+	Icon string
 }

@@ -3,6 +3,7 @@ package permission
 import (
 	"fmt"
 
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	spaceDto "github.com/labbs/nexo/application/space/dto"
 	"github.com/labbs/nexo/domain"
 )
@@ -17,7 +18,7 @@ func (app *PermissionApplication) DeleteSpaceGroupPermission(input spaceDto.Dele
 
 	role := space.Space.GetUserRole(input.RequesterId)
 	if role == nil || (*role != "owner" && *role != "admin") {
-		return fmt.Errorf("forbidden")
+		return apperrors.ErrForbidden
 	}
 
 	return app.PermissionPers.DeleteGroup(domain.PermissionTypeSpace, input.SpaceId, input.GroupId)

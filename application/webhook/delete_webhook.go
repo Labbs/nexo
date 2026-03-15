@@ -3,6 +3,7 @@ package webhook
 import (
 	"fmt"
 
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/application/webhook/dto"
 )
 
@@ -13,7 +14,7 @@ func (app *WebhookApplication) DeleteWebhook(input dto.DeleteWebhookInput) error
 	}
 
 	if webhook.UserId != input.UserId {
-		return fmt.Errorf("access denied")
+		return apperrors.ErrAccessDenied
 	}
 
 	if err := app.WebhookPers.Delete(input.WebhookId); err != nil {

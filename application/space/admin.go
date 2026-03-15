@@ -81,4 +81,3 @@ func (c *SpaceApplication) AdminDeleteSpace(spaceId string) error {
 
 	return nil
 }
-
