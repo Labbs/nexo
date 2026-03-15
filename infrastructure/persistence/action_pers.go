@@ -1,8 +1,10 @@
 package persistence
 
 import (
+	"errors"
 	"time"
 
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/domain"
 	"gorm.io/gorm"
 )
@@ -27,6 +29,9 @@ func (p *actionPers) GetById(id string) (*domain.Action, error) {
 		Where("id = ?", id).
 		First(&action).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperrors.ErrActionNotFound
+		}
 		return nil, err
 	}
 	return &action, nil
@@ -75,7 +80,7 @@ func (p *actionPers) Delete(id string) error {
 func (p *actionPers) IncrementSuccess(id string) error {
 	return p.db.Model(&domain.Action{}).
 		Where("id = ?", id).
-		Updates(map[string]interface{}{
+		Updates(map[string]any{
 			"success_count": gorm.Expr("success_count + 1"),
 			"run_count":     gorm.Expr("run_count + 1"),
 			"last_error":    "",
@@ -85,7 +90,7 @@ func (p *actionPers) IncrementSuccess(id string) error {
 func (p *actionPers) RecordFailure(id string, errorMsg string) error {
 	return p.db.Model(&domain.Action{}).
 		Where("id = ?", id).
-		Updates(map[string]interface{}{
+		Updates(map[string]any{
 			"failure_count": gorm.Expr("failure_count + 1"),
 			"run_count":     gorm.Expr("run_count + 1"),
 			"last_error":    errorMsg,

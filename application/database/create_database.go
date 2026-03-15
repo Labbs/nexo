@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/application/database/dto"
 	permissionDto "github.com/labbs/nexo/application/permission/dto"
 	spaceDto "github.com/labbs/nexo/application/space/dto"
@@ -20,7 +21,7 @@ func (app *DatabaseApplication) CreateDatabase(input dto.CreateDatabaseInput) (*
 	}
 
 	if spaceResult.Space.GetUserRole(input.UserId) == nil {
-		return nil, fmt.Errorf("access denied")
+		return nil, apperrors.ErrAccessDenied
 	}
 
 	// Determine database type (default to spreadsheet)

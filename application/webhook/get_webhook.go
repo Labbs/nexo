@@ -3,6 +3,7 @@ package webhook
 import (
 	"fmt"
 
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/application/webhook/dto"
 )
 
@@ -13,12 +14,12 @@ func (app *WebhookApplication) GetWebhook(input dto.GetWebhookInput) (*dto.GetWe
 	}
 
 	if webhook.UserId != input.UserId {
-		return nil, fmt.Errorf("access denied")
+		return nil, apperrors.ErrAccessDenied
 	}
 
 	var events []string
 	if webhook.Events != nil {
-		if e, ok := webhook.Events["events"].([]interface{}); ok {
+		if e, ok := webhook.Events["events"].([]any); ok {
 			for _, ev := range e {
 				if str, ok := ev.(string); ok {
 					events = append(events, str)

@@ -137,7 +137,7 @@ func (r *DatabaseRow) TableName() string {
 type FilterRule struct {
 	Property  string      `json:"property"`
 	Condition string      `json:"condition"` // eq, neq, gt, lt, gte, lte, contains, is_empty, is_not_empty
-	Value     interface{} `json:"value,omitempty"`
+	Value     any `json:"value,omitempty"`
 }
 
 // FilterConfig defines the filter configuration with AND/OR groups

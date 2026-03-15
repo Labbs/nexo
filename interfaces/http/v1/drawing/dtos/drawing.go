@@ -5,14 +5,14 @@ import "time"
 // Request DTOs
 
 type CreateDrawingRequest struct {
-	SpaceId    string                 `json:"space_id"`
-	DocumentId *string                `json:"document_id,omitempty"`
-	Name       string                 `json:"name"`
-	Icon       string                 `json:"icon,omitempty"`
-	Elements   []interface{}          `json:"elements,omitempty"`
-	AppState   map[string]interface{} `json:"app_state,omitempty"`
-	Files      map[string]interface{} `json:"files,omitempty"`
-	Thumbnail  string                 `json:"thumbnail,omitempty"`
+	SpaceId    string         `json:"space_id"`
+	DocumentId *string        `json:"document_id,omitempty"`
+	Name       string         `json:"name"`
+	Icon       string         `json:"icon,omitempty"`
+	Elements   []any          `json:"elements,omitempty"`
+	AppState   map[string]any `json:"app_state,omitempty"`
+	Files      map[string]any `json:"files,omitempty"`
+	Thumbnail  string         `json:"thumbnail,omitempty"`
 }
 
 type ListDrawingsRequest struct {
@@ -24,13 +24,13 @@ type GetDrawingRequest struct {
 }
 
 type UpdateDrawingRequest struct {
-	DrawingId string                 `path:"drawing_id"`
-	Name      *string                `json:"name,omitempty"`
-	Icon      *string                `json:"icon,omitempty"`
-	Elements  []interface{}          `json:"elements,omitempty"`
-	AppState  map[string]interface{} `json:"app_state,omitempty"`
-	Files     map[string]interface{} `json:"files,omitempty"`
-	Thumbnail *string                `json:"thumbnail,omitempty"`
+	DrawingId string         `path:"drawing_id"`
+	Name      *string        `json:"name,omitempty"`
+	Icon      *string        `json:"icon,omitempty"`
+	Elements  []any          `json:"elements,omitempty"`
+	AppState  map[string]any `json:"app_state,omitempty"`
+	Files     map[string]any `json:"files,omitempty"`
+	Thumbnail *string        `json:"thumbnail,omitempty"`
 }
 
 type DeleteDrawingRequest struct {
@@ -76,16 +76,16 @@ type ListDrawingsResponse struct {
 }
 
 type GetDrawingResponse struct {
-	Id         string                 `json:"id"`
-	SpaceId    string                 `json:"space_id"`
-	DocumentId *string                `json:"document_id,omitempty"`
-	Name       string                 `json:"name"`
-	Icon       string                 `json:"icon,omitempty"`
-	Elements   []interface{}          `json:"elements"`
-	AppState   map[string]interface{} `json:"app_state"`
-	Files      map[string]interface{} `json:"files"`
-	Thumbnail  string                 `json:"thumbnail,omitempty"`
-	CreatedBy  string                 `json:"created_by"`
-	CreatedAt  time.Time              `json:"created_at"`
-	UpdatedAt  time.Time              `json:"updated_at"`
+	Id         string         `json:"id"`
+	SpaceId    string         `json:"space_id"`
+	DocumentId *string        `json:"document_id,omitempty"`
+	Name       string         `json:"name"`
+	Icon       string         `json:"icon,omitempty"`
+	Elements   []any          `json:"elements"`
+	AppState   map[string]any `json:"app_state"`
+	Files      map[string]any `json:"files"`
+	Thumbnail  string         `json:"thumbnail,omitempty"`
+	CreatedBy  string         `json:"created_by"`
+	CreatedAt  time.Time      `json:"created_at"`
+	UpdatedAt  time.Time      `json:"updated_at"`
 }

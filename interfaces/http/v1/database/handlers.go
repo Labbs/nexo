@@ -1,10 +1,11 @@
 package database
 
 import (
-	"strings"
+	"errors"
 
 	"github.com/gofiber/fiber/v2"
 	fiberoapi "github.com/labbs/fiber-oapi"
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	databaseDto "github.com/labbs/nexo/application/database/dto"
 	"github.com/labbs/nexo/interfaces/http/v1/database/dtos"
 )
@@ -49,7 +50,7 @@ func (ctrl *Controller) CreateDatabase(ctx *fiber.Ctx, req dtos.CreateDatabaseRe
 		Type:        req.Type,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
 		logger.Error().Err(err).Msg("failed to create database")
@@ -97,7 +98,7 @@ func (ctrl *Controller) ListDatabases(ctx *fiber.Ctx, req dtos.ListDatabasesRequ
 		SpaceId: req.SpaceId,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
 		logger.Error().Err(err).Msg("failed to list databases")
@@ -138,10 +139,10 @@ func (ctrl *Controller) GetDatabase(ctx *fiber.Ctx, req dtos.GetDatabaseRequest)
 		DatabaseId: req.DatabaseId,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, apperrors.ErrNotFound) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Database not found", Type: "NOT_FOUND"}
 		}
 		logger.Error().Err(err).Msg("failed to get database")
@@ -229,10 +230,10 @@ func (ctrl *Controller) UpdateDatabase(ctx *fiber.Ctx, req dtos.UpdateDatabaseRe
 		DefaultView: req.DefaultView,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, apperrors.ErrNotFound) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Database not found", Type: "NOT_FOUND"}
 		}
 		logger.Error().Err(err).Msg("failed to update database")
@@ -257,10 +258,10 @@ func (ctrl *Controller) DeleteDatabase(ctx *fiber.Ctx, req dtos.DeleteDatabaseRe
 		DatabaseId: req.DatabaseId,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, apperrors.ErrNotFound) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Database not found", Type: "NOT_FOUND"}
 		}
 		logger.Error().Err(err).Msg("failed to delete database")
@@ -336,10 +337,10 @@ func (ctrl *Controller) CreateView(ctx *fiber.Ctx, req dtos.CreateViewRequest) (
 		Columns:    req.Columns,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, apperrors.ErrNotFound) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Database not found", Type: "NOT_FOUND"}
 		}
 		logger.Error().Err(err).Msg("failed to create view")
@@ -399,10 +400,10 @@ func (ctrl *Controller) UpdateView(ctx *fiber.Ctx, req dtos.UpdateViewRequest) (
 		GroupBy:       req.GroupBy,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, apperrors.ErrNotFound) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "View not found", Type: "NOT_FOUND"}
 		}
 		logger.Error().Err(err).Msg("failed to update view")
@@ -428,13 +429,13 @@ func (ctrl *Controller) DeleteView(ctx *fiber.Ctx, req dtos.DeleteViewRequest) (
 		ViewId:     req.ViewId,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, apperrors.ErrNotFound) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "View not found", Type: "NOT_FOUND"}
 		}
-		if strings.Contains(err.Error(), "cannot delete last view") {
+		if errors.Is(err, apperrors.ErrConflict) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusBadRequest, Details: "Cannot delete the last view", Type: "BAD_REQUEST"}
 		}
 		logger.Error().Err(err).Msg("failed to delete view")
@@ -464,10 +465,10 @@ func (ctrl *Controller) CreateRow(ctx *fiber.Ctx, req dtos.CreateRowRequest) (*d
 		ShowInSidebar: req.ShowInSidebar,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, apperrors.ErrNotFound) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Database not found", Type: "NOT_FOUND"}
 		}
 		logger.Error().Err(err).Msg("failed to create row")
@@ -499,10 +500,10 @@ func (ctrl *Controller) ListRows(ctx *fiber.Ctx, req dtos.ListRowsRequest) (*dto
 		Offset:     req.Offset,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, apperrors.ErrNotFound) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Database not found", Type: "NOT_FOUND"}
 		}
 		logger.Error().Err(err).Msg("failed to list rows")
@@ -560,10 +561,10 @@ func (ctrl *Controller) GetRow(ctx *fiber.Ctx, req dtos.GetRowRequest) (*dtos.Ge
 		RowId:      req.RowId,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, apperrors.ErrNotFound) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Row not found", Type: "NOT_FOUND"}
 		}
 		logger.Error().Err(err).Msg("failed to get row")
@@ -617,10 +618,10 @@ func (ctrl *Controller) UpdateRow(ctx *fiber.Ctx, req dtos.UpdateRowRequest) (*d
 		ShowInSidebar: req.ShowInSidebar,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, apperrors.ErrNotFound) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Row not found", Type: "NOT_FOUND"}
 		}
 		logger.Error().Err(err).Msg("failed to update row")
@@ -646,10 +647,10 @@ func (ctrl *Controller) DeleteRow(ctx *fiber.Ctx, req dtos.DeleteRowRequest) (*d
 		RowId:      req.RowId,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, apperrors.ErrNotFound) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Row not found", Type: "NOT_FOUND"}
 		}
 		logger.Error().Err(err).Msg("failed to delete row")
@@ -675,10 +676,10 @@ func (ctrl *Controller) MoveDatabase(ctx *fiber.Ctx, req dtos.MoveDatabaseReques
 		DocumentId: req.DocumentId,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, apperrors.ErrNotFound) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Database not found", Type: "NOT_FOUND"}
 		}
 		logger.Error().Err(err).Msg("failed to move database")
@@ -711,10 +712,10 @@ func (ctrl *Controller) BulkDeleteRows(ctx *fiber.Ctx, req dtos.BulkDeleteRowsRe
 		RowIds:     req.RowIds,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, apperrors.ErrNotFound) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Database not found", Type: "NOT_FOUND"}
 		}
 		logger.Error().Err(err).Msg("failed to delete rows")

@@ -1,7 +1,10 @@
 package persistence
 
 import (
+	"errors"
+
 	"github.com/google/uuid"
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/domain"
 	"gorm.io/gorm"
 )
@@ -25,6 +28,9 @@ func (g *groupPers) GetById(groupId string) (*domain.Group, error) {
 	var group domain.Group
 	err := g.db.Preload("Members").Preload("OwnerUser").Where("id = ?", groupId).First(&group).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperrors.ErrNotFound
+		}
 		return nil, err
 	}
 	return &group, nil
@@ -50,7 +56,7 @@ func (g *groupPers) GetAll(limit, offset int) ([]domain.Group, int64, error) {
 }
 
 func (g *groupPers) Update(group *domain.Group) error {
-	return g.db.Model(group).Updates(map[string]interface{}{
+	return g.db.Model(group).Updates(map[string]any{
 		"name":        group.Name,
 		"description": group.Description,
 		"role":        group.Role,

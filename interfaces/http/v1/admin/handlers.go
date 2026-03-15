@@ -288,7 +288,7 @@ func (ctrl *Controller) ListAllApiKeys(ctx *fiber.Ctx, req dtos.ListAllApiKeysRe
 		// Extract permissions as string array
 		var permissions []string
 		if k.Permissions != nil {
-			if scopes, ok := k.Permissions["scopes"].([]interface{}); ok {
+			if scopes, ok := k.Permissions["scopes"].([]any); ok {
 				for _, s := range scopes {
 					if str, ok := s.(string); ok {
 						permissions = append(permissions, str)

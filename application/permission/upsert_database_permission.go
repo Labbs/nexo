@@ -3,6 +3,7 @@ package permission
 import (
 	"fmt"
 
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	databaseDto "github.com/labbs/nexo/application/database/dto"
 	spaceDto "github.com/labbs/nexo/application/space/dto"
 	"github.com/labbs/nexo/domain"
@@ -25,7 +26,7 @@ func (app *PermissionApplication) UpsertDatabasePermission(input databaseDto.Ups
 
 	spaceRole := spaceResult.Space.GetUserRole(input.UserId)
 	if spaceRole == nil {
-		return fmt.Errorf("access denied")
+		return apperrors.ErrAccessDenied
 	}
 
 	// Only creator or space admin/owner can manage permissions

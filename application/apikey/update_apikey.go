@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/application/apikey/dto"
 	"github.com/labbs/nexo/domain"
 )
@@ -16,7 +17,7 @@ func (app *ApiKeyApplication) UpdateApiKey(input dto.UpdateApiKeyInput) error {
 
 	// Verify ownership
 	if apiKey.UserId != input.UserId {
-		return fmt.Errorf("access denied")
+		return apperrors.ErrAccessDenied
 	}
 
 	if input.Name != nil {

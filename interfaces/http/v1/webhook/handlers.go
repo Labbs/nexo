@@ -1,10 +1,11 @@
 package webhook
 
 import (
-	"strings"
+	"errors"
 
 	"github.com/gofiber/fiber/v2"
 	fiberoapi "github.com/labbs/fiber-oapi"
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	webhookDto "github.com/labbs/nexo/application/webhook/dto"
 	"github.com/labbs/nexo/interfaces/http/v1/webhook/dtos"
 )
@@ -107,10 +108,10 @@ func (ctrl *Controller) GetWebhook(ctx *fiber.Ctx, req dtos.GetWebhookRequest) (
 		WebhookId: req.WebhookId,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, apperrors.ErrNotFound) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Webhook not found", Type: "NOT_FOUND"}
 		}
 		logger.Error().Err(err).Msg("failed to get webhook")
@@ -154,10 +155,10 @@ func (ctrl *Controller) UpdateWebhook(ctx *fiber.Ctx, req dtos.UpdateWebhookRequ
 		Active:    req.Active,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, apperrors.ErrNotFound) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Webhook not found", Type: "NOT_FOUND"}
 		}
 		logger.Error().Err(err).Msg("failed to update webhook")
@@ -182,10 +183,10 @@ func (ctrl *Controller) DeleteWebhook(ctx *fiber.Ctx, req dtos.DeleteWebhookRequ
 		WebhookId: req.WebhookId,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, apperrors.ErrNotFound) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Webhook not found", Type: "NOT_FOUND"}
 		}
 		logger.Error().Err(err).Msg("failed to delete webhook")
@@ -216,10 +217,10 @@ func (ctrl *Controller) GetDeliveries(ctx *fiber.Ctx, req dtos.GetDeliveriesRequ
 		Limit:     limit,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, apperrors.ErrNotFound) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Webhook not found", Type: "NOT_FOUND"}
 		}
 		logger.Error().Err(err).Msg("failed to get deliveries")

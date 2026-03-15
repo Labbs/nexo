@@ -5,7 +5,7 @@ type CreateViewInput struct {
 	DatabaseId string
 	Name       string
 	Type       string
-	Filter     map[string]interface{}
+	Filter     map[string]any
 	Sort       []SortConfig
 	Columns    []string
 }
@@ -14,7 +14,7 @@ type CreateViewOutput struct {
 	Id      string
 	Name    string
 	Type    string
-	Filter  map[string]interface{}
+	Filter  map[string]any
 	Sort    []SortConfig
 	Columns []string
 }

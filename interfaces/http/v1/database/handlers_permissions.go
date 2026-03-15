@@ -1,10 +1,11 @@
 package database
 
 import (
-	"strings"
+	"errors"
 
 	"github.com/gofiber/fiber/v2"
 	fiberoapi "github.com/labbs/fiber-oapi"
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	databaseDto "github.com/labbs/nexo/application/database/dto"
 	"github.com/labbs/nexo/interfaces/http/v1/database/dtos"
 )
@@ -24,14 +25,15 @@ func (ctrl *Controller) ListDatabasePermissions(ctx *fiber.Ctx, req dtos.ListDat
 		DatabaseId: req.DatabaseId,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		switch {
+		case errors.Is(err, apperrors.ErrAccessDenied) || errors.Is(err, apperrors.ErrForbidden):
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
-		}
-		if strings.Contains(err.Error(), "not found") {
+		case errors.Is(err, apperrors.ErrNotFound) || errors.Is(err, apperrors.ErrDatabaseNotFound):
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Database not found", Type: "NOT_FOUND"}
+		default:
+			logger.Error().Err(err).Msg("failed to list permissions")
+			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusInternalServerError, Details: "Failed to list permissions", Type: "INTERNAL_SERVER_ERROR"}
 		}
-		logger.Error().Err(err).Msg("failed to list permissions")
-		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusInternalServerError, Details: "Failed to list permissions", Type: "INTERNAL_SERVER_ERROR"}
 	}
 
 	permissions := make([]dtos.DatabasePermissionItem, len(result.Permissions))
@@ -69,17 +71,17 @@ func (ctrl *Controller) UpsertDatabasePermission(ctx *fiber.Ctx, req dtos.Upsert
 		Role:         req.Role,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") || strings.Contains(err.Error(), "only creator") {
-			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: err.Error(), Type: "FORBIDDEN"}
-		}
-		if strings.Contains(err.Error(), "not found") {
+		switch {
+		case errors.Is(err, apperrors.ErrAccessDenied) || errors.Is(err, apperrors.ErrForbidden):
+			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
+		case errors.Is(err, apperrors.ErrNotFound) || errors.Is(err, apperrors.ErrDatabaseNotFound):
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Database not found", Type: "NOT_FOUND"}
-		}
-		if strings.Contains(err.Error(), "invalid role") || strings.Contains(err.Error(), "must provide") {
+		case errors.Is(err, apperrors.ErrInvalidInput):
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusBadRequest, Details: err.Error(), Type: "BAD_REQUEST"}
+		default:
+			logger.Error().Err(err).Msg("failed to upsert permission")
+			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusInternalServerError, Details: "Failed to upsert permission", Type: "INTERNAL_SERVER_ERROR"}
 		}
-		logger.Error().Err(err).Msg("failed to upsert permission")
-		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusInternalServerError, Details: "Failed to upsert permission", Type: "INTERNAL_SERVER_ERROR"}
 	}
 
 	return &dtos.UpsertDatabasePermissionResponse{
@@ -104,17 +106,17 @@ func (ctrl *Controller) DeleteDatabasePermission(ctx *fiber.Ctx, req dtos.Delete
 		GroupId:      req.GroupId,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") || strings.Contains(err.Error(), "only creator") {
-			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: err.Error(), Type: "FORBIDDEN"}
-		}
-		if strings.Contains(err.Error(), "not found") {
+		switch {
+		case errors.Is(err, apperrors.ErrAccessDenied) || errors.Is(err, apperrors.ErrForbidden):
+			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
+		case errors.Is(err, apperrors.ErrNotFound) || errors.Is(err, apperrors.ErrDatabaseNotFound):
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Database not found", Type: "NOT_FOUND"}
-		}
-		if strings.Contains(err.Error(), "must provide") {
+		case errors.Is(err, apperrors.ErrInvalidInput):
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusBadRequest, Details: err.Error(), Type: "BAD_REQUEST"}
+		default:
+			logger.Error().Err(err).Msg("failed to delete permission")
+			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusInternalServerError, Details: "Failed to delete permission", Type: "INTERNAL_SERVER_ERROR"}
 		}
-		logger.Error().Err(err).Msg("failed to delete permission")
-		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusInternalServerError, Details: "Failed to delete permission", Type: "INTERNAL_SERVER_ERROR"}
 	}
 
 	return &dtos.DeleteDatabasePermissionResponse{

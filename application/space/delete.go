@@ -1,8 +1,7 @@
 package space
 
 import (
-	"fmt"
-
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	docDto "github.com/labbs/nexo/application/document/dto"
 	"github.com/labbs/nexo/application/space/dto"
 	"github.com/labbs/nexo/domain"
@@ -13,12 +12,12 @@ func (c *SpaceApplication) DeleteSpace(input dto.DeleteSpaceInput) error {
 
 	space, err := c.SpacePres.GetSpaceById(input.SpaceId)
 	if err != nil || space == nil {
-		return fmt.Errorf("not_found")
+		return apperrors.ErrSpaceNotFound
 	}
 
 	// Only owner can delete (MVP policy)
 	if !space.HasPermission(input.UserId, domain.PermissionRoleOwner) {
-		return fmt.Errorf("forbidden")
+		return apperrors.ErrForbidden
 	}
 
 	// Guard: forbid delete if there are active documents in space (MVP: check root docs)
@@ -27,7 +26,7 @@ func (c *SpaceApplication) DeleteSpace(input dto.DeleteSpaceInput) error {
 		UserId:  input.UserId,
 	})
 	if derr == nil && docResult.HasDocuments {
-		return fmt.Errorf("conflict_children")
+		return apperrors.ErrConflictChildren
 	}
 
 	if err := c.SpacePres.Delete(input.SpaceId); err != nil {

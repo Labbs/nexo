@@ -1,8 +1,10 @@
 package persistence
 
 import (
+	"errors"
 	"time"
 
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/domain"
 	"gorm.io/gorm"
 )
@@ -27,6 +29,9 @@ func (p *webhookPers) GetById(id string) (*domain.Webhook, error) {
 		Where("id = ?", id).
 		First(&webhook).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperrors.ErrWebhookNotFound
+		}
 		return nil, err
 	}
 	return &webhook, nil
@@ -83,7 +88,7 @@ func (p *webhookPers) Delete(id string) error {
 func (p *webhookPers) IncrementSuccess(id string) error {
 	return p.db.Model(&domain.Webhook{}).
 		Where("id = ?", id).
-		Updates(map[string]interface{}{
+		Updates(map[string]any{
 			"success_count": gorm.Expr("success_count + 1"),
 			"last_error":    "",
 			"last_error_at": nil,
@@ -94,7 +99,7 @@ func (p *webhookPers) RecordFailure(id string, errorMsg string) error {
 	now := time.Now()
 	return p.db.Model(&domain.Webhook{}).
 		Where("id = ?", id).
-		Updates(map[string]interface{}{
+		Updates(map[string]any{
 			"failure_count": gorm.Expr("failure_count + 1"),
 			"last_error":    errorMsg,
 			"last_error_at": &now,

@@ -1,8 +1,11 @@
 package space
 
 import (
+	"errors"
+
 	"github.com/gofiber/fiber/v2"
 	fiberoapi "github.com/labbs/fiber-oapi"
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	spaceDto "github.com/labbs/nexo/application/space/dto"
 	"github.com/labbs/nexo/domain"
 	"github.com/labbs/nexo/interfaces/http/v1/space/dtos"
@@ -71,10 +74,10 @@ func (ctrl *Controller) UpdateSpace(ctx *fiber.Ctx, req dtos.UpdateSpaceRequest)
 	})
 	if err != nil {
 		// Permission vs not found vs generic
-		if err.Error() == "forbidden" {
+		if errors.Is(err, apperrors.ErrForbidden) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
-		if err.Error() == "not_found" {
+		if errors.Is(err, apperrors.ErrSpaceNotFound) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Space not found", Type: "SPACE_NOT_FOUND"}
 		}
 		logger.Error().Err(err).Msg("failed to update space")
@@ -107,12 +110,12 @@ func (ctrl *Controller) DeleteSpace(ctx *fiber.Ctx, req dtos.DeleteSpaceRequest)
 		UserId:  authCtx.UserID,
 		SpaceId: req.SpaceId,
 	}); err != nil {
-		switch err.Error() {
-		case "forbidden":
+		switch {
+		case errors.Is(err, apperrors.ErrForbidden):
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
-		case "conflict_children":
+		case errors.Is(err, apperrors.ErrConflictChildren):
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusConflict, Details: "Space has active documents", Type: "CONFLICT"}
-		case "not_found":
+		case errors.Is(err, apperrors.ErrSpaceNotFound):
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Space not found", Type: "SPACE_NOT_FOUND"}
 		default:
 			logger.Error().Err(err).Msg("failed to delete space")
@@ -138,10 +141,10 @@ func (ctrl *Controller) ListPermissions(ctx *fiber.Ctx, req dtos.ListSpacePermis
 		SpaceId: req.SpaceId,
 	})
 	if err != nil {
-		switch err.Error() {
-		case "forbidden":
+		switch {
+		case errors.Is(err, apperrors.ErrForbidden):
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
-		case "not_found":
+		case errors.Is(err, apperrors.ErrSpaceNotFound):
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Space not found", Type: "SPACE_NOT_FOUND"}
 		default:
 			logger.Error().Err(err).Msg("failed to list permissions")
@@ -191,10 +194,10 @@ func (ctrl *Controller) UpsertUserPermission(ctx *fiber.Ctx, req dtos.UpsertSpac
 		TargetUserId: req.UserId,
 		Role:         role,
 	}); err != nil {
-		switch err.Error() {
-		case "forbidden":
+		switch {
+		case errors.Is(err, apperrors.ErrForbidden):
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
-		case "not_found":
+		case errors.Is(err, apperrors.ErrSpaceNotFound):
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Space not found", Type: "SPACE_NOT_FOUND"}
 		default:
 			logger.Error().Err(err).Msg("failed to upsert permission")
@@ -220,10 +223,10 @@ func (ctrl *Controller) DeleteUserPermission(ctx *fiber.Ctx, req dtos.DeleteSpac
 		SpaceId:      req.SpaceId,
 		TargetUserId: req.UserId,
 	}); err != nil {
-		switch err.Error() {
-		case "forbidden":
+		switch {
+		case errors.Is(err, apperrors.ErrForbidden):
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
-		case "not_found":
+		case errors.Is(err, apperrors.ErrSpaceNotFound):
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Space not found", Type: "SPACE_NOT_FOUND"}
 		default:
 			logger.Error().Err(err).Msg("failed to delete permission")

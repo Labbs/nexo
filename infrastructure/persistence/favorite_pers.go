@@ -1,6 +1,9 @@
 package persistence
 
 import (
+	"errors"
+
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/domain"
 	"gorm.io/gorm"
 )
@@ -53,6 +56,9 @@ func (f *favoritePers) GetFavoriteByIdAndUserId(favoriteId, userId string) (*dom
 	var favorite domain.Favorite
 	err := f.db.Where("id = ? AND user_id = ?", favoriteId, userId).First(&favorite).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperrors.ErrFavoriteNotFound
+		}
 		return nil, err
 	}
 	return &favorite, nil

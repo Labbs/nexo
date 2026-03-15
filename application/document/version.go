@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/application/document/dto"
 	"github.com/labbs/nexo/domain"
 )
@@ -101,7 +102,7 @@ func (app *DocumentApplication) RestoreVersion(input dto.RestoreVersionInput) er
 	}
 
 	if !doc.HasPermission(input.UserId, domain.PermissionRoleEditor) {
-		return fmt.Errorf("access denied: insufficient permissions")
+		return apperrors.ErrAccessDenied
 	}
 
 	// Create a new version before restoring (to preserve current state)
@@ -129,7 +130,7 @@ func (app *DocumentApplication) CreateVersion(input dto.CreateVersionInput) (*dt
 	}
 
 	if !doc.HasPermission(input.UserId, domain.PermissionRoleEditor) {
-		return nil, fmt.Errorf("access denied: insufficient permissions")
+		return nil, apperrors.ErrAccessDenied
 	}
 
 	version, err := app.createVersionFromDocument(doc, input.UserId, input.Description)

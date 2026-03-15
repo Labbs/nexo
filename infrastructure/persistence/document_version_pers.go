@@ -1,8 +1,10 @@
 package persistence
 
 import (
+	"errors"
 	"fmt"
 
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/domain"
 	"gorm.io/gorm"
 )
@@ -49,6 +51,9 @@ func (p *documentVersionPers) GetById(versionId string) (*domain.DocumentVersion
 		Where("id = ?", versionId).
 		First(&version).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperrors.ErrVersionNotFound
+		}
 		return nil, err
 	}
 	return &version, nil
@@ -61,7 +66,7 @@ func (p *documentVersionPers) GetLatestVersion(documentId string) (*domain.Docum
 		Order("version DESC").
 		First(&version).Error
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
 		return nil, err

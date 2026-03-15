@@ -3,6 +3,7 @@ package permission
 import (
 	"fmt"
 
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	documentDto "github.com/labbs/nexo/application/document/dto"
 	"github.com/labbs/nexo/domain"
 )
@@ -17,12 +18,12 @@ func (app *PermissionApplication) DeleteDocumentUserPermission(input documentDto
 		UserId:     input.RequesterId,
 	})
 	if err != nil || docResult.Document == nil {
-		return fmt.Errorf("not_found")
+		return apperrors.ErrNotFound
 	}
 
 	// User must be able to manage permissions (owner of document OR admin of space)
 	if !docResult.Document.CanManagePermissions(input.RequesterId) {
-		return fmt.Errorf("forbidden")
+		return apperrors.ErrForbidden
 	}
 
 	// Prevent removing the space owner from documents in personal/private spaces

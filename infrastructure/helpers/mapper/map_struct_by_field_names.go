@@ -7,7 +7,7 @@ import (
 // MapStructByFieldNames maps fields from source struct to destination struct
 // based on matching field names (case sensitive).
 // Both src and dst should be pointers to structs.
-func MapStructByFieldNames(src interface{}, dst interface{}) error {
+func MapStructByFieldNames(src any, dst any) error {
 	srcValue := reflect.ValueOf(src)
 	dstValue := reflect.ValueOf(dst)
 

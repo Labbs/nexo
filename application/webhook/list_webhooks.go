@@ -19,7 +19,7 @@ func (app *WebhookApplication) ListWebhooks(input dto.ListWebhooksInput) (*dto.L
 	for i, w := range webhooks {
 		var events []string
 		if w.Events != nil {
-			if e, ok := w.Events["events"].([]interface{}); ok {
+			if e, ok := w.Events["events"].([]any); ok {
 				for _, ev := range e {
 					if str, ok := ev.(string); ok {
 						events = append(events, str)

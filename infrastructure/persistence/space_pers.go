@@ -1,6 +1,9 @@
 package persistence
 
 import (
+	"errors"
+
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/domain"
 	"gorm.io/gorm"
 )
@@ -48,6 +51,9 @@ func (s *spacePers) GetSpaceById(spaceId string) (*domain.Space, error) {
 		First(&space, "id = ?", spaceId).Error
 
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperrors.ErrSpaceNotFound
+		}
 		return nil, err
 	}
 

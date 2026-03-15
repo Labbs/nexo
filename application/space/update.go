@@ -1,9 +1,8 @@
 package space
 
 import (
-	"fmt"
-
 	"github.com/gosimple/slug"
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/application/space/dto"
 	"github.com/labbs/nexo/domain"
 	"github.com/labbs/nexo/infrastructure/helpers/shortuuid"
@@ -14,12 +13,12 @@ func (c *SpaceApplication) UpdateSpace(input dto.UpdateSpaceInput) (*dto.UpdateS
 
 	space, err := c.SpacePres.GetSpaceById(input.SpaceId)
 	if err != nil || space == nil {
-		return nil, fmt.Errorf("not_found")
+		return nil, apperrors.ErrSpaceNotFound
 	}
 
 	// Require admin to update
 	if !space.HasPermission(input.UserId, domain.PermissionRoleAdmin) {
-		return nil, fmt.Errorf("forbidden")
+		return nil, apperrors.ErrForbidden
 	}
 
 	// Apply updates

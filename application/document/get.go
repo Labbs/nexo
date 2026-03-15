@@ -1,8 +1,7 @@
 package document
 
 import (
-	"fmt"
-
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/application/document/dto"
 	"github.com/labbs/nexo/domain"
 )
@@ -11,7 +10,7 @@ func (a *DocumentApplication) GetDocumentWithSpace(input dto.GetDocumentWithSpac
 	logger := a.Logger.With().Str("component", "application.document.get_document").Logger()
 
 	if input.DocumentId == nil && input.Slug == nil {
-		return nil, fmt.Errorf("either documentId or slug must be provided")
+		return nil, apperrors.ErrInvalidInput
 	}
 
 	document, err := a.DocumentPers.GetDocumentByIdOrSlugWithUserPermissions(input.SpaceId, input.DocumentId, input.Slug, input.UserId)

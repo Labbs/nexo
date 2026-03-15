@@ -3,12 +3,13 @@ package document
 import (
 	"fmt"
 
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/application/document/dto"
 )
 
 func (app *DocumentApplication) Search(input dto.SearchInput) (*dto.SearchOutput, error) {
 	if len(input.Query) < 2 {
-		return nil, fmt.Errorf("query must be at least 2 characters")
+		return nil, apperrors.ErrInvalidInput
 	}
 
 	docs, err := app.DocumentPers.Search(input.Query, input.UserId, input.SpaceId, input.Limit)

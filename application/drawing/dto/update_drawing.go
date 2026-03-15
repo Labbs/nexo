@@ -5,8 +5,8 @@ type UpdateDrawingInput struct {
 	DrawingId string
 	Name      *string
 	Icon      *string
-	Elements  []interface{}
-	AppState  map[string]interface{}
-	Files     map[string]interface{}
+	Elements  []any
+	AppState  map[string]any
+	Files     map[string]any
 	Thumbnail *string
 }

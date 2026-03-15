@@ -1,6 +1,9 @@
 package persistence
 
 import (
+	"errors"
+
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/domain"
 	"gorm.io/gorm"
 )
@@ -25,6 +28,9 @@ func (p *drawingPers) GetById(id string) (*domain.Drawing, error) {
 		Where("id = ?", id).
 		First(&drawing).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperrors.ErrDrawingNotFound
+		}
 		return nil, err
 	}
 	return &drawing, nil

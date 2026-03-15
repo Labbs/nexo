@@ -1,6 +1,9 @@
 package persistence
 
 import (
+	"errors"
+
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/domain"
 	"gorm.io/gorm"
 )
@@ -16,12 +19,18 @@ func NewUserPers(db *gorm.DB) *userPers {
 func (u *userPers) GetByUsername(username string) (domain.User, error) {
 	var user domain.User
 	err := u.db.Debug().Where("username = ?", username).First(&user).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return user, apperrors.ErrUserNotFound
+	}
 	return user, err
 }
 
 func (u *userPers) GetByEmail(email string) (domain.User, error) {
 	var user domain.User
 	err := u.db.Debug().Where("email = ?", email).First(&user).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return user, apperrors.ErrUserNotFound
+	}
 	return user, err
 }
 
@@ -33,11 +42,14 @@ func (u *userPers) Create(user domain.User) (domain.User, error) {
 func (u *userPers) GetById(id string) (domain.User, error) {
 	var user domain.User
 	err := u.db.Debug().Where("id = ?", id).First(&user).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return user, apperrors.ErrUserNotFound
+	}
 	return user, err
 }
 
 func (u *userPers) Update(user *domain.User) error {
-	return u.db.Model(user).Updates(map[string]interface{}{
+	return u.db.Model(user).Updates(map[string]any{
 		"username":    user.Username,
 		"avatar_url":  user.AvatarUrl,
 		"preferences": user.Preferences,

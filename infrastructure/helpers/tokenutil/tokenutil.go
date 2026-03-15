@@ -26,7 +26,7 @@ func CreateAccessToken(user_id, sessionId string, config config.Config) (accessT
 }
 
 func GetSessionIdFromToken(tokenString string, config config.Config) (string, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &JwtCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &JwtCustomClaims{}, func(token *jwt.Token) (any, error) {
 		return []byte(config.Session.SecretKey), nil
 	})
 	if err != nil {

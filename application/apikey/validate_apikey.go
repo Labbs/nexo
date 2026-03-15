@@ -27,7 +27,7 @@ func (app *ApiKeyApplication) ValidateApiKey(input dto.ValidateApiKeyInput) (*dt
 	// Extract scopes
 	var scopes []string
 	if apiKey.Permissions != nil {
-		if s, ok := apiKey.Permissions["scopes"].([]interface{}); ok {
+		if s, ok := apiKey.Permissions["scopes"].([]any); ok {
 			for _, scope := range s {
 				if str, ok := scope.(string); ok {
 					scopes = append(scopes, str)

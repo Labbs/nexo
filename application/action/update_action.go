@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/application/action/dto"
 	"github.com/labbs/nexo/domain"
 )
@@ -16,7 +17,7 @@ func (app *ActionApplication) UpdateAction(input dto.UpdateActionInput) error {
 	}
 
 	if action.UserId != input.UserId {
-		return fmt.Errorf("access denied")
+		return apperrors.ErrAccessDenied
 	}
 
 	if input.Name != nil {

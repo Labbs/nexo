@@ -1,8 +1,7 @@
 package permission
 
 import (
-	"fmt"
-
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	spaceDto "github.com/labbs/nexo/application/space/dto"
 	"github.com/labbs/nexo/domain"
 )
@@ -12,10 +11,10 @@ import (
 func (app *PermissionApplication) ListSpacePermissions(input spaceDto.ListSpacePermissionsInput) (*spaceDto.ListSpacePermissionsOutput, error) {
 	spaceResult, err := app.SpaceApplication.GetSpaceById(spaceDto.GetSpaceByIdInput{SpaceId: input.SpaceId})
 	if err != nil || spaceResult.Space == nil {
-		return nil, fmt.Errorf("not_found")
+		return nil, apperrors.ErrNotFound
 	}
 	if !spaceResult.Space.HasPermission(input.UserId, "admin") {
-		return nil, fmt.Errorf("forbidden")
+		return nil, apperrors.ErrForbidden
 	}
 	permissions, err := app.PermissionPers.ListByResource(domain.PermissionTypeSpace, input.SpaceId)
 	if err != nil {

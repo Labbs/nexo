@@ -1,8 +1,11 @@
 package user
 
 import (
+	"errors"
+
 	"github.com/gofiber/fiber/v2"
 	fiberoapi "github.com/labbs/fiber-oapi"
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	fdto "github.com/labbs/nexo/application/favorite/dto"
 	spaceDto "github.com/labbs/nexo/application/space/dto"
 	userDto "github.com/labbs/nexo/application/user/dto"
@@ -262,7 +265,7 @@ func (ctrl *Controller) UpdateFavoritePosition(ctx *fiber.Ctx, req dtos.UpdateFa
 		Position:   req.Position,
 	})
 	if err != nil {
-		if err.Error() == "not_found" {
+		if errors.Is(err, apperrors.ErrFavoriteNotFound) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Favorite not found", Type: "FAVORITE_NOT_FOUND"}
 		}
 		logger.Error().Err(err).Msg("failed to update favorite position")
@@ -325,7 +328,7 @@ func (ctrl *Controller) ChangePassword(ctx *fiber.Ctx, req dtos.ChangePasswordRe
 		NewPassword:     req.NewPassword,
 	})
 	if err != nil {
-		if err.Error() == "invalid current password" {
+		if errors.Is(err, apperrors.ErrInvalidPassword) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusBadRequest, Details: "Invalid current password", Type: "INVALID_PASSWORD"}
 		}
 		logger.Error().Err(err).Msg("failed to change password")

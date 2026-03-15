@@ -1,10 +1,11 @@
 package drawing
 
 import (
-	"strings"
+	"errors"
 
 	"github.com/gofiber/fiber/v2"
 	fiberoapi "github.com/labbs/fiber-oapi"
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	drawingDto "github.com/labbs/nexo/application/drawing/dto"
 	"github.com/labbs/nexo/interfaces/http/v1/drawing/dtos"
 )
@@ -39,7 +40,7 @@ func (ctrl *Controller) CreateDrawing(ctx *fiber.Ctx, req dtos.CreateDrawingRequ
 		Thumbnail:  req.Thumbnail,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
 		logger.Error().Err(err).Msg("failed to create drawing")
@@ -72,7 +73,7 @@ func (ctrl *Controller) ListDrawings(ctx *fiber.Ctx, req dtos.ListDrawingsReques
 		SpaceId: req.SpaceId,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
 		logger.Error().Err(err).Msg("failed to list drawings")
@@ -111,10 +112,10 @@ func (ctrl *Controller) GetDrawing(ctx *fiber.Ctx, req dtos.GetDrawingRequest) (
 		DrawingId: req.DrawingId,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, apperrors.ErrNotFound) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Drawing not found", Type: "NOT_FOUND"}
 		}
 		logger.Error().Err(err).Msg("failed to get drawing")
@@ -158,10 +159,10 @@ func (ctrl *Controller) UpdateDrawing(ctx *fiber.Ctx, req dtos.UpdateDrawingRequ
 		Thumbnail: req.Thumbnail,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, apperrors.ErrNotFound) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Drawing not found", Type: "NOT_FOUND"}
 		}
 		logger.Error().Err(err).Msg("failed to update drawing")
@@ -186,10 +187,10 @@ func (ctrl *Controller) DeleteDrawing(ctx *fiber.Ctx, req dtos.DeleteDrawingRequ
 		DrawingId: req.DrawingId,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, apperrors.ErrNotFound) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Drawing not found", Type: "NOT_FOUND"}
 		}
 		logger.Error().Err(err).Msg("failed to delete drawing")
@@ -215,10 +216,10 @@ func (ctrl *Controller) MoveDrawing(ctx *fiber.Ctx, req dtos.MoveDrawingRequest)
 		DocumentId: req.DocumentId,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, apperrors.ErrNotFound) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Drawing not found", Type: "NOT_FOUND"}
 		}
 		logger.Error().Err(err).Msg("failed to move drawing")
@@ -248,10 +249,10 @@ func (ctrl *Controller) ListDrawingPermissions(ctx *fiber.Ctx, req dtos.ListDraw
 		DrawingId:   req.DrawingId,
 	})
 	if err != nil {
-		switch err.Error() {
-		case "forbidden":
+		switch {
+		case errors.Is(err, apperrors.ErrForbidden):
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
-		case "not_found":
+		case errors.Is(err, apperrors.ErrNotFound):
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Drawing not found", Type: "NOT_FOUND"}
 		default:
 			logger.Error().Err(err).Msg("failed to list drawing permissions")
@@ -298,10 +299,10 @@ func (ctrl *Controller) UpsertDrawingUserPermission(ctx *fiber.Ctx, req dtos.Ups
 		TargetUserId: req.UserId,
 		Role:         role,
 	}); err != nil {
-		switch err.Error() {
-		case "forbidden":
+		switch {
+		case errors.Is(err, apperrors.ErrForbidden):
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
-		case "not_found":
+		case errors.Is(err, apperrors.ErrNotFound):
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Drawing not found", Type: "NOT_FOUND"}
 		default:
 			logger.Error().Err(err).Msg("failed to upsert drawing permission")
@@ -327,10 +328,10 @@ func (ctrl *Controller) DeleteDrawingUserPermission(ctx *fiber.Ctx, req dtos.Del
 		DrawingId:    req.DrawingId,
 		TargetUserId: req.UserId,
 	}); err != nil {
-		switch err.Error() {
-		case "forbidden":
+		switch {
+		case errors.Is(err, apperrors.ErrForbidden):
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
-		case "not_found":
+		case errors.Is(err, apperrors.ErrNotFound):
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Drawing not found", Type: "NOT_FOUND"}
 		default:
 			logger.Error().Err(err).Msg("failed to delete drawing permission")

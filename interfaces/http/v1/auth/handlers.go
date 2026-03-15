@@ -1,8 +1,11 @@
 package auth
 
 import (
+	"errors"
+
 	"github.com/gofiber/fiber/v2"
 	fiberoapi "github.com/labbs/fiber-oapi"
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	authDto "github.com/labbs/nexo/application/auth/dto"
 	"github.com/labbs/nexo/interfaces/http/v1/auth/dtos"
 )
@@ -18,10 +21,17 @@ func (ctrl Controller) Login(ctx *fiber.Ctx, req dtos.LoginRequest) (*dtos.Login
 	})
 	if err != nil {
 		logger.Error().Err(err).Str("email", req.Email).Msg("failed to authenticate user")
+		if errors.Is(err, apperrors.ErrInvalidCredentials) || errors.Is(err, apperrors.ErrUserNotActive) {
+			return nil, &fiberoapi.ErrorResponse{
+				Code:    fiber.StatusUnauthorized,
+				Details: err.Error(),
+				Type:    "AUTHENTICATION_FAILED",
+			}
+		}
 		return nil, &fiberoapi.ErrorResponse{
-			Code:    fiber.StatusUnauthorized,
-			Details: err.Error(),
-			Type:    "AUTHENTICATION_FAILED",
+			Code:    fiber.StatusInternalServerError,
+			Details: "Authentication failed",
+			Type:    "INTERNAL_SERVER_ERROR",
 		}
 	}
 	return &dtos.LoginResponse{Token: resp.Token}, nil

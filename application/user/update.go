@@ -3,6 +3,7 @@ package user
 import (
 	"fmt"
 
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/application/user/dto"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -13,7 +14,7 @@ func (c *UserApplication) UpdateProfile(input dto.UpdateProfileInput) (*dto.Upda
 	user, err := c.UserPres.GetById(input.UserId)
 	if err != nil {
 		logger.Error().Err(err).Str("user_id", input.UserId).Msg("failed to get user")
-		return nil, fmt.Errorf("user not found")
+		return nil, apperrors.ErrUserNotFound
 	}
 
 	if input.Username != nil {
@@ -41,14 +42,14 @@ func (c *UserApplication) ChangePassword(input dto.ChangePasswordInput) error {
 	user, err := c.UserPres.GetById(input.UserId)
 	if err != nil {
 		logger.Error().Err(err).Str("user_id", input.UserId).Msg("failed to get user")
-		return fmt.Errorf("user not found")
+		return apperrors.ErrUserNotFound
 	}
 
 	// Verify current password
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.CurrentPassword))
 	if err != nil {
 		logger.Warn().Str("user_id", input.UserId).Msg("invalid current password")
-		return fmt.Errorf("invalid current password")
+		return apperrors.ErrInvalidPassword
 	}
 
 	// Hash new password

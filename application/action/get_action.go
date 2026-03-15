@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/application/action/dto"
 )
 
@@ -14,7 +15,7 @@ func (app *ActionApplication) GetAction(input dto.GetActionInput) (*dto.GetActio
 	}
 
 	if action.UserId != input.UserId {
-		return nil, fmt.Errorf("access denied")
+		return nil, apperrors.ErrAccessDenied
 	}
 
 	// Parse steps
@@ -31,7 +32,7 @@ func (app *ActionApplication) GetAction(input dto.GetActionInput) (*dto.GetActio
 		SpaceId:       action.SpaceId,
 		DatabaseId:    action.DatabaseId,
 		TriggerType:   string(action.TriggerType),
-		TriggerConfig: map[string]interface{}(action.TriggerConfig),
+		TriggerConfig: map[string]any(action.TriggerConfig),
 		Steps:         steps,
 		Active:        action.Active,
 		LastRunAt:     action.LastRunAt,

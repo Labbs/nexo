@@ -1,6 +1,9 @@
 package persistence
 
 import (
+	"errors"
+
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/domain"
 	"gorm.io/gorm"
 )
@@ -21,6 +24,9 @@ func (s *sessionPers) GetById(id string) (*domain.Session, error) {
 	var session domain.Session
 	err := s.db.Where("id = ?", id).First(&session).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperrors.ErrNotFound
+		}
 		return nil, err
 	}
 	return &session, nil

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	fiberoapi "github.com/labbs/fiber-oapi"
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/application/session/dto"
 	"github.com/labbs/nexo/infrastructure/helpers/tokenutil"
 )
@@ -15,23 +16,23 @@ func (c *SessionApplication) ValidateToken(input dto.ValidateTokenInput) (*dto.V
 	sessionId, err := tokenutil.GetSessionIdFromToken(input.Token, c.Config)
 	if err != nil {
 		logger.Error().Err(err).Str("token", input.Token).Msg("failed to get session id from token")
-		return nil, fmt.Errorf("invalid token")
+		return nil, apperrors.ErrInvalidToken
 	}
 
 	session, err := c.SessionPers.GetById(sessionId)
 	if err != nil {
 		logger.Error().Err(err).Str("token", input.Token).Msg("failed to get session by token")
-		return nil, fmt.Errorf("invalid token")
+		return nil, apperrors.ErrInvalidToken
 	}
 
 	if session.ExpiresAt.Before(time.Now()) {
 		logger.Warn().Str("token", input.Token).Msg("session has expired")
-		return nil, fmt.Errorf("session has expired")
+		return nil, apperrors.ErrSessionExpired
 	}
 
 	ctx := &fiberoapi.AuthContext{
 		UserID: session.UserId,
-		Claims: map[string]interface{}{
+		Claims: map[string]any{
 			"session_id": session.Id,
 		},
 	}

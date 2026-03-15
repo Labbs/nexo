@@ -1,8 +1,10 @@
 package persistence
 
 import (
+	"errors"
 	"fmt"
 
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/domain"
 	"gorm.io/gorm"
 )
@@ -27,6 +29,9 @@ func (p *commentPers) GetById(commentId string) (*domain.Comment, error) {
 		Where("id = ?", commentId).
 		First(&comment).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperrors.ErrNotFound
+		}
 		return nil, err
 	}
 	return &comment, nil

@@ -1,10 +1,11 @@
 package action
 
 import (
-	"strings"
+	"errors"
 
 	"github.com/gofiber/fiber/v2"
 	fiberoapi "github.com/labbs/fiber-oapi"
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	actionDto "github.com/labbs/nexo/application/action/dto"
 	"github.com/labbs/nexo/interfaces/http/v1/action/dtos"
 )
@@ -121,10 +122,10 @@ func (ctrl *Controller) GetAction(ctx *fiber.Ctx, req dtos.GetActionRequest) (*d
 		ActionId: req.ActionId,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, apperrors.ErrNotFound) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Action not found", Type: "NOT_FOUND"}
 		}
 		logger.Error().Err(err).Msg("failed to get action")
@@ -193,10 +194,10 @@ func (ctrl *Controller) UpdateAction(ctx *fiber.Ctx, req dtos.UpdateActionReques
 		Active:        req.Active,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, apperrors.ErrNotFound) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Action not found", Type: "NOT_FOUND"}
 		}
 		logger.Error().Err(err).Msg("failed to update action")
@@ -221,10 +222,10 @@ func (ctrl *Controller) DeleteAction(ctx *fiber.Ctx, req dtos.DeleteActionReques
 		ActionId: req.ActionId,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, apperrors.ErrNotFound) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Action not found", Type: "NOT_FOUND"}
 		}
 		logger.Error().Err(err).Msg("failed to delete action")
@@ -255,10 +256,10 @@ func (ctrl *Controller) GetRuns(ctx *fiber.Ctx, req dtos.GetRunsRequest) (*dtos.
 		Limit:    limit,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, apperrors.ErrNotFound) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "Action not found", Type: "NOT_FOUND"}
 		}
 		logger.Error().Err(err).Msg("failed to get runs")

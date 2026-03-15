@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/application/database/dto"
 	spaceDto "github.com/labbs/nexo/application/space/dto"
 )
@@ -21,7 +22,7 @@ func (app *DatabaseApplication) MoveDatabase(input dto.MoveDatabaseInput) (*dto.
 	}
 
 	if spaceResult.Space.GetUserRole(input.UserId) == nil {
-		return nil, fmt.Errorf("access denied")
+		return nil, apperrors.ErrAccessDenied
 	}
 
 	database.DocumentId = input.DocumentId

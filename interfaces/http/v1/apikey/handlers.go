@@ -1,10 +1,11 @@
 package apikey
 
 import (
-	"strings"
+	"errors"
 
 	"github.com/gofiber/fiber/v2"
 	fiberoapi "github.com/labbs/fiber-oapi"
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	apikeyDto "github.com/labbs/nexo/application/apikey/dto"
 	"github.com/labbs/nexo/interfaces/http/v1/apikey/dtos"
 )
@@ -100,10 +101,10 @@ func (ctrl *Controller) UpdateApiKey(ctx *fiber.Ctx, req dtos.UpdateApiKeyReques
 		Scopes:   req.Scopes,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, apperrors.ErrNotFound) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "API key not found", Type: "NOT_FOUND"}
 		}
 		logger.Error().Err(err).Msg("failed to update API key")
@@ -128,10 +129,10 @@ func (ctrl *Controller) DeleteApiKey(ctx *fiber.Ctx, req dtos.DeleteApiKeyReques
 		ApiKeyId: req.ApiKeyId,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "access denied") {
+		if errors.Is(err, apperrors.ErrAccessDenied) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Forbidden", Type: "FORBIDDEN"}
 		}
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, apperrors.ErrNotFound) {
 			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusNotFound, Details: "API key not found", Type: "NOT_FOUND"}
 		}
 		logger.Error().Err(err).Msg("failed to delete API key")

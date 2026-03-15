@@ -3,6 +3,7 @@ package permission
 import (
 	"fmt"
 
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	drawingDto "github.com/labbs/nexo/application/drawing/dto"
 	spaceDto "github.com/labbs/nexo/application/space/dto"
 	"github.com/labbs/nexo/domain"
@@ -14,7 +15,7 @@ func (app *PermissionApplication) DeleteDrawingUserPermission(input drawingDto.D
 	// Get the drawing
 	drawingResult, err := app.DrawingApplication.GetDrawingById(drawingDto.GetDrawingByIdInput{DrawingId: input.DrawingId})
 	if err != nil {
-		return fmt.Errorf("not_found")
+		return apperrors.ErrNotFound
 	}
 
 	// Verify user has access to the space
@@ -26,7 +27,7 @@ func (app *PermissionApplication) DeleteDrawingUserPermission(input drawingDto.D
 	// User must be admin/owner of space to manage permissions
 	role := spaceResult.Space.GetUserRole(input.RequesterId)
 	if role == nil || (*role != "owner" && *role != "admin") {
-		return fmt.Errorf("forbidden")
+		return apperrors.ErrForbidden
 	}
 
 	// Prevent removing the space owner in personal/private spaces

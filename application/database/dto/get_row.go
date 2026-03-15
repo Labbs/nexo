@@ -11,8 +11,8 @@ type GetRowInput struct {
 type GetRowOutput struct {
 	Id            string
 	DatabaseId    string
-	Properties    map[string]interface{}
-	Content       map[string]interface{}
+	Properties    map[string]any
+	Content       map[string]any
 	ShowInSidebar bool
 	CreatedBy     string
 	CreatedByUser *UserInfo

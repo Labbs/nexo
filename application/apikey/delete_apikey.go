@@ -3,6 +3,7 @@ package apikey
 import (
 	"fmt"
 
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/application/apikey/dto"
 )
 
@@ -14,7 +15,7 @@ func (app *ApiKeyApplication) DeleteApiKey(input dto.DeleteApiKeyInput) error {
 
 	// Verify ownership
 	if apiKey.UserId != input.UserId {
-		return fmt.Errorf("access denied")
+		return apperrors.ErrAccessDenied
 	}
 
 	if err := app.ApiKeyPers.Delete(input.ApiKeyId); err != nil {

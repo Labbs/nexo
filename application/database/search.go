@@ -3,12 +3,13 @@ package database
 import (
 	"fmt"
 
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/application/database/dto"
 )
 
 func (app *DatabaseApplication) Search(input dto.SearchDatabasesInput) (*dto.SearchDatabasesOutput, error) {
 	if len(input.Query) < 2 {
-		return nil, fmt.Errorf("query must be at least 2 characters")
+		return nil, apperrors.ErrInvalidInput
 	}
 
 	databases, err := app.DatabasePers.Search(input.Query, input.UserId, input.SpaceId, input.Limit)

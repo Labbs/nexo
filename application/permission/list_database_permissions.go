@@ -3,6 +3,7 @@ package permission
 import (
 	"fmt"
 
+	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	databaseDto "github.com/labbs/nexo/application/database/dto"
 	spaceDto "github.com/labbs/nexo/application/space/dto"
 	"github.com/labbs/nexo/domain"
@@ -23,7 +24,7 @@ func (app *PermissionApplication) ListDatabasePermissions(input databaseDto.List
 	}
 
 	if spaceResult.Space.GetUserRole(input.UserId) == nil {
-		return nil, fmt.Errorf("access denied")
+		return nil, apperrors.ErrAccessDenied
 	}
 
 	perms, err := app.PermissionPers.ListByResource(domain.PermissionTypeDatabase, input.DatabaseId)
