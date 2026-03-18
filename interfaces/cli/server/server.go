@@ -141,6 +141,9 @@ func runServer(cfg config.Config) error {
 	deps.PermissionApplication.DocumentApplication = deps.DocumentApplication
 	deps.PermissionApplication.DatabaseApplication = deps.DatabaseApplication
 	deps.SessionApplication.UserApplication = deps.UserApplication
+	deps.SessionApplication.SpaceApplication = deps.SpaceApplication
+	deps.SessionApplication.DatabaseApplication = deps.DatabaseApplication
+	deps.SessionApplication.DrawingApplication = deps.DrawingApplication
 
 	// Initialize HTTP server (fiber + fiberoapi)
 	deps.Http, err = http.Configure(deps.Config, deps.Logger, deps.SessionApplication, true)

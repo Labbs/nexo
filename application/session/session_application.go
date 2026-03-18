@@ -8,10 +8,13 @@ import (
 )
 
 type SessionApplication struct {
-	Config          config.Config
-	Logger          zerolog.Logger
-	SessionPers     domain.SessionPers
-	UserApplication ports.UserPort
+	Config              config.Config
+	Logger              zerolog.Logger
+	SessionPers         domain.SessionPers
+	UserApplication     ports.UserPort
+	SpaceApplication    ports.SpacePort
+	DatabaseApplication ports.DatabasePort
+	DrawingApplication  ports.DrawingPort
 }
 
 func NewSessionApplication(config config.Config, logger zerolog.Logger, sessionPers domain.SessionPers) *SessionApplication {

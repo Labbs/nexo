@@ -8,47 +8,11 @@ import (
 	"github.com/labbs/nexo/interfaces/http/v1/admin/dtos"
 )
 
-// checkAdmin verifies the user has admin role
-func (ctrl *Controller) checkAdmin(ctx *fiber.Ctx) (*fiberoapi.AuthContext, *fiberoapi.ErrorResponse) {
-	authCtx, err := fiberoapi.GetAuthContext(ctx)
-	if err != nil {
-		return nil, &fiberoapi.ErrorResponse{
-			Code:    fiber.StatusUnauthorized,
-			Details: "Authentication required",
-			Type:    "AUTHENTICATION_REQUIRED",
-		}
-	}
-
-	// Get user to check role
-	user, err := ctrl.UserApplication.GetByUserId(struct{ UserId string }{UserId: authCtx.UserID})
-	if err != nil {
-		return nil, &fiberoapi.ErrorResponse{
-			Code:    fiber.StatusInternalServerError,
-			Details: "Failed to retrieve user",
-			Type:    "INTERNAL_SERVER_ERROR",
-		}
-	}
-
-	if user.User.Role != domain.RoleAdmin {
-		return nil, &fiberoapi.ErrorResponse{
-			Code:    fiber.StatusForbidden,
-			Details: "Admin access required",
-			Type:    "FORBIDDEN",
-		}
-	}
-
-	return authCtx, nil
-}
-
 // Users
 
 func (ctrl *Controller) ListUsers(ctx *fiber.Ctx, req dtos.ListUsersRequest) (*dtos.ListUsersResponse, *fiberoapi.ErrorResponse) {
 	requestId := ctx.Locals("requestid").(string)
 	logger := ctrl.Logger.With().Str("request_id", requestId).Str("component", "http.api.v1.admin.list_users").Logger()
-
-	if _, errResp := ctrl.checkAdmin(ctx); errResp != nil {
-		return nil, errResp
-	}
 
 	// Default pagination
 	limit := req.Limit
@@ -91,10 +55,7 @@ func (ctrl *Controller) UpdateUserRole(ctx *fiber.Ctx, req dtos.UpdateUserRoleRe
 	requestId := ctx.Locals("requestid").(string)
 	logger := ctrl.Logger.With().Str("request_id", requestId).Str("component", "http.api.v1.admin.update_user_role").Logger()
 
-	authCtx, errResp := ctrl.checkAdmin(ctx)
-	if errResp != nil {
-		return nil, errResp
-	}
+	authCtx, _ := fiberoapi.GetAuthContext(ctx)
 
 	// Prevent admin from changing their own role
 	if req.UserId == authCtx.UserID {
@@ -125,10 +86,7 @@ func (ctrl *Controller) UpdateUserActive(ctx *fiber.Ctx, req dtos.UpdateUserActi
 	requestId := ctx.Locals("requestid").(string)
 	logger := ctrl.Logger.With().Str("request_id", requestId).Str("component", "http.api.v1.admin.update_user_active").Logger()
 
-	authCtx, errResp := ctrl.checkAdmin(ctx)
-	if errResp != nil {
-		return nil, errResp
-	}
+	authCtx, _ := fiberoapi.GetAuthContext(ctx)
 
 	// Prevent admin from deactivating themselves
 	if req.UserId == authCtx.UserID {
@@ -158,10 +116,7 @@ func (ctrl *Controller) DeleteUser(ctx *fiber.Ctx, req dtos.DeleteUserRequest) (
 	requestId := ctx.Locals("requestid").(string)
 	logger := ctrl.Logger.With().Str("request_id", requestId).Str("component", "http.api.v1.admin.delete_user").Logger()
 
-	authCtx, errResp := ctrl.checkAdmin(ctx)
-	if errResp != nil {
-		return nil, errResp
-	}
+	authCtx, _ := fiberoapi.GetAuthContext(ctx)
 
 	// Prevent admin from deleting themselves
 	if req.UserId == authCtx.UserID {
@@ -191,10 +146,6 @@ func (ctrl *Controller) InviteUser(ctx *fiber.Ctx, req dtos.InviteUserRequest) (
 	requestId := ctx.Locals("requestid").(string)
 	logger := ctrl.Logger.With().Str("request_id", requestId).Str("component", "http.api.v1.admin.invite_user").Logger()
 
-	if _, errResp := ctrl.checkAdmin(ctx); errResp != nil {
-		return nil, errResp
-	}
-
 	// TODO: Implement user invitation (create user with temporary password and send email)
 	// For now, just return a placeholder response
 	logger.Info().Str("email", req.Email).Str("role", req.Role).Msg("user invitation requested")
@@ -209,10 +160,6 @@ func (ctrl *Controller) InviteUser(ctx *fiber.Ctx, req dtos.InviteUserRequest) (
 func (ctrl *Controller) ListAllSpaces(ctx *fiber.Ctx, req dtos.ListAllSpacesRequest) (*dtos.ListAllSpacesResponse, *fiberoapi.ErrorResponse) {
 	requestId := ctx.Locals("requestid").(string)
 	logger := ctrl.Logger.With().Str("request_id", requestId).Str("component", "http.api.v1.admin.list_all_spaces").Logger()
-
-	if _, errResp := ctrl.checkAdmin(ctx); errResp != nil {
-		return nil, errResp
-	}
 
 	// Default pagination
 	limit := req.Limit
@@ -261,10 +208,6 @@ func (ctrl *Controller) ListAllSpaces(ctx *fiber.Ctx, req dtos.ListAllSpacesRequ
 func (ctrl *Controller) ListAllApiKeys(ctx *fiber.Ctx, req dtos.ListAllApiKeysRequest) (*dtos.ListAllApiKeysResponse, *fiberoapi.ErrorResponse) {
 	requestId := ctx.Locals("requestid").(string)
 	logger := ctrl.Logger.With().Str("request_id", requestId).Str("component", "http.api.v1.admin.list_all_apikeys").Logger()
-
-	if _, errResp := ctrl.checkAdmin(ctx); errResp != nil {
-		return nil, errResp
-	}
 
 	// Default pagination
 	limit := req.Limit
@@ -326,9 +269,6 @@ func (ctrl *Controller) RevokeApiKey(ctx *fiber.Ctx, req dtos.RevokeApiKeyReques
 	requestId := ctx.Locals("requestid").(string)
 	logger := ctrl.Logger.With().Str("request_id", requestId).Str("component", "http.api.v1.admin.revoke_apikey").Logger()
 
-	if _, errResp := ctrl.checkAdmin(ctx); errResp != nil {
-		return nil, errResp
-	}
 
 	err := ctrl.ApiKeyApplication.AdminDeleteApiKey(req.ApiKeyId)
 	if err != nil {
@@ -350,10 +290,6 @@ func (ctrl *Controller) RevokeApiKey(ctx *fiber.Ctx, req dtos.RevokeApiKeyReques
 func (ctrl *Controller) ListGroups(ctx *fiber.Ctx, req dtos.ListGroupsRequest) (*dtos.ListGroupsResponse, *fiberoapi.ErrorResponse) {
 	requestId := ctx.Locals("requestid").(string)
 	logger := ctrl.Logger.With().Str("request_id", requestId).Str("component", "http.api.v1.admin.list_groups").Logger()
-
-	if _, errResp := ctrl.checkAdmin(ctx); errResp != nil {
-		return nil, errResp
-	}
 
 	// Default pagination
 	limit := req.Limit
@@ -413,10 +349,7 @@ func (ctrl *Controller) CreateGroup(ctx *fiber.Ctx, req dtos.CreateGroupRequest)
 	requestId := ctx.Locals("requestid").(string)
 	logger := ctrl.Logger.With().Str("request_id", requestId).Str("component", "http.api.v1.admin.create_group").Logger()
 
-	authCtx, errResp := ctrl.checkAdmin(ctx)
-	if errResp != nil {
-		return nil, errResp
-	}
+	authCtx, _ := fiberoapi.GetAuthContext(ctx)
 
 	result, err := ctrl.GroupApplication.CreateGroup(groupDto.CreateGroupInput{
 		Name:        req.Name,
@@ -443,9 +376,6 @@ func (ctrl *Controller) UpdateGroup(ctx *fiber.Ctx, req dtos.UpdateGroupRequest)
 	requestId := ctx.Locals("requestid").(string)
 	logger := ctrl.Logger.With().Str("request_id", requestId).Str("component", "http.api.v1.admin.update_group").Logger()
 
-	if _, errResp := ctrl.checkAdmin(ctx); errResp != nil {
-		return nil, errResp
-	}
 
 	err := ctrl.GroupApplication.UpdateGroup(groupDto.UpdateGroupInput{
 		GroupId:     req.GroupId,
@@ -471,9 +401,6 @@ func (ctrl *Controller) DeleteGroup(ctx *fiber.Ctx, req dtos.DeleteGroupRequest)
 	requestId := ctx.Locals("requestid").(string)
 	logger := ctrl.Logger.With().Str("request_id", requestId).Str("component", "http.api.v1.admin.delete_group").Logger()
 
-	if _, errResp := ctrl.checkAdmin(ctx); errResp != nil {
-		return nil, errResp
-	}
 
 	err := ctrl.GroupApplication.DeleteGroup(groupDto.DeleteGroupInput{
 		GroupId: req.GroupId,
@@ -496,9 +423,6 @@ func (ctrl *Controller) GetGroupMembers(ctx *fiber.Ctx, req dtos.GetGroupMembers
 	requestId := ctx.Locals("requestid").(string)
 	logger := ctrl.Logger.With().Str("request_id", requestId).Str("component", "http.api.v1.admin.get_group_members").Logger()
 
-	if _, errResp := ctrl.checkAdmin(ctx); errResp != nil {
-		return nil, errResp
-	}
 
 	result, err := ctrl.GroupApplication.GetMembers(groupDto.GetMembersInput{
 		GroupId: req.GroupId,
@@ -531,9 +455,6 @@ func (ctrl *Controller) AddGroupMember(ctx *fiber.Ctx, req dtos.AddGroupMemberRe
 	requestId := ctx.Locals("requestid").(string)
 	logger := ctrl.Logger.With().Str("request_id", requestId).Str("component", "http.api.v1.admin.add_group_member").Logger()
 
-	if _, errResp := ctrl.checkAdmin(ctx); errResp != nil {
-		return nil, errResp
-	}
 
 	err := ctrl.GroupApplication.AddMember(groupDto.AddMemberInput{
 		GroupId: req.GroupId,
@@ -557,9 +478,6 @@ func (ctrl *Controller) RemoveGroupMember(ctx *fiber.Ctx, req dtos.RemoveGroupMe
 	requestId := ctx.Locals("requestid").(string)
 	logger := ctrl.Logger.With().Str("request_id", requestId).Str("component", "http.api.v1.admin.remove_group_member").Logger()
 
-	if _, errResp := ctrl.checkAdmin(ctx); errResp != nil {
-		return nil, errResp
-	}
 
 	err := ctrl.GroupApplication.RemoveMember(groupDto.RemoveMemberInput{
 		GroupId: req.GroupId,
@@ -585,9 +503,6 @@ func (ctrl *Controller) AdminCreateSpace(ctx *fiber.Ctx, req dtos.AdminCreateSpa
 	requestId := ctx.Locals("requestid").(string)
 	logger := ctrl.Logger.With().Str("request_id", requestId).Str("component", "http.api.v1.admin.create_space").Logger()
 
-	if _, errResp := ctrl.checkAdmin(ctx); errResp != nil {
-		return nil, errResp
-	}
 
 	spaceType := domain.SpaceType(req.Type)
 	space, err := ctrl.SpaceApplication.AdminCreateSpace(req.Name, req.Icon, req.IconColor, spaceType, req.OwnerId)
@@ -610,9 +525,6 @@ func (ctrl *Controller) AdminUpdateSpace(ctx *fiber.Ctx, req dtos.AdminUpdateSpa
 	requestId := ctx.Locals("requestid").(string)
 	logger := ctrl.Logger.With().Str("request_id", requestId).Str("component", "http.api.v1.admin.update_space").Logger()
 
-	if _, errResp := ctrl.checkAdmin(ctx); errResp != nil {
-		return nil, errResp
-	}
 
 	spaceType := domain.SpaceType(req.Type)
 	err := ctrl.SpaceApplication.AdminUpdateSpace(req.SpaceId, req.Name, req.Icon, req.IconColor, spaceType, req.OwnerId)
@@ -634,9 +546,6 @@ func (ctrl *Controller) AdminDeleteSpace(ctx *fiber.Ctx, req dtos.AdminDeleteSpa
 	requestId := ctx.Locals("requestid").(string)
 	logger := ctrl.Logger.With().Str("request_id", requestId).Str("component", "http.api.v1.admin.delete_space").Logger()
 
-	if _, errResp := ctrl.checkAdmin(ctx); errResp != nil {
-		return nil, errResp
-	}
 
 	err := ctrl.SpaceApplication.AdminDeleteSpace(req.SpaceId)
 	if err != nil {
@@ -657,9 +566,6 @@ func (ctrl *Controller) AdminListSpacePermissions(ctx *fiber.Ctx, req dtos.Admin
 	requestId := ctx.Locals("requestid").(string)
 	logger := ctrl.Logger.With().Str("request_id", requestId).Str("component", "http.api.v1.admin.list_space_permissions").Logger()
 
-	if _, errResp := ctrl.checkAdmin(ctx); errResp != nil {
-		return nil, errResp
-	}
 
 	permissions, err := ctrl.PermissionPers.ListByResource(domain.PermissionTypeSpace, req.SpaceId)
 	if err != nil {
@@ -697,10 +603,6 @@ func (ctrl *Controller) AdminAddSpaceUserPermission(ctx *fiber.Ctx, req dtos.Adm
 	requestId := ctx.Locals("requestid").(string)
 	logger := ctrl.Logger.With().Str("request_id", requestId).Str("component", "http.api.v1.admin.add_space_user_permission").Logger()
 
-	if _, errResp := ctrl.checkAdmin(ctx); errResp != nil {
-		return nil, errResp
-	}
-
 	role := domain.PermissionRole(req.Role)
 	err := ctrl.PermissionPers.UpsertUser(domain.PermissionTypeSpace, req.SpaceId, req.UserId, role)
 	if err != nil {
@@ -721,9 +623,6 @@ func (ctrl *Controller) AdminRemoveSpaceUserPermission(ctx *fiber.Ctx, req dtos.
 	requestId := ctx.Locals("requestid").(string)
 	logger := ctrl.Logger.With().Str("request_id", requestId).Str("component", "http.api.v1.admin.remove_space_user_permission").Logger()
 
-	if _, errResp := ctrl.checkAdmin(ctx); errResp != nil {
-		return nil, errResp
-	}
 
 	err := ctrl.PermissionPers.DeleteUser(domain.PermissionTypeSpace, req.SpaceId, req.UserId)
 	if err != nil {
@@ -743,10 +642,6 @@ func (ctrl *Controller) AdminRemoveSpaceUserPermission(ctx *fiber.Ctx, req dtos.
 func (ctrl *Controller) AdminAddSpaceGroupPermission(ctx *fiber.Ctx, req dtos.AdminAddSpaceGroupPermissionRequest) (*dtos.AdminAddSpaceGroupPermissionResponse, *fiberoapi.ErrorResponse) {
 	requestId := ctx.Locals("requestid").(string)
 	logger := ctrl.Logger.With().Str("request_id", requestId).Str("component", "http.api.v1.admin.add_space_group_permission").Logger()
-
-	if _, errResp := ctrl.checkAdmin(ctx); errResp != nil {
-		return nil, errResp
-	}
 
 	role := domain.PermissionRole(req.Role)
 	err := ctrl.PermissionPers.UpsertGroup(domain.PermissionTypeSpace, req.SpaceId, req.GroupId, role)
@@ -768,9 +663,6 @@ func (ctrl *Controller) AdminRemoveSpaceGroupPermission(ctx *fiber.Ctx, req dtos
 	requestId := ctx.Locals("requestid").(string)
 	logger := ctrl.Logger.With().Str("request_id", requestId).Str("component", "http.api.v1.admin.remove_space_group_permission").Logger()
 
-	if _, errResp := ctrl.checkAdmin(ctx); errResp != nil {
-		return nil, errResp
-	}
 
 	err := ctrl.PermissionPers.DeleteGroup(domain.PermissionTypeSpace, req.SpaceId, req.GroupId)
 	if err != nil {

@@ -5,7 +5,7 @@ import "time"
 // Request DTOs
 
 type CreateDrawingRequest struct {
-	SpaceId    string         `json:"space_id"`
+	SpaceId    string         `json:"space_id" resource:"space" action:"write"`
 	DocumentId *string        `json:"document_id,omitempty"`
 	Name       string         `json:"name"`
 	Icon       string         `json:"icon,omitempty"`
@@ -16,15 +16,15 @@ type CreateDrawingRequest struct {
 }
 
 type ListDrawingsRequest struct {
-	SpaceId string `query:"space_id"`
+	SpaceId string `query:"space_id" resource:"space" action:"read"`
 }
 
 type GetDrawingRequest struct {
-	DrawingId string `path:"drawing_id"`
+	DrawingId string `path:"drawing_id" resource:"drawing" action:"read"`
 }
 
 type UpdateDrawingRequest struct {
-	DrawingId string         `path:"drawing_id"`
+	DrawingId string         `path:"drawing_id" resource:"drawing" action:"write"`
 	Name      *string        `json:"name,omitempty"`
 	Icon      *string        `json:"icon,omitempty"`
 	Elements  []any          `json:"elements,omitempty"`
@@ -34,12 +34,12 @@ type UpdateDrawingRequest struct {
 }
 
 type DeleteDrawingRequest struct {
-	DrawingId string `path:"drawing_id"`
+	DrawingId string `path:"drawing_id" resource:"drawing"`
 }
 
 // Move drawing
 type MoveDrawingRequest struct {
-	DrawingId  string  `path:"drawing_id"`
+	DrawingId  string  `path:"drawing_id" resource:"drawing" action:"write"`
 	DocumentId *string `json:"document_id"`
 }
 
