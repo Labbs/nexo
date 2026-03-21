@@ -12,7 +12,7 @@ type DatabasePermissionItem struct {
 
 // List permissions request/response
 type ListDatabasePermissionsRequest struct {
-	DatabaseId string `path:"database_id"`
+	DatabaseId string `path:"database_id" resource:"database" action:"read"`
 }
 
 type ListDatabasePermissionsResponse struct {
@@ -21,7 +21,7 @@ type ListDatabasePermissionsResponse struct {
 
 // Upsert permission request
 type UpsertDatabasePermissionRequest struct {
-	DatabaseId string  `path:"database_id"`
+	DatabaseId string  `path:"database_id" resource:"database" action:"write"`
 	UserId     *string `json:"user_id,omitempty"`
 	GroupId    *string `json:"group_id,omitempty"`
 	Role       string  `json:"role"`
@@ -33,7 +33,7 @@ type UpsertDatabasePermissionResponse struct {
 
 // Delete permission request
 type DeleteDatabasePermissionRequest struct {
-	DatabaseId string  `path:"database_id"`
+	DatabaseId string  `path:"database_id" resource:"database" action:"write"`
 	UserId     *string `query:"user_id"`
 	GroupId    *string `query:"group_id"`
 }

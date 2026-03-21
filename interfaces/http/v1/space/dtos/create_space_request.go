@@ -14,7 +14,7 @@ type CreateSpaceResponse struct {
 // My spaces list is defined under user DTOs (see interfaces/http/v1/user/dtos)
 
 type UpdateSpaceRequest struct {
-	SpaceId   string  `path:"space_id" validate:"required,uuid4"`
+	SpaceId   string  `path:"space_id" validate:"required,uuid4" resource:"space" action:"write"`
 	Name      *string `json:"name,omitempty" validate:"omitempty,min=3,max=100"`
 	Icon      *string `json:"icon,omitempty"`
 	IconColor *string `json:"icon_color,omitempty"`
@@ -25,7 +25,7 @@ type UpdateSpaceResponse struct {
 }
 
 type DeleteSpaceRequest struct {
-	SpaceId string `path:"space_id" validate:"required,uuid4"`
+	SpaceId string `path:"space_id" validate:"required,uuid4" resource:"space"`
 }
 
 type DeleteSpaceResponse struct {

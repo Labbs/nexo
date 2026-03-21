@@ -1,7 +1,7 @@
 package dtos
 
 type ListSpacePermissionsRequest struct {
-	SpaceId string `path:"space_id" validate:"required,uuid4"`
+	SpaceId string `path:"space_id" validate:"required,uuid4" resource:"space" action:"read"`
 }
 
 type SpacePermission struct {
@@ -18,7 +18,7 @@ type ListSpacePermissionsResponse struct {
 }
 
 type UpsertSpaceUserPermissionRequest struct {
-	SpaceId string `path:"space_id" validate:"required,uuid4"`
+	SpaceId string `path:"space_id" validate:"required,uuid4" resource:"space" action:"write"`
 	UserId  string `json:"user_id" validate:"required,uuid4"`
 	Role    string `json:"role" validate:"required,oneof=owner admin editor viewer"`
 }
@@ -28,7 +28,7 @@ type UpsertSpaceUserPermissionResponse struct {
 }
 
 type DeleteSpaceUserPermissionRequest struct {
-	SpaceId string `path:"space_id" validate:"required,uuid4"`
+	SpaceId string `path:"space_id" validate:"required,uuid4" resource:"space" action:"write"`
 	UserId  string `path:"user_id" validate:"required,uuid4"`
 }
 

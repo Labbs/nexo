@@ -30,7 +30,7 @@ type SortConfig struct {
 }
 
 type CreateDatabaseRequest struct {
-	SpaceId     string           `json:"space_id"`
+	SpaceId     string           `json:"space_id" resource:"space" action:"write"`
 	DocumentId  *string          `json:"document_id,omitempty"`
 	Name        string           `json:"name"`
 	Description string           `json:"description,omitempty"`
@@ -40,15 +40,15 @@ type CreateDatabaseRequest struct {
 }
 
 type ListDatabasesRequest struct {
-	SpaceId string `query:"space_id"`
+	SpaceId string `query:"space_id" resource:"space" action:"read"`
 }
 
 type GetDatabaseRequest struct {
-	DatabaseId string `path:"database_id"`
+	DatabaseId string `path:"database_id" resource:"database" action:"read"`
 }
 
 type UpdateDatabaseRequest struct {
-	DatabaseId  string            `path:"database_id"`
+	DatabaseId  string            `path:"database_id" resource:"database" action:"write"`
 	Name        *string           `json:"name,omitempty"`
 	Description *string           `json:"description,omitempty"`
 	Icon        *string           `json:"icon,omitempty"`
@@ -57,31 +57,31 @@ type UpdateDatabaseRequest struct {
 }
 
 type DeleteDatabaseRequest struct {
-	DatabaseId string `path:"database_id"`
+	DatabaseId string `path:"database_id" resource:"database"`
 }
 
 // Row requests
 type CreateRowRequest struct {
-	DatabaseId    string         `path:"database_id"`
+	DatabaseId    string         `path:"database_id" resource:"database" action:"write"`
 	Properties    map[string]any `json:"properties"`
 	Content       map[string]any `json:"content,omitempty"`
 	ShowInSidebar bool           `json:"show_in_sidebar,omitempty"`
 }
 
 type ListRowsRequest struct {
-	DatabaseId string `path:"database_id"`
+	DatabaseId string `path:"database_id" resource:"database" action:"read"`
 	ViewId     string `query:"view_id"`
 	Limit      int    `query:"limit"`
 	Offset     int    `query:"offset"`
 }
 
 type GetRowRequest struct {
-	DatabaseId string `path:"database_id"`
+	DatabaseId string `path:"database_id" resource:"database" action:"read"`
 	RowId      string `path:"row_id"`
 }
 
 type UpdateRowRequest struct {
-	DatabaseId    string         `path:"database_id"`
+	DatabaseId    string         `path:"database_id" resource:"database" action:"write"`
 	RowId         string         `path:"row_id"`
 	Properties    map[string]any `json:"properties,omitempty"`
 	Content       map[string]any `json:"content,omitempty"`
@@ -89,18 +89,18 @@ type UpdateRowRequest struct {
 }
 
 type DeleteRowRequest struct {
-	DatabaseId string `path:"database_id"`
+	DatabaseId string `path:"database_id" resource:"database" action:"write"`
 	RowId      string `path:"row_id"`
 }
 
 type BulkDeleteRowsRequest struct {
-	DatabaseId string   `path:"database_id"`
+	DatabaseId string   `path:"database_id" resource:"database" action:"write"`
 	RowIds     []string `json:"row_ids"`
 }
 
 // View requests
 type CreateViewRequest struct {
-	DatabaseId string         `path:"database_id"`
+	DatabaseId string         `path:"database_id" resource:"database" action:"write"`
 	Name       string         `json:"name" validate:"required"`
 	Type       string         `json:"type" validate:"required,oneof=table board calendar gallery list timeline"`
 	Filter     map[string]any `json:"filter,omitempty"`
@@ -109,7 +109,7 @@ type CreateViewRequest struct {
 }
 
 type UpdateViewRequest struct {
-	DatabaseId    string         `path:"database_id"`
+	DatabaseId    string         `path:"database_id" resource:"database" action:"write"`
 	ViewId        string         `path:"view_id"`
 	Name          *string        `json:"name,omitempty"`
 	Type          *string        `json:"type,omitempty"`
@@ -121,13 +121,13 @@ type UpdateViewRequest struct {
 }
 
 type DeleteViewRequest struct {
-	DatabaseId string `path:"database_id"`
+	DatabaseId string `path:"database_id" resource:"database" action:"write"`
 	ViewId     string `path:"view_id"`
 }
 
 // Move database
 type MoveDatabaseRequest struct {
-	DatabaseId string  `path:"database_id"`
+	DatabaseId string  `path:"database_id" resource:"database" action:"write"`
 	DocumentId *string `json:"document_id"`
 }
 

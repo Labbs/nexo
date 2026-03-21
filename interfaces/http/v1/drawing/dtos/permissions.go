@@ -1,7 +1,7 @@
 package dtos
 
 type ListDrawingPermissionsRequest struct {
-	DrawingId string `path:"drawing_id" validate:"required,uuid4"`
+	DrawingId string `path:"drawing_id" validate:"required,uuid4" resource:"drawing" action:"read"`
 }
 
 type DrawingPermission struct {
@@ -16,7 +16,7 @@ type ListDrawingPermissionsResponse struct {
 }
 
 type UpsertDrawingUserPermissionRequest struct {
-	DrawingId string `path:"drawing_id" validate:"required,uuid4"`
+	DrawingId string `path:"drawing_id" validate:"required,uuid4" resource:"drawing" action:"write"`
 	UserId    string `json:"user_id" validate:"required,uuid4"`
 	Role      string `json:"role" validate:"required,oneof=owner editor viewer denied"`
 }
@@ -26,7 +26,7 @@ type UpsertDrawingUserPermissionResponse struct {
 }
 
 type DeleteDrawingUserPermissionRequest struct {
-	DrawingId string `path:"drawing_id" validate:"required,uuid4"`
+	DrawingId string `path:"drawing_id" validate:"required,uuid4" resource:"drawing" action:"write"`
 	UserId    string `path:"user_id" validate:"required,uuid4"`
 }
 
