@@ -15,6 +15,7 @@ import (
 	"github.com/labbs/nexo/application/user"
 	"github.com/labbs/nexo/application/webhook"
 	"github.com/labbs/nexo/domain"
+	"github.com/labbs/nexo/infrastructure/collaboration"
 	"github.com/labbs/nexo/infrastructure/config"
 	"github.com/labbs/nexo/infrastructure/cronscheduler"
 	"github.com/labbs/nexo/infrastructure/database"
@@ -43,4 +44,6 @@ type Deps struct {
 	FavoriteApplication   *favorite.FavoriteApplication
 	PermissionApplication *permission.PermissionApplication
 	PermissionPers        domain.PermissionPers
+
+	CollaborationHub *collaboration.Hub
 }

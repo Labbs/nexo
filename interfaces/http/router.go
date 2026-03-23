@@ -2,6 +2,7 @@ package http
 
 import (
 	"github.com/labbs/nexo/infrastructure"
+	"github.com/labbs/nexo/infrastructure/collaboration"
 	v1 "github.com/labbs/nexo/interfaces/http/v1"
 )
 
@@ -14,4 +15,16 @@ func SetupRoutes(deps infrastructure.Deps) {
 
 	// Setup v1 routes
 	v1.SetupRouterV1(deps)
+
+	// Setup WebSocket collaboration route
+	setupCollaborationRoutes(deps)
+}
+
+func setupCollaborationRoutes(deps infrastructure.Deps) {
+	handler := collaboration.NewHandler(deps.CollaborationHub, deps.SessionApplication, deps.Logger)
+
+	// The frontend connects to ws://<host>/<roomId>?token=<jwt>
+	// Room formats: "document:<docId>" or "row:<databaseId>:<rowId>"
+	deps.Http.Fiber.Use("/ws/collab/:roomId", handler.UpgradeMiddleware())
+	deps.Http.Fiber.Get("/ws/collab/:roomId", handler.WebSocketHandler())
 }
