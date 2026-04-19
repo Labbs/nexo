@@ -28,5 +28,14 @@ func ServerFlags(cfg *Config) []cli.Flag {
 				altsrcyaml.YAML("http.logs", altsrc.NewStringPtrSourcer(&cfg.ConfigFile)),
 			),
 		},
+		&cli.StringFlag{
+			Name:        "http.cors_allow_origins",
+			Value:       "*",
+			Destination: &cfg.Server.CorsAllowOrigins,
+			Sources: cli.NewValueSourceChain(
+				cli.EnvVar("HTTP_CORS_ALLOW_ORIGINS"),
+				altsrcyaml.YAML("http.cors_allow_origins", altsrc.NewStringPtrSourcer(&cfg.ConfigFile)),
+			),
+		},
 	}
 }

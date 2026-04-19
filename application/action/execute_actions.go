@@ -21,7 +21,15 @@ func (app *ActionApplication) ExecuteActions(input dto.ExecuteActionInput) {
 	}
 
 	for _, action := range actions {
-		go app.executeAction(action, input.TriggerData)
+		a := action
+		go func() {
+			defer func() {
+				if r := recover(); r != nil {
+					app.Logger.Error().Any("panic", r).Str("action_id", a.Id).Msg("action execution panicked")
+				}
+			}()
+			app.executeAction(a, input.TriggerData)
+		}()
 	}
 }
 
@@ -40,8 +48,15 @@ func (app *ActionApplication) executeAction(action domain.Action, triggerData ma
 	// Parse steps
 	var steps []dto.ActionStep
 	if action.Steps != nil {
-		stepsJSON, _ := json.Marshal(action.Steps)
-		json.Unmarshal(stepsJSON, &steps)
+		stepsJSON, err := json.Marshal(action.Steps)
+		if err != nil {
+			logger.Error().Err(err).Msg("failed to marshal action steps")
+			return
+		}
+		if err := json.Unmarshal(stepsJSON, &steps); err != nil {
+			logger.Error().Err(err).Msg("failed to unmarshal action steps")
+			return
+		}
 	}
 
 	// Execute each step

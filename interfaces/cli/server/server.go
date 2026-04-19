@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	"github.com/labbs/nexo/application/action"
@@ -71,6 +72,12 @@ func runServer(cfg config.Config) error {
 	// Initialize logger
 	deps.Logger = logger.NewLogger(cfg.Logger.Level, cfg.Logger.Pretty, cfg.Version)
 	logger := deps.Logger.With().Str("component", "interfaces.cli.http.runserver").Logger()
+
+	// Validate JWT secret key
+	if len(cfg.Session.SecretKey) < 32 {
+		logger.Fatal().Msg("SESSION_SECRET_KEY must be set and at least 32 characters long")
+		return fmt.Errorf("SESSION_SECRET_KEY must be at least 32 characters")
+	}
 
 	// Initialize other cron scheduler (go-cron)
 	deps.CronScheduler, err = cronscheduler.Configure(deps.Logger)

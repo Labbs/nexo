@@ -12,6 +12,8 @@ type Config struct {
 		Port int
 		// HttpLogs indicates if HTTP logs are enabled
 		HttpLogs bool
+		// CorsAllowOrigins is a comma-separated list of allowed CORS origins
+		CorsAllowOrigins string
 	}
 
 	// Logger is the configuration for the zerolog logger.

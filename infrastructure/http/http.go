@@ -2,6 +2,7 @@ package http
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/labbs/nexo/application/session"
 	"github.com/labbs/nexo/infrastructure/config"
@@ -30,6 +31,10 @@ func Configure(_cfg config.Config, logger z.Logger, sessionApp *session.SessionA
 		JSONEncoder:           json.Marshal,
 		JSONDecoder:           json.Unmarshal,
 		DisableStartupMessage: true,
+		BodyLimit:             10 * 1024 * 1024, // 10 MB
+		ReadTimeout:           30 * time.Second,
+		WriteTimeout:          30 * time.Second,
+		IdleTimeout:           120 * time.Second,
 	}
 
 	r := fiber.New(fiberConfig)
@@ -41,7 +46,20 @@ func Configure(_cfg config.Config, logger z.Logger, sessionApp *session.SessionA
 	r.Use(recover.New(recover.Config{
 		EnableStackTrace: true,
 	}))
-	r.Use(cors.New())
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     _cfg.Server.CorsAllowOrigins,
+		AllowMethods:     "GET,POST,PUT,PATCH,DELETE,OPTIONS",
+		AllowHeaders:     "Origin,Content-Type,Accept,Authorization",
+		AllowCredentials: false,
+		MaxAge:           86400,
+	}))
+	r.Use(func(c *fiber.Ctx) error {
+		c.Set("X-Content-Type-Options", "nosniff")
+		c.Set("X-Frame-Options", "DENY")
+		c.Set("X-XSS-Protection", "1; mode=block")
+		c.Set("Referrer-Policy", "strict-origin-when-cross-origin")
+		return c.Next()
+	})
 	r.Use(compress.New())
 	r.Use(requestid.New())
 

@@ -51,9 +51,10 @@ func (ctrl Controller) Logout(ctx *fiber.Ctx, input struct{}) (*dtos.LogoutRespo
 		}
 	}
 
-	err = ctrl.AuthApplication.Logout(authDto.LogoutInput{SessionId: authCtx.Claims["session_id"].(string)})
+	sessionId, _ := authCtx.Claims["session_id"].(string)
+	err = ctrl.AuthApplication.Logout(authDto.LogoutInput{SessionId: sessionId})
 	if err != nil {
-		logger.Error().Err(err).Str("session_id", authCtx.Claims["session_id"].(string)).Msg("failed to logout user")
+		logger.Error().Err(err).Str("session_id", sessionId).Msg("failed to logout user")
 		return nil, &fiberoapi.ErrorResponse{
 			Code:    fiber.StatusInternalServerError,
 			Details: err.Error(),

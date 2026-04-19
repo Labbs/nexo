@@ -19,7 +19,6 @@ func SessionFlags(cfg *Config) []cli.Flag {
 		},
 		&cli.StringFlag{
 			Name:        "session.secret_key",
-			Value:       "supersecretkey", // In production, use a secure key and do not hardcode it
 			Destination: &cfg.Session.SecretKey,
 			Sources: cli.NewValueSourceChain(
 				cli.EnvVar("SESSION_SECRET_KEY"),

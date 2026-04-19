@@ -3,6 +3,7 @@ package http
 import (
 	"github.com/labbs/nexo/infrastructure"
 	"github.com/labbs/nexo/infrastructure/collaboration"
+	"github.com/labbs/nexo/infrastructure/persistence"
 	v1 "github.com/labbs/nexo/interfaces/http/v1"
 )
 
@@ -23,7 +24,8 @@ func SetupRoutes(deps infrastructure.Deps) {
 func setupCollaborationRoutes(deps infrastructure.Deps) {
 	logger := deps.Logger.With().Str("component", "http.router.collaboration").Logger()
 	logger.Info().Str("event", "setup_collaboration_routes").Msg("Setting up collaboration WebSocket routes")
-	handler := collaboration.NewHandler(deps.CollaborationHub, deps.SessionApplication, deps.Logger)
+	documentPers := persistence.NewDocumentPers(deps.Database.Db)
+	handler := collaboration.NewHandler(deps.CollaborationHub, deps.SessionApplication, documentPers, deps.Logger)
 
 	// The frontend connects to ws://<host>/<roomId>?token=<jwt>
 	// Room formats: "document:<docId>" or "row:<databaseId>:<rowId>"

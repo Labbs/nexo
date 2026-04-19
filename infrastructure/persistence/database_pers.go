@@ -2,11 +2,18 @@ package persistence
 
 import (
 	"errors"
+	"regexp"
 
 	"github.com/labbs/nexo/infrastructure/helpers/apperrors"
 	"github.com/labbs/nexo/domain"
 	"gorm.io/gorm"
 )
+
+var validPropertyName = regexp.MustCompile(`^[a-zA-Z0-9_\-]+$`)
+
+func isValidPropertyName(name string) bool {
+	return len(name) > 0 && len(name) <= 100 && validPropertyName.MatchString(name)
+}
 
 type databasePers struct {
 	db *gorm.DB
@@ -224,6 +231,9 @@ func (p *databaseRowPers) GetByDatabaseIdWithOptions(databaseId string, options 
 			if sort.Direction == "desc" {
 				direction = "DESC"
 			}
+			if !isValidPropertyName(sort.PropertyId) {
+				continue
+			}
 			// Sort by JSON property value (SQLite compatible)
 			query = query.Order("json_extract(properties, '$." + sort.PropertyId + "') " + direction)
 		}
@@ -269,6 +279,9 @@ func (p *databaseRowPers) applyFilters(query *gorm.DB, filter *domain.FilterConf
 }
 
 func (p *databaseRowPers) applyFilterRule(query *gorm.DB, rule domain.FilterRule, _ string) *gorm.DB {
+	if !isValidPropertyName(rule.Property) {
+		return query
+	}
 	// Use json_extract for SQLite compatibility
 	propertyPath := "json_extract(properties, '$." + rule.Property + "')"
 
