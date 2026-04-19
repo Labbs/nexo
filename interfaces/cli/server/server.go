@@ -18,6 +18,7 @@ import (
 	"github.com/labbs/nexo/application/user"
 	"github.com/labbs/nexo/application/webhook"
 	"github.com/labbs/nexo/infrastructure"
+	"github.com/labbs/nexo/infrastructure/collaboration"
 	"github.com/labbs/nexo/infrastructure/config"
 	"github.com/labbs/nexo/infrastructure/cronscheduler"
 	"github.com/labbs/nexo/infrastructure/database"
@@ -144,6 +145,9 @@ func runServer(cfg config.Config) error {
 	deps.SessionApplication.SpaceApplication = deps.SpaceApplication
 	deps.SessionApplication.DatabaseApplication = deps.DatabaseApplication
 	deps.SessionApplication.DrawingApplication = deps.DrawingApplication
+
+	// Initialize collaboration hub
+	deps.CollaborationHub = collaboration.NewHub(deps.Logger)
 
 	// Initialize HTTP server (fiber + fiberoapi)
 	deps.Http, err = http.Configure(deps.Config, deps.Logger, deps.SessionApplication, true)
