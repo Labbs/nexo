@@ -36,6 +36,11 @@ func NewStatic(f *fiber.App) {
 			return c.Next()
 		}
 
+		// Skip WebSocket routes
+		if strings.HasPrefix(path, "/ws") {
+			return c.Next()
+		}
+
 		// Serve index.html from the embedded FS for all other routes (SPA routes)
 		indexFile, err := embedDirStatic.ReadFile("files/index.html")
 		if err != nil {

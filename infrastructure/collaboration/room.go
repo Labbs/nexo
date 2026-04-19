@@ -20,6 +20,7 @@ type Room struct {
 type Client struct {
 	UserID   string
 	Username string
+	writeMu  sync.Mutex
 }
 
 func newRoom(id string, logger zerolog.Logger) *Room {
@@ -55,14 +56,25 @@ func (r *Room) RemoveClient(conn *websocket.Conn) {
 
 // Broadcast sends a binary message to all clients except the sender.
 func (r *Room) Broadcast(sender *websocket.Conn, msg []byte) {
+	// Snapshot targets under read lock to avoid holding the lock during IO.
 	r.mu.RLock()
-	defer r.mu.RUnlock()
-
-	for conn := range r.clients {
-		if conn == sender {
-			continue
+	type target struct {
+		conn   *websocket.Conn
+		client *Client
+	}
+	targets := make([]target, 0, len(r.clients))
+	for conn, client := range r.clients {
+		if conn != sender {
+			targets = append(targets, target{conn, client})
 		}
-		if err := conn.WriteMessage(websocket.BinaryMessage, msg); err != nil {
+	}
+	r.mu.RUnlock()
+
+	for _, t := range targets {
+		t.client.writeMu.Lock()
+		err := t.conn.WriteMessage(websocket.BinaryMessage, msg)
+		t.client.writeMu.Unlock()
+		if err != nil {
 			r.logger.Warn().Err(err).Msg("failed to write to client")
 		}
 	}

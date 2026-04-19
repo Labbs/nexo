@@ -21,10 +21,15 @@ func SetupRoutes(deps infrastructure.Deps) {
 }
 
 func setupCollaborationRoutes(deps infrastructure.Deps) {
+	logger := deps.Logger.With().Str("component", "http.router.collaboration").Logger()
+	logger.Info().Str("event", "setup_collaboration_routes").Msg("Setting up collaboration WebSocket routes")
 	handler := collaboration.NewHandler(deps.CollaborationHub, deps.SessionApplication, deps.Logger)
 
 	// The frontend connects to ws://<host>/<roomId>?token=<jwt>
 	// Room formats: "document:<docId>" or "row:<databaseId>:<rowId>"
-	deps.Http.Fiber.Use("/ws/collab/:roomId", handler.UpgradeMiddleware())
-	deps.Http.Fiber.Get("/ws/collab/:roomId", handler.WebSocketHandler())
+	// Use("/ws/collab") is a prefix match, Get uses wildcard for the room ID (contains colons)
+	deps.Http.Fiber.Use("/ws/collab", handler.UpgradeMiddleware())
+	deps.Http.Fiber.Get("/ws/collab/+", handler.WebSocketHandler())
+
+	logger.Debug().Interface("paths", deps.Http.Fiber.GetRoutes()).Msg("Registered HTTP routes")
 }
