@@ -3,6 +3,7 @@ package domain
 import (
 	"database/sql/driver"
 	"encoding/json"
+	"fmt"
 )
 
 // JSONB is a map of strings to interfaces
@@ -20,7 +21,11 @@ func (j *JSONB) Scan(value any) error {
 		*j = nil
 		return nil
 	}
-	return json.Unmarshal([]byte(value.(string)), j)
+	s, ok := value.(string)
+	if !ok {
+		return fmt.Errorf("JSONB.Scan: expected string, got %T", value)
+	}
+	return json.Unmarshal([]byte(s), j)
 }
 
 // JSONBArray is a slice that can be stored as JSONB in PostgreSQL
@@ -38,5 +43,9 @@ func (j *JSONBArray) Scan(value any) error {
 		*j = nil
 		return nil
 	}
-	return json.Unmarshal([]byte(value.(string)), j)
+	s, ok := value.(string)
+	if !ok {
+		return fmt.Errorf("JSONBArray.Scan: expected string, got %T", value)
+	}
+	return json.Unmarshal([]byte(s), j)
 }

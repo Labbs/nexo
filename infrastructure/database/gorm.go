@@ -1,6 +1,8 @@
 package database
 
 import (
+	"time"
+
 	"github.com/labbs/nexo/infrastructure/config"
 	zerologadapter "github.com/labbs/nexo/infrastructure/logger/zerolog"
 
@@ -36,6 +38,15 @@ func Configure(_cfg config.Config, logger z.Logger) (Config, error) {
 	if err != nil {
 		return Config{}, err
 	}
+
+	sqlDB, err := db.DB()
+	if err != nil {
+		return Config{}, err
+	}
+	sqlDB.SetMaxOpenConns(100)
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetConnMaxLifetime(time.Hour)
+	sqlDB.SetConnMaxIdleTime(30 * time.Minute)
 
 	return Config{Db: db}, nil
 }

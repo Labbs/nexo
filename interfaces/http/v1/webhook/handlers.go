@@ -2,6 +2,8 @@ package webhook
 
 import (
 	"errors"
+	"net"
+	"net/url"
 
 	"github.com/gofiber/fiber/v2"
 	fiberoapi "github.com/labbs/fiber-oapi"
@@ -9,6 +11,33 @@ import (
 	webhookDto "github.com/labbs/nexo/application/webhook/dto"
 	"github.com/labbs/nexo/interfaces/http/v1/webhook/dtos"
 )
+
+// validateWebhookURL checks the URL is valid HTTP/HTTPS and not targeting internal networks.
+func validateWebhookURL(rawURL string) error {
+	u, err := url.ParseRequestURI(rawURL)
+	if err != nil {
+		return errors.New("invalid URL format")
+	}
+	if u.Scheme != "http" && u.Scheme != "https" {
+		return errors.New("URL must use http or https")
+	}
+	host := u.Hostname()
+	ips, err := net.LookupHost(host)
+	if err != nil {
+		// DNS failure — allow it (server may not have external DNS in all envs)
+		return nil
+	}
+	for _, ipStr := range ips {
+		ip := net.ParseIP(ipStr)
+		if ip == nil {
+			continue
+		}
+		if ip.IsLoopback() || ip.IsPrivate() || ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast() {
+			return errors.New("URL must not target internal or private addresses")
+		}
+	}
+	return nil
+}
 
 func (ctrl *Controller) ListWebhooks(ctx *fiber.Ctx, _ dtos.EmptyRequest) (*dtos.ListWebhooksResponse, *fiberoapi.ErrorResponse) {
 	requestId := ctx.Locals("requestid").(string)
@@ -65,6 +94,9 @@ func (ctrl *Controller) CreateWebhook(ctx *fiber.Ctx, req dtos.CreateWebhookRequ
 
 	if req.Url == "" {
 		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusBadRequest, Details: "URL is required", Type: "BAD_REQUEST"}
+	}
+	if err := validateWebhookURL(req.Url); err != nil {
+		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusBadRequest, Details: err.Error(), Type: "BAD_REQUEST"}
 	}
 
 	if len(req.Events) == 0 {

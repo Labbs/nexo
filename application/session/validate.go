@@ -20,18 +20,18 @@ func (c *SessionApplication) ValidateToken(input dto.ValidateTokenInput) (*dto.V
 
 	sessionId, err := tokenutil.GetSessionIdFromToken(input.Token, c.Config)
 	if err != nil {
-		logger.Error().Err(err).Str("token", input.Token).Msg("failed to get session id from token")
+		logger.Error().Err(err).Msg("failed to get session id from token")
 		return nil, apperrors.ErrInvalidToken
 	}
 
 	session, err := c.SessionPers.GetById(sessionId)
 	if err != nil {
-		logger.Error().Err(err).Str("token", input.Token).Msg("failed to get session by token")
+		logger.Error().Err(err).Str("session_id", sessionId).Msg("failed to get session by id")
 		return nil, apperrors.ErrInvalidToken
 	}
 
 	if session.ExpiresAt.Before(time.Now()) {
-		logger.Warn().Str("token", input.Token).Msg("session has expired")
+		logger.Warn().Str("session_id", sessionId).Msg("session has expired")
 		return nil, apperrors.ErrSessionExpired
 	}
 

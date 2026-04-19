@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 
@@ -23,7 +24,15 @@ func (app *WebhookApplication) TriggerWebhooks(input dto.TriggerWebhookInput) {
 	}
 
 	for _, webhook := range webhooks {
-		go app.deliverWebhook(webhook, input.Event, input.Payload)
+		w := webhook
+		go func() {
+			defer func() {
+				if r := recover(); r != nil {
+					app.Logger.Error().Any("panic", r).Str("webhook_id", w.Id).Msg("webhook delivery panicked")
+				}
+			}()
+			app.deliverWebhook(w, input.Event, input.Payload)
+		}()
 	}
 }
 
@@ -61,10 +70,11 @@ func (app *WebhookApplication) deliverWebhook(webhook domain.Webhook, event stri
 		return
 	}
 
+	deliveryId, _ := webhookPayload["id"].(string)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-Webhook-Signature", signature)
 	req.Header.Set("X-Webhook-Event", event)
-	req.Header.Set("X-Webhook-Delivery", webhookPayload["id"].(string))
+	req.Header.Set("X-Webhook-Delivery", deliveryId)
 
 	client := &http.Client{Timeout: 30 * time.Second}
 	resp, err := client.Do(req)
@@ -81,9 +91,8 @@ func (app *WebhookApplication) deliverWebhook(webhook domain.Webhook, event stri
 	success := resp.StatusCode >= 200 && resp.StatusCode < 300
 	responseBody := ""
 	if !success {
-		buf := new(bytes.Buffer)
-		buf.ReadFrom(resp.Body)
-		responseBody = buf.String()
+		limited, _ := io.ReadAll(io.LimitReader(resp.Body, 512*1024))
+		responseBody = string(limited)
 		if len(responseBody) > 500 {
 			responseBody = responseBody[:500]
 		}

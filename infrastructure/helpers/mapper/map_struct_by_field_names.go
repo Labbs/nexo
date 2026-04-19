@@ -1,6 +1,7 @@
 package mapper
 
 import (
+	"errors"
 	"reflect"
 )
 
@@ -13,7 +14,7 @@ func MapStructByFieldNames(src any, dst any) error {
 
 	// Ensure we have pointers
 	if srcValue.Kind() != reflect.Ptr || dstValue.Kind() != reflect.Ptr {
-		panic("both src and dst must be pointers")
+		return errors.New("both src and dst must be pointers")
 	}
 
 	// Get the underlying structs
@@ -22,7 +23,7 @@ func MapStructByFieldNames(src any, dst any) error {
 
 	// Ensure we have structs
 	if srcStruct.Kind() != reflect.Struct || dstStruct.Kind() != reflect.Struct {
-		panic("both src and dst must point to structs")
+		return errors.New("both src and dst must point to structs")
 	}
 
 	srcType := srcStruct.Type()
