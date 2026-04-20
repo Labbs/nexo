@@ -90,4 +90,36 @@ func (ctrl Controller) Register(ctx *fiber.Ctx, req dtos.RegisterRequest) (*dtos
 	}, nil
 }
 
+func (ctrl Controller) SSORedirect(ctx *fiber.Ctx, input struct{}) (*dtos.SSORedirectResponse, *fiberoapi.ErrorResponse) {
+	out, err := ctrl.AuthApplication.SSORedirect()
+	if err != nil {
+		return nil, &fiberoapi.ErrorResponse{
+			Code:    fiber.StatusBadRequest,
+			Details: err.Error(),
+			Type:    "SSO_DISABLED",
+		}
+	}
+	return &dtos.SSORedirectResponse{URL: out.URL, State: out.State}, nil
+}
+
+func (ctrl Controller) SSOCallback(ctx *fiber.Ctx, req dtos.SSOCallbackRequest) (*dtos.SSOCallbackResponse, *fiberoapi.ErrorResponse) {
+	requestId := ctx.Locals("requestid").(string)
+	logger := ctrl.Logger.With().Str("request_id", requestId).Str("component", "http.api.v1.auth.sso_callback").Logger()
+
+	out, err := ctrl.AuthApplication.SSOCallback(authDto.SSOCallbackInput{
+		Code:    req.Code,
+		State:   req.State,
+		Context: ctx,
+	})
+	if err != nil {
+		logger.Error().Err(err).Msg("SSO callback failed")
+		return nil, &fiberoapi.ErrorResponse{
+			Code:    fiber.StatusUnauthorized,
+			Details: err.Error(),
+			Type:    "SSO_CALLBACK_FAILED",
+		}
+	}
+	return &dtos.SSOCallbackResponse{Token: out.Token}, nil
+}
+
 //TODO: implement password reset, email verification, ...

@@ -34,6 +34,7 @@ func SetupRouterV1(deps infrastructure.Deps) {
 		UserApplication:     deps.UserApplication,
 		SpaceApplication:    deps.SpaceApplication,
 		FavoriteApplication: deps.FavoriteApplication,
+		OAuthProviderPers:   deps.OAuthProviderPers,
 	}
 	user.SetupUserRouter(userCtrl)
 

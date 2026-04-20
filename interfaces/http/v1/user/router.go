@@ -5,6 +5,7 @@ import (
 	"github.com/labbs/nexo/application/favorite"
 	"github.com/labbs/nexo/application/space"
 	"github.com/labbs/nexo/application/user"
+	"github.com/labbs/nexo/domain"
 	"github.com/labbs/nexo/infrastructure/config"
 	"github.com/rs/zerolog"
 )
@@ -16,6 +17,7 @@ type Controller struct {
 	UserApplication     *user.UserApplication
 	FavoriteApplication *favorite.FavoriteApplication
 	SpaceApplication    *space.SpaceApplication
+	OAuthProviderPers   domain.OAuthProviderPers
 }
 
 func SetupUserRouter(controller Controller) {

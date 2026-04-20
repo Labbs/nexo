@@ -37,4 +37,20 @@ func SetupAuthRouter(controller Controller) {
 		Tags:        []string{"Auth"},
 		Security:    "disabled",
 	})
+
+	fiberoapi.Get(controller.FiberOapi, "/sso/redirect", controller.SSORedirect, fiberoapi.OpenAPIOptions{
+		Summary:     "SSO redirect URL",
+		Description: "Returns the provider authorization URL for SSO login",
+		OperationID: "auth.sso.redirect",
+		Tags:        []string{"Auth"},
+		Security:    "disabled",
+	})
+
+	fiberoapi.Post(controller.FiberOapi, "/sso/callback", controller.SSOCallback, fiberoapi.OpenAPIOptions{
+		Summary:     "SSO callback",
+		Description: "Exchange OAuth2 code for a Nexo session token",
+		OperationID: "auth.sso.callback",
+		Tags:        []string{"Auth"},
+		Security:    "disabled",
+	})
 }

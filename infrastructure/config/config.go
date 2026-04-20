@@ -50,6 +50,21 @@ type Config struct {
 		PasswordComplexity       bool     // Require complex passwords (uppercase, lowercase, numbers, symbols)
 	}
 
+	SSO struct {
+		Enabled      bool
+		ClientID     string
+		ClientSecret string
+		// IssuerURL is the base URL of the OIDC provider. Used to build the userinfo URL
+		// and as a fallback when AuthURL/TokenURL are not set.
+		IssuerURL    string
+		// AuthURL and TokenURL can be set explicitly to override OIDC discovery.
+		// If left empty, they are auto-discovered from IssuerURL + /.well-known/openid-configuration.
+		AuthURL      string
+		TokenURL     string
+		RedirectURL  string
+		Scopes       []string
+	}
+
 	ExportOapi struct {
 		FileName string
 	}
