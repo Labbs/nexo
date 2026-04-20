@@ -2,6 +2,7 @@ package auth
 
 import (
 	"github.com/labbs/nexo/application/ports"
+	"github.com/labbs/nexo/domain"
 	"github.com/labbs/nexo/infrastructure/config"
 	"github.com/rs/zerolog"
 )
@@ -13,6 +14,9 @@ type AuthApplication struct {
 	SessionApplication  ports.SessionPort
 	SpaceApplication    ports.SpacePort
 	DocumentApplication ports.DocumentPort
+	OAuthProviderPers   domain.OAuthProviderPers
+
+	oidcUserinfoEndpoint string // cached from OIDC discovery
 }
 
 func NewAuthApplication(config config.Config, logger zerolog.Logger) *AuthApplication {

@@ -60,6 +60,17 @@ func (ctrl *Controller) GetProfile(ctx *fiber.Ctx, input struct{}) (*dtos.Profil
 		profile.Preferences = map[string]any(result.User.Preferences)
 	}
 
+	// Add linked SSO providers if the repository is wired
+	if ctrl.OAuthProviderPers != nil {
+		if linked, err := ctrl.OAuthProviderPers.FindByUserId(authCtx.UserID); err == nil && len(linked) > 0 {
+			providers := make([]string, len(linked))
+			for i, op := range linked {
+				providers[i] = op.Provider
+			}
+			profile.SsoProviders = providers
+		}
+	}
+
 	return &profile, nil
 }
 

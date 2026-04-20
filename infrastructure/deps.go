@@ -44,6 +44,7 @@ type Deps struct {
 	FavoriteApplication   *favorite.FavoriteApplication
 	PermissionApplication *permission.PermissionApplication
 	PermissionPers        domain.PermissionPers
+	OAuthProviderPers     domain.OAuthProviderPers
 
 	CollaborationHub *collaboration.Hub
 }

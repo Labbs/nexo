@@ -23,3 +23,19 @@ session:
   secret_key: "CHANGE_ME_USE_openssl_rand_base64_48"
   expiration_minutes: 43200  # 30 days
   issuer: nexo
+
+sso:
+  enabled: false
+  # client_id and client_secret from your OIDC provider
+  client_id: ""
+  client_secret: ""
+  # issuer_url: base URL of the OIDC provider (must expose /.well-known/openid-configuration)
+  # Examples:
+  #   Keycloak:  https://keycloak.example.com/realms/myrealm
+  #   Google:    https://accounts.google.com
+  #   Okta:      https://dev-xxxxx.okta.com
+  issuer_url: ""
+  # redirect_url: must match what is registered in the provider
+  redirect_url: "http://localhost:5173/auth/callback"
+  # scopes: additional scopes beyond openid (email and profile are always requested)
+  scopes: []

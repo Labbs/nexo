@@ -57,6 +57,7 @@ func getFlags(cfg *config.Config) (list []cli.Flag) {
 	list = append(list, config.DatabaseFlags(cfg)...)
 	list = append(list, config.SessionFlags(cfg)...)
 	list = append(list, config.RegistrationFlags(cfg)...)
+	list = append(list, config.SSOFlags(cfg)...)
 	return
 }
 
@@ -95,6 +96,7 @@ func runServer(cfg config.Config) error {
 
 	// Initialize application services
 	userPers := persistence.NewUserPers(deps.Database.Db)
+	oauthProviderPers := persistence.NewOAuthProviderPers(deps.Database.Db)
 	groupPers := persistence.NewGroupPers(deps.Database.Db)
 	sessionPers := persistence.NewSessionPers(deps.Database.Db)
 	spacePers := persistence.NewSpacePers(deps.Database.Db)
@@ -127,12 +129,14 @@ func runServer(cfg config.Config) error {
 	deps.FavoriteApplication = favorite.NewFavoriteApplication(deps.Config, deps.Logger, favoritePers)
 	deps.PermissionApplication = permission.NewPermissionApplication(deps.Config, deps.Logger, permissionPers)
 	deps.PermissionPers = permissionPers
+	deps.OAuthProviderPers = oauthProviderPers
 
 	// Inject port dependencies (after construction to avoid circular dependencies)
 	deps.AuthApplication.UserApplication = deps.UserApplication
 	deps.AuthApplication.SessionApplication = deps.SessionApplication
 	deps.AuthApplication.SpaceApplication = deps.SpaceApplication
 	deps.AuthApplication.DocumentApplication = deps.DocumentApplication
+	deps.AuthApplication.OAuthProviderPers = oauthProviderPers
 	deps.UserApplication.GroupApplication = deps.GroupApplication
 	deps.FavoriteApplication.DocumentApplication = deps.DocumentApplication
 	deps.SpaceApplication.DocumentApplication = deps.DocumentApplication
