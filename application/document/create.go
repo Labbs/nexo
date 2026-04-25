@@ -42,12 +42,36 @@ func (a *DocumentApplication) CreateDocument(input dto.CreateDocumentInput) (*dt
 		}
 	}
 
+	name := input.Name
+	content := dto.BlocksToJSON(input.Content)
+	var config domain.DocumentConfig
+
+	// Clone content/name/config from template when requested
+	if input.TemplateId != nil {
+		tmpl, err := a.DocumentPers.GetDocumentWithPermissions(*input.TemplateId, input.UserId)
+		if err != nil {
+			logger.Error().Err(err).Str("template_id", *input.TemplateId).Msg("failed to get template document")
+			return nil, fmt.Errorf("failed to get template: %w", err)
+		}
+		if name == "" || name == "New Document" {
+			name = tmpl.Name
+		}
+		content = tmpl.Content
+		config = domain.DocumentConfig{
+			FullWidth:        tmpl.Config.FullWidth,
+			Icon:             tmpl.Config.Icon,
+			HeaderBackground: tmpl.Config.HeaderBackground,
+			// Lock is intentionally not cloned — the new doc starts unlocked
+		}
+	}
+
 	document := &domain.Document{
 		Id:       utils.UUIDv4(),
-		Name:     input.Name,
-		Slug:     slug.Make(input.Name + "-" + shortuuid.GenerateShortUUID()),
+		Name:     name,
+		Slug:     slug.Make(name + "-" + shortuuid.GenerateShortUUID()),
 		SpaceId:  input.SpaceId,
-		Content:  dto.BlocksToJSON(input.Content),
+		Content:  content,
+		Config:   config,
 		ParentId: input.ParentId,
 		Public:   false,
 	}

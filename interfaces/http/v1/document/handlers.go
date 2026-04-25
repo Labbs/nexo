@@ -212,11 +212,12 @@ func (ctrl *Controller) CreateDocument(ctx *fiber.Ctx, req dtos.CreateDocumentRe
 	}
 
 	result, err := ctrl.DocumentApplication.CreateDocument(docDto.CreateDocumentInput{
-		Name:     "New Document",
-		UserId:   authCtx.UserID,
-		SpaceId:  req.SpaceId,
-		Content:  []docDto.Block{},
-		ParentId: req.ParentId,
+		Name:       "New Document",
+		UserId:     authCtx.UserID,
+		SpaceId:    req.SpaceId,
+		Content:    []docDto.Block{},
+		ParentId:   req.ParentId,
+		TemplateId: req.TemplateId,
 	})
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to create document")
@@ -1124,4 +1125,93 @@ func convertToHttpBlocks(blocks []docDto.Block) []dtos.Block {
 		}
 	}
 	return result
+}
+
+func (ctrl *Controller) ListTemplates(ctx *fiber.Ctx, req dtos.ListTemplatesRequest) (*dtos.ListTemplatesResponse, *fiberoapi.ErrorResponse) {
+	requestId := ctx.Locals("requestid").(string)
+	logger := ctrl.Logger.With().Str("request_id", requestId).Str("component", "http.api.v1.document.list_templates").Logger()
+
+	authCtx, err := fiberoapi.GetAuthContext(ctx)
+	if err != nil {
+		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
+	}
+
+	var spaceIds []string
+	if req.SpaceId != "" {
+		spaceIds = []string{req.SpaceId}
+	}
+
+	result, err := ctrl.DocumentApplication.ListTemplates(docDto.ListTemplatesInput{
+		UserId:   authCtx.UserID,
+		SpaceIds: spaceIds,
+	})
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to list templates")
+		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusInternalServerError, Details: "Failed to list templates", Type: "INTERNAL_SERVER_ERROR"}
+	}
+
+	items := make([]dtos.TemplateItem, len(result.Templates))
+	for i, doc := range result.Templates {
+		items[i] = dtos.TemplateItem{
+			Id:               doc.Id,
+			Name:             doc.Name,
+			Slug:             doc.Slug,
+			TemplateCategory: doc.TemplateCategory,
+			Config: dtos.DocumentConfig{
+				FullWidth:        doc.Config.FullWidth,
+				Icon:             doc.Config.Icon,
+				Lock:             doc.Config.Lock,
+				HeaderBackground: doc.Config.HeaderBackground,
+			},
+			SpaceId:   doc.SpaceId,
+			SpaceName: doc.Space.Name,
+		}
+	}
+
+	return &dtos.ListTemplatesResponse{Templates: items}, nil
+}
+
+func (ctrl *Controller) ToggleTemplate(ctx *fiber.Ctx, req dtos.ToggleTemplateRequest) (*dtos.ToggleTemplateResponse, *fiberoapi.ErrorResponse) {
+	requestId := ctx.Locals("requestid").(string)
+	logger := ctrl.Logger.With().Str("request_id", requestId).Str("component", "http.api.v1.document.toggle_template").Logger()
+
+	authCtx, err := fiberoapi.GetAuthContext(ctx)
+	if err != nil {
+		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusUnauthorized, Details: "Authentication required", Type: "AUTHENTICATION_REQUIRED"}
+	}
+
+	result, err := ctrl.DocumentApplication.ToggleTemplate(docDto.ToggleTemplateInput{
+		DocumentId: req.DocumentId,
+		SpaceId:    req.SpaceId,
+		UserId:     authCtx.UserID,
+		IsTemplate: req.IsTemplate,
+		Category:   req.Category,
+	})
+	if err != nil {
+		logger.Error().Err(err).Str("document_id", req.DocumentId).Msg("failed to toggle template")
+		if errors.Is(err, apperrors.ErrAccessDenied) {
+			return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusForbidden, Details: "Access denied", Type: "ACCESS_DENIED"}
+		}
+		return nil, &fiberoapi.ErrorResponse{Code: fiber.StatusInternalServerError, Details: "Failed to update template", Type: "INTERNAL_SERVER_ERROR"}
+	}
+
+	doc := result.Document
+	resp := &dtos.ToggleTemplateResponse{}
+	resp.Id = doc.Id
+	resp.Name = doc.Name
+	resp.Slug = doc.Slug
+	resp.SpaceId = doc.SpaceId
+	resp.IsTemplate = doc.IsTemplate
+	resp.TemplateCategory = doc.TemplateCategory
+	resp.Config = dtos.DocumentConfig{
+		FullWidth:        doc.Config.FullWidth,
+		Icon:             doc.Config.Icon,
+		Lock:             doc.Config.Lock,
+		HeaderBackground: doc.Config.HeaderBackground,
+	}
+	resp.Metadata = map[string]any{}
+	resp.Content = []dtos.Block{}
+	resp.CreatedAt = doc.CreatedAt
+	resp.UpdatedAt = doc.UpdatedAt
+	return resp, nil
 }

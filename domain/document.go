@@ -30,6 +30,9 @@ type Document struct {
 
 	Content datatypes.JSON
 
+	IsTemplate       bool
+	TemplateCategory string
+
 	Position int
 
 	CreatedAt time.Time
@@ -145,6 +148,9 @@ type DocumentPers interface {
 	// Reorder
 	Reorder(spaceId string, items []ReorderItem, userId string) error
 	GetMaxPosition(spaceId string, parentId *string) (int, error)
+	// Templates
+	ListTemplates(spaceIds []string, userId string) ([]Document, error)
+	SetTemplate(documentId string, isTemplate bool, category string, userId string) error
 }
 
 // ReorderItem represents a single item in a reorder request

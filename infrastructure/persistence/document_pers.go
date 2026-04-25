@@ -484,6 +484,47 @@ func (p *documentPers) Reorder(spaceId string, items []domain.ReorderItem, userI
 	})
 }
 
+func (p *documentPers) ListTemplates(spaceIds []string, userId string) ([]domain.Document, error) {
+	if len(spaceIds) == 0 {
+		return nil, nil
+	}
+	var docs []domain.Document
+	err := p.db.
+		Preload("Space", func(db *gorm.DB) *gorm.DB {
+			return db.Preload("Owner").
+				Preload("Permissions", "user_id = ? AND deleted_at IS NULL", userId)
+		}).
+		Preload("Permissions", "user_id = ? AND deleted_at IS NULL", userId).
+		Where("space_id IN ? AND is_template = ? AND deleted_at IS NULL", spaceIds, true).
+		Order("template_category ASC, name ASC").
+		Find(&docs).Error
+	if err != nil {
+		return nil, err
+	}
+	// Filter to documents the user can at least view
+	accessible := make([]domain.Document, 0, len(docs))
+	for _, doc := range docs {
+		if doc.HasPermission(userId, domain.PermissionRoleViewer) {
+			accessible = append(accessible, doc)
+		}
+	}
+	return accessible, nil
+}
+
+func (p *documentPers) SetTemplate(documentId string, isTemplate bool, category string, userId string) error {
+	doc, err := p.GetDocumentWithPermissions(documentId, userId)
+	if err != nil {
+		return err
+	}
+	if !doc.HasPermission(userId, domain.PermissionRoleEditor) {
+		return apperrors.ErrAccessDenied
+	}
+	return p.db.Model(&domain.Document{}).Where("id = ?", documentId).Updates(map[string]any{
+		"is_template":       isTemplate,
+		"template_category": category,
+	}).Error
+}
+
 func (p *documentPers) GetMaxPosition(spaceId string, parentId *string) (int, error) {
 	var maxPos int
 	query := p.db.Model(&domain.Document{}).

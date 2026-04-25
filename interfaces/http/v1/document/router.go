@@ -19,6 +19,20 @@ type Controller struct {
 }
 
 func SetupDocumentRouter(controller Controller) {
+	// Templates
+	fiberoapi.Get(controller.FiberOapi, "/templates", controller.ListTemplates, fiberoapi.OpenAPIOptions{
+		Summary:     "List templates",
+		Description: "List all templates accessible to the authenticated user, optionally filtered by space",
+		OperationID: "document.listTemplates",
+		Tags:        []string{"Document", "Templates"},
+	})
+	fiberoapi.Patch(controller.FiberOapi, "/space/:space_id/:document_id/template", controller.ToggleTemplate, fiberoapi.OpenAPIOptions{
+		Summary:     "Toggle template",
+		Description: "Mark or unmark a document as a template",
+		OperationID: "document.toggleTemplate",
+		Tags:        []string{"Document", "Templates"},
+	})
+
 	// Search - must be before parameterized routes
 	fiberoapi.Get(controller.FiberOapi, "/search", controller.SearchDocuments, fiberoapi.OpenAPIOptions{
 		Summary:     "Search documents",
